@@ -25,7 +25,7 @@ package com.blackducksoftware.integration.jira.workflow;
 
 import com.synopsys.integration.util.Stringable;
 
-public class JiraVersion extends Stringable {
+public class JiraVersion extends Stringable implements Comparable<JiraVersion> {
     private final String name;
     private final int major;
     private final int minor;
@@ -49,4 +49,13 @@ public class JiraVersion extends Stringable {
         return minor;
     }
 
+    @Override
+    public int compareTo(final JiraVersion jiraVersion) {
+        final int majorCompare = Integer.compare(getMajor(), jiraVersion.getMajor());
+        if (majorCompare != 0) {
+            return majorCompare;
+        }
+
+        return Integer.compare(getMinor(), jiraVersion.getMinor());
+    }
 }

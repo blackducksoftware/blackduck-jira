@@ -30,7 +30,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-public class IdToNameMapping implements Serializable {
+public class IdToNameMapping implements Serializable, Comparable<IdToNameMapping> {
     private static final long serialVersionUID = -6879420109287472484L;
 
     @XmlElement
@@ -54,6 +54,19 @@ public class IdToNameMapping implements Serializable {
 
     public String getName() {
         return name;
+    }
+
+    @Override
+    public int compareTo(final IdToNameMapping idToNameMapping) {
+        if ((idToNameMapping == null) || (idToNameMapping.getName() == null)) {
+            return 1;
+        }
+
+        if (getName() == null) {
+            return -1;
+        }
+
+        return getName().compareTo(idToNameMapping.getName());
     }
 
     @Override

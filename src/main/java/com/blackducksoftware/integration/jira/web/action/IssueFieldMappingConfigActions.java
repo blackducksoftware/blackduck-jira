@@ -41,7 +41,6 @@ import com.blackducksoftware.integration.jira.data.accessor.GlobalConfigurationA
 import com.blackducksoftware.integration.jira.data.accessor.JiraSettingsAccessor;
 import com.blackducksoftware.integration.jira.issue.model.PluginIssueFieldConfigModel;
 import com.blackducksoftware.integration.jira.issue.ui.JiraFieldUtils;
-import com.blackducksoftware.integration.jira.web.IdToNameMappingByNameComparator;
 import com.blackducksoftware.integration.jira.web.JiraConfigErrorStrings;
 import com.blackducksoftware.integration.jira.web.model.BlackDuckJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.web.model.Fields;
@@ -76,7 +75,7 @@ public class IssueFieldMappingConfigActions {
         txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN.getLongNameProperty())));
         txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN_ID.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN_ID.getLongNameProperty())));
         txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME.getLongNameProperty())));
-        Collections.sort(txSourceFields.getIdToNameMappings(), new IdToNameMappingByNameComparator());
+        Collections.sort(txSourceFields.getIdToNameMappings());
         logger.debug("sourceFields: " + txSourceFields);
         return txSourceFields;
     }
@@ -90,7 +89,7 @@ public class IssueFieldMappingConfigActions {
             txTargetFields.setErrorMessage("Error getting target field list: " + e.getMessage());
             return txTargetFields;
         }
-        Collections.sort(txTargetFields.getIdToNameMappings(), new IdToNameMappingByNameComparator());
+        Collections.sort(txTargetFields.getIdToNameMappings());
         logger.debug("targetFields: " + txTargetFields);
         return txTargetFields;
     }

@@ -54,29 +54,24 @@ public class JiraVersionCheck {
         return supported;
     }
 
-    public String getMostRecentJiraVersionSupportedString() {
-        return maxJiraVersion.getName();
-    }
-
     public JiraVersionCheck(final BuildUtilsInfo currentJiraVersionInfo) throws ConfigurationException {
         final int[] jiraVersionNumberComponents = currentJiraVersionInfo.getVersionNumbers();
         final int jiraVersionMajor = getVersionComponent(jiraVersionNumberComponents, 0);
         final int jiraVersionMinor = getVersionComponent(jiraVersionNumberComponents, 1);
         currentJiraVersion = new JiraVersion(currentJiraVersionInfo.getVersion(), jiraVersionMajor, jiraVersionMinor);
 
-        final JiraVersionComparator comparator = new JiraVersionComparator();
-        if (comparator.compare(currentJiraVersion, minJiraVersion) >= 0) {
-            if (comparator.compare(currentJiraVersion, maxJiraVersion) > 0) {
-                logger.warn("This version of JIRA (" + currentJiraVersion.getName() + ") is not supported. Attempting to proceed as if it were JIRA version " + maxJiraVersion.getName());
-                supported = false;
-            } else {
-                logger.debug(String.format("This version of JIRA (%s) is supported.", currentJiraVersion.getName()));
-                supported = true;
-            }
-        } else {
+        if (currentJiraVersion.compareTo(minJiraVersion) < 0) {
             final String msg = "This version of JIRA (" + currentJiraVersion.getName() + ") is not supported.";
             logger.error(msg);
             throw new ConfigurationException(msg);
+        }
+
+        if (currentJiraVersion.compareTo(maxJiraVersion) > 0) {
+            logger.warn("This version of JIRA (" + currentJiraVersion.getName() + ") is not supported. Attempting to proceed as if it were JIRA version " + maxJiraVersion.getName());
+            supported = false;
+        } else {
+            logger.debug(String.format("This version of JIRA (%s) is supported.", currentJiraVersion.getName()));
+            supported = true;
         }
     }
 
