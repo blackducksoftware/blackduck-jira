@@ -32,12 +32,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import com.blackducksoftware.integration.jira.blackduck.BlackDuckDataHelper;
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.data.accessor.JiraSettingsAccessor;
 import com.blackducksoftware.integration.jira.data.accessor.PluginErrorAccessor;
@@ -106,7 +104,6 @@ public class BomNotificationToIssueModelConverterTest {
 
     private BomNotificationToIssueModelConverter createMockBomNotificationToIssueModelConverter(final Set<BlackDuckProjectMapping> mappings, final List<String> linksOfRulesToMonitor,
         final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig) throws IntegrationException {
-        final BlackDuckJiraLogger blackDuckJiraLogger = new BlackDuckJiraLogger(Logger.getLogger(BomNotificationToIssueModelConverterTest.class));
         final PluginSettingsMock pluginSettingsMock = new PluginSettingsMock();
 
         final JiraServices jiraServices = createMockJiraServices();
@@ -117,8 +114,7 @@ public class BomNotificationToIssueModelConverterTest {
         final DataFormatHelper dataFormatHelper = new DataFormatHelper(blackDuckDataHelper);
         final TicketCriteriaConfigModel ticketCriteriaConfig = new TicketCriteriaConfigModel(GSON.toJson(linksOfRulesToMonitor), true, true);
 
-        return new BomNotificationToIssueModelConverter(jiraServices, jiraUserContext, pluginErrorAccessor, blackDuckProjectMappings, fieldCopyConfig, dataFormatHelper, linksOfRulesToMonitor, blackDuckDataHelper,
-            blackDuckJiraLogger, ticketCriteriaConfig);
+        return new BomNotificationToIssueModelConverter(jiraServices, jiraUserContext, pluginErrorAccessor, blackDuckProjectMappings, fieldCopyConfig, dataFormatHelper, linksOfRulesToMonitor, blackDuckDataHelper, ticketCriteriaConfig);
     }
 
     private JiraServices createMockJiraServices() {

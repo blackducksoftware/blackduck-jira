@@ -23,11 +23,11 @@
  */
 package com.blackducksoftware.integration.jira.workflow;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.atlassian.jira.util.BuildUtilsInfo;
 import com.atlassian.jira.util.BuildUtilsInfoImpl;
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 
 /**
@@ -39,7 +39,7 @@ import com.blackducksoftware.integration.jira.common.exception.ConfigurationExce
  * @author sbillings
  */
 public class JiraVersionCheck {
-    private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
+    private final Logger logger = LoggerFactory.getLogger(getClass());
     private final JiraVersion minJiraVersion = new JiraVersion("7.4", 7, 4);
     private final JiraVersion maxJiraVersion = new JiraVersion("7.13", 7, 13);
     private final JiraVersion currentJiraVersion;

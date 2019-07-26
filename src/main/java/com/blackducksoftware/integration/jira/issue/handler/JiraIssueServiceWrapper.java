@@ -28,7 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.bc.issue.IssueService.CreateValidationResult;
@@ -53,7 +54,6 @@ import com.atlassian.jira.web.bean.PagerFilter;
 import com.atlassian.jira.workflow.JiraWorkflow;
 import com.atlassian.jira.workflow.WorkflowManager;
 import com.atlassian.query.Query;
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.exception.JiraIssueException;
 import com.blackducksoftware.integration.jira.common.model.PluginField;
@@ -65,7 +65,7 @@ import com.blackducksoftware.integration.jira.web.JiraServices;
 import com.google.gson.Gson;
 
 public class JiraIssueServiceWrapper {
-    private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final IssueService jiraIssueService;
     private final IssueManager jiraIssueManager;

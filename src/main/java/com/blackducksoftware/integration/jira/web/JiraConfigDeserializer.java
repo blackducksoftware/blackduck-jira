@@ -23,9 +23,9 @@
  */
 package com.blackducksoftware.integration.jira.web;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.issue.model.PluginIssueCreationConfigModel;
 import com.blackducksoftware.integration.jira.issue.model.ProjectMappingConfigModel;
 import com.blackducksoftware.integration.jira.issue.model.TicketCriteriaConfigModel;
@@ -33,7 +33,7 @@ import com.blackducksoftware.integration.jira.web.model.BlackDuckJiraConfigSeria
 import com.blackducksoftware.integration.jira.web.model.BlackDuckJiraFieldCopyConfigSerializable;
 
 public class JiraConfigDeserializer {
-    private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     public BlackDuckJiraConfigSerializable deserializeConfig(final PluginIssueCreationConfigModel issueCreationConfig) {
         final ProjectMappingConfigModel projectMapping = issueCreationConfig.getProjectMapping();

@@ -39,11 +39,11 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectManager;
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.BlackDuckPluginDateFormatter;
 import com.blackducksoftware.integration.jira.common.BlackDuckWorkflowStatus;
 import com.blackducksoftware.integration.jira.common.WorkflowHelper;
@@ -66,7 +66,8 @@ import com.blackducksoftware.integration.jira.web.model.JiraProject;
 import com.blackducksoftware.integration.jira.web.model.ProjectPatternRestModel;
 
 public class IssueCreationConfigActions {
-    private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
     private final PluginConfigurationAccessor pluginConfigurationAccessor;
     private final GlobalConfigurationAccessor globalConfigurationAccessor;
     private final PluginErrorAccessor pluginErrorAccessor;
@@ -224,7 +225,7 @@ public class IssueCreationConfigActions {
         if (null != assignmentThread && assignmentThread.isAlive()) {
             assignmentThread.interrupt();
         }
-        assignmentThread = new UserAssignThread("userAssignmentThread", logger, globalConfigurationAccessor, pluginErrorAccessor);
+        assignmentThread = new UserAssignThread("userAssignmentThread", globalConfigurationAccessor, pluginErrorAccessor);
         assignmentThread.start();
     }
 

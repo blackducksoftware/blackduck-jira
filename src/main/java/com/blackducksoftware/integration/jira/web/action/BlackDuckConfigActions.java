@@ -29,10 +29,10 @@ import java.util.Objects;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.blackducksoftware.integration.jira.blackduck.BlackDuckConnectionHelper;
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.model.PluginBlackDuckServerConfigModel;
 import com.blackducksoftware.integration.jira.data.accessor.GlobalConfigurationAccessor;
 import com.blackducksoftware.integration.jira.data.accessor.JiraSettingsAccessor;
@@ -51,11 +51,13 @@ import com.synopsys.integration.blackduck.exception.BlackDuckIntegrationExceptio
 import com.synopsys.integration.blackduck.service.BlackDuckService;
 import com.synopsys.integration.blackduck.service.BlackDuckServicesFactory;
 import com.synopsys.integration.exception.IntegrationException;
+import com.synopsys.integration.log.IntLogger;
+import com.synopsys.integration.log.Slf4jIntLogger;
 import com.synopsys.integration.rest.RestConstants;
 import com.synopsys.integration.rest.exception.IntegrationRestException;
 
 public class BlackDuckConfigActions {
-    private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final GlobalConfigurationAccessor globalConfigurationAccessor;
     private final BlackDuckConnectionHelper blackDuckConnectionHelper;
@@ -131,9 +133,10 @@ public class BlackDuckConfigActions {
         if (newConfig.hasErrors()) {
             return newConfig;
         } else {
+            IntLogger intLogger = new Slf4jIntLogger(logger);
             newConfig = getUnMaskedConfig(newConfig);
             final BlackDuckServerConfigBuilder serverConfigBuilder = new BlackDuckServerConfigBuilder();
-            serverConfigBuilder.setLogger(logger);
+            serverConfigBuilder.setLogger(intLogger);
             serverConfigBuilder.setUrl(newConfig.getHubUrl());
             serverConfigBuilder.setTimeoutInSeconds(newConfig.getTimeout());
             serverConfigBuilder.setApiToken(newConfig.getApiToken());
@@ -148,7 +151,7 @@ public class BlackDuckConfigActions {
             try {
                 serverConfig = serverConfigBuilder.build();
 
-                final ConnectionResult connectionResult = serverConfig.attemptConnection(logger);
+                final ConnectionResult connectionResult = serverConfig.attemptConnection(intLogger);
                 if (connectionResult.isFailure()) {
                     if (RestConstants.UNAUTHORIZED_401 == connectionResult.getHttpStatusCode()) {
                         newConfig.setApiTokenError(String.format("Invalid credential(s) for: %s.", newConfig.getHubUrl()));

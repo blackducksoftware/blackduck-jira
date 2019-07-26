@@ -33,14 +33,14 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.web.TicketCreationError;
 
 public class PluginErrorAccessor {
-    private static final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(PluginErrorAccessor.class.getName()));
+    private static final Logger logger = LoggerFactory.getLogger(PluginErrorAccessor.class);
 
     private final JiraSettingsAccessor jiraSettingsAccessor;
 

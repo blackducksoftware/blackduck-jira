@@ -23,13 +23,13 @@
  */
 package com.blackducksoftware.integration.jira.task;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.scheduler.JobRunner;
 import com.atlassian.scheduler.JobRunnerRequest;
 import com.atlassian.scheduler.JobRunnerResponse;
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.data.accessor.JiraSettingsAccessor;
 import com.blackducksoftware.integration.jira.task.thread.PluginExecutorService;
 import com.blackducksoftware.integration.jira.web.BlackDuckPluginVersion;
@@ -38,7 +38,7 @@ import com.blackducksoftware.integration.jira.web.JiraServices;
 public class BlackDuckJobRunner implements JobRunner {
     public static final String HUMAN_READABLE_TASK_NAME = "Black Duck notification check task";
 
-    private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
+    private final Logger logger = LoggerFactory.getLogger(getClass());
     private final JiraSettingsAccessor jiraSettingsAccessor;
     private final PluginExecutorService executorService;
 
@@ -52,7 +52,7 @@ public class BlackDuckJobRunner implements JobRunner {
         final JiraTaskTimed jiraTaskTimed = new JiraTaskTimed(jiraSettingsAccessor, new JiraServices());
 
         logger.info("blackduck-jira plugin version: " + BlackDuckPluginVersion.getVersion());
-        final BlackDuckJobRunnerUtil blackDuckJobRunnerUtil = new BlackDuckJobRunnerUtil(logger, executorService, "periodic");
+        final BlackDuckJobRunnerUtil blackDuckJobRunnerUtil = new BlackDuckJobRunnerUtil(executorService, "periodic");
         return blackDuckJobRunnerUtil.runJob(request, jiraTaskTimed);
     }
 

@@ -29,12 +29,12 @@ import java.util.Collections;
 import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.atlassian.core.util.ClassLoaderUtils;
 import com.atlassian.jira.issue.fields.FieldManager;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.exception.JiraException;
 import com.blackducksoftware.integration.jira.common.model.PluginField;
 import com.blackducksoftware.integration.jira.data.accessor.GlobalConfigurationAccessor;
@@ -48,7 +48,7 @@ import com.blackducksoftware.integration.jira.web.model.IdToNameMapping;
 import com.blackducksoftware.integration.jira.web.model.ProjectFieldCopyMapping;
 
 public class IssueFieldMappingConfigActions {
-    private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
+    private final Logger logger = LoggerFactory.getLogger(getClass());
     private final GlobalConfigurationAccessor globalConfigurationAccessor;
     private final Properties i18nProperties;
     private final FieldManager fieldManager;
@@ -83,7 +83,7 @@ public class IssueFieldMappingConfigActions {
     public Fields getTargetFields() {
         Fields txTargetFields;
         try {
-            txTargetFields = JiraFieldUtils.getTargetFields(logger, fieldManager);
+            txTargetFields = JiraFieldUtils.getTargetFields(fieldManager);
         } catch (final JiraException e) {
             txTargetFields = new Fields();
             txTargetFields.setErrorMessage("Error getting target field list: " + e.getMessage());

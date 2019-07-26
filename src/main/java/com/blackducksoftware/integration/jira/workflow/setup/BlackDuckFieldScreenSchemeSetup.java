@@ -31,8 +31,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
 
-import org.apache.log4j.Logger;
 import org.ofbiz.core.entity.GenericEntityException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.atlassian.jira.issue.context.GlobalIssueContext;
 import com.atlassian.jira.issue.context.JiraContextNode;
@@ -55,13 +56,12 @@ import com.atlassian.jira.issue.operation.IssueOperations;
 import com.atlassian.jira.issue.operation.ScreenableIssueOperation;
 import com.atlassian.jira.web.action.admin.customfields.CreateCustomField;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.model.PluginField;
 import com.blackducksoftware.integration.jira.data.accessor.PluginErrorAccessor;
 import com.blackducksoftware.integration.jira.web.JiraServices;
 
 public class BlackDuckFieldScreenSchemeSetup {
-    private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final PluginErrorAccessor pluginErrorAccessor;
     private final JiraServices jiraServices;
@@ -99,7 +99,7 @@ public class BlackDuckFieldScreenSchemeSetup {
                 }
             }
         } catch (final Exception e) {
-            logger.error(e);
+            logger.error("An error occurred while creating the screen scheme.", e);
             pluginErrorAccessor.addBlackDuckError(e, "addBlackDuckFieldConfigurationToJira");
         }
         return fieldScreenSchemes;

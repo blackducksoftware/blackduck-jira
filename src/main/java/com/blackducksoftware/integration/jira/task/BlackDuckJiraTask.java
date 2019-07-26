@@ -36,13 +36,13 @@ import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.atlassian.jira.cluster.ClusterManager;
 import com.atlassian.jira.issue.fields.CustomField;
 import com.atlassian.jira.util.BuildUtilsInfoImpl;
 import com.blackducksoftware.integration.jira.blackduck.BlackDuckConnectionHelper;
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.BlackDuckPluginDateFormatter;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.model.PluginBlackDuckServerConfigModel;
@@ -69,7 +69,7 @@ import com.synopsys.integration.blackduck.service.NotificationService;
 import com.synopsys.integration.exception.IntegrationException;
 
 public class BlackDuckJiraTask {
-    private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final GlobalConfigurationAccessor globalConfigurationAccessor;
     private final PluginConfigurationAccessor pluginConfigurationAccessor;
@@ -172,7 +172,7 @@ public class BlackDuckJiraTask {
     }
 
     private void phoneHome(final BlackDuckServicesFactory blackDuckServicesFactory) {
-        final LocalDate lastPhoneHome = pluginConfigurationAccessor.getLastPhoneHome(logger);
+        final LocalDate lastPhoneHome = pluginConfigurationAccessor.getLastPhoneHome();
         if (LocalDate.now().isAfter(lastPhoneHome)) {
             final Map<String, String> phoneHomeMetaData = new HashMap<>();
             final ClusterManager clusterManager = jiraServices.getClusterManager();

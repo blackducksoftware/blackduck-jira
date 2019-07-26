@@ -28,8 +28,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import org.ofbiz.core.entity.GenericValue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.atlassian.jira.config.ConstantsManager;
 import com.atlassian.jira.exception.CreateException;
@@ -47,14 +48,13 @@ import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.user.ApplicationUser;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.common.exception.JiraException;
 import com.blackducksoftware.integration.jira.data.accessor.PluginErrorAccessor;
 import com.blackducksoftware.integration.jira.web.JiraServices;
 
 public class BlackDuckIssueTypeSetup {
-    private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final JiraServices jiraServices;
     private final PluginErrorAccessor pluginErrorAccessor;
@@ -91,7 +91,7 @@ public class BlackDuckIssueTypeSetup {
             addBdsIssueType(bdIssueTypes, existingBdIssueTypeNames, BlackDuckJiraConstants.BLACKDUCK_SECURITY_POLICY_VIOLATION_ISSUE);
             addBdsIssueType(bdIssueTypes, existingBdIssueTypeNames, BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE);
         } catch (final Exception e) {
-            logger.error(e);
+            logger.error("Error occurred while collecting issue types.", e);
             pluginErrorAccessor.addBlackDuckError(e, "addIssueTypesToJira()");
         }
 
@@ -161,7 +161,7 @@ public class BlackDuckIssueTypeSetup {
                 logger.debug("Issue Type Scheme " + issueTypeScheme.getName() + " already included Black Duck Issue Types");
             }
         } catch (final Exception e) {
-            logger.error(e);
+            logger.error("Error occurred while getting issue types.", e);
             String jiraProjectName = null;
             if (jiraProject != null) {
                 jiraProjectName = jiraProject.getName();

@@ -36,6 +36,8 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.atlassian.jira.bc.user.search.UserSearchService;
 import com.atlassian.jira.issue.issuetype.IssueType;
@@ -45,7 +47,6 @@ import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.user.util.UserManager;
 import com.blackducksoftware.integration.jira.blackduck.BlackDuckDataHelper;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.data.accessor.PluginErrorAccessor;
@@ -81,7 +82,8 @@ import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.rest.exception.IntegrationRestException;
 
 public class BomNotificationToIssueModelConverter {
-    private final BlackDuckJiraLogger logger;
+    private final Logger logger = LoggerFactory.getLogger(BomNotificationToIssueModelConverter.class);
+
     private final JiraServices jiraServices;
     private final JiraUserContext jiraUserContext;
     private final PluginErrorAccessor pluginErrorAccessor;
@@ -93,7 +95,7 @@ public class BomNotificationToIssueModelConverter {
     private final TicketCriteriaConfigModel ticketCriteria;
 
     public BomNotificationToIssueModelConverter(final JiraServices jiraServices, final JiraUserContext jiraUserContext, final PluginErrorAccessor pluginErrorAccessor, final BlackDuckProjectMappings blackDuckProjectMappings,
-        final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig, final DataFormatHelper dataFormatHelper, final List<String> linksOfRulesToMonitor, final BlackDuckDataHelper blackDuckDataHelper, final BlackDuckJiraLogger logger,
+        final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig, final DataFormatHelper dataFormatHelper, final List<String> linksOfRulesToMonitor, final BlackDuckDataHelper blackDuckDataHelper,
         final TicketCriteriaConfigModel ticketCriteria) {
         this.jiraServices = jiraServices;
         this.jiraUserContext = jiraUserContext;
@@ -103,7 +105,6 @@ public class BomNotificationToIssueModelConverter {
         this.dataFormatHelper = dataFormatHelper;
         this.linksOfRulesToMonitor = linksOfRulesToMonitor;
         this.blackDuckDataHelper = blackDuckDataHelper;
-        this.logger = logger;
         this.ticketCriteria = ticketCriteria;
     }
 
@@ -123,7 +124,7 @@ public class BomNotificationToIssueModelConverter {
                     issueWrappers.addAll(createModelsFor404(restException, detail, batchStartDate));
                 }
             } catch (final Exception e) {
-                logger.error(e);
+                logger.error("An error occurred while converting from notifications to models.", e);
                 pluginErrorAccessor.addBlackDuckError(e.getMessage(), "convertToModel");
             }
         }
@@ -147,7 +148,7 @@ public class BomNotificationToIssueModelConverter {
                 final Collection<BlackDuckIssueModel> createdIssueWrappers = populateModelFromContentDetail(jiraProject, projectVersionWrapper, notificationType, detail, notificationContent, batchStartDate);
                 issueWrapperList.addAll(createdIssueWrappers);
             } catch (final Exception e) {
-                logger.error(e);
+                logger.error("An error occurred while converting from notifications to models", e);
                 pluginErrorAccessor.addBlackDuckError(e, blackDuckProjectName, detail.getProjectVersionName().orElse("?"), jiraProject.getProjectName(), jiraUserContext.getJiraAdminUser().getName(),
                     jiraUserContext.getDefaultJiraIssueCreatorUser().getName(), "createEventDataFromContentDetail");
             }

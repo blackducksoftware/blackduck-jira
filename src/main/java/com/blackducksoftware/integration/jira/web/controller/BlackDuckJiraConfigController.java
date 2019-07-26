@@ -42,7 +42,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.atlassian.jira.bc.group.search.GroupPickerSearchService;
 import com.atlassian.jira.issue.fields.FieldManager;
@@ -51,7 +52,6 @@ import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.BlackDuckPluginDateFormatter;
 import com.blackducksoftware.integration.jira.data.accessor.PluginConfigurationAccessor;
 import com.blackducksoftware.integration.jira.task.BlackDuckMonitor;
@@ -62,7 +62,7 @@ import com.blackducksoftware.integration.jira.web.model.TicketCreationErrorSeria
 @Path("/")
 public class BlackDuckJiraConfigController extends ConfigController {
     // This must be "package protected" to avoid synthetic access
-    final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     // These must be "package protected" to avoid synthetic access
     final ProjectManager projectManager;

@@ -29,10 +29,11 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.blackducksoftware.integration.jira.blackduck.BlackDuckAssignUtil;
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.BlackDuckPluginDateFormatter;
 import com.blackducksoftware.integration.jira.data.PluginConfigKeys;
 import com.blackducksoftware.integration.jira.data.accessor.GlobalConfigurationAccessor;
@@ -45,7 +46,7 @@ import com.blackducksoftware.integration.jira.web.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.web.model.JiraProject;
 
 public class UpgradeSteps {
-    private final BlackDuckJiraLogger logger;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
     private final JiraSettingsAccessor jiraSettingsAccessor;
 
     public static String getInstallDateString(final PluginSettings pluginSettings) {
@@ -60,8 +61,7 @@ public class UpgradeSteps {
         return pluginDateFormatter.format(new Date());
     }
 
-    public UpgradeSteps(final BlackDuckJiraLogger logger, final PluginSettings pluginSettings) {
-        this.logger = logger;
+    public UpgradeSteps(final PluginSettings pluginSettings) {
         this.jiraSettingsAccessor = new JiraSettingsAccessor(pluginSettings);
     }
 

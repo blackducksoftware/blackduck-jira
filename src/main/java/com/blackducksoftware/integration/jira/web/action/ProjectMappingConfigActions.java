@@ -29,9 +29,9 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.BlackDuckWorkflowStatus;
 import com.blackducksoftware.integration.jira.common.WorkflowHelper;
 import com.blackducksoftware.integration.jira.common.exception.JiraException;
@@ -44,7 +44,7 @@ import com.blackducksoftware.integration.jira.web.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.web.model.JiraProject;
 
 public class ProjectMappingConfigActions {
-    private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
+    private final Logger logger = LoggerFactory.getLogger(getClass());
     final GlobalConfigurationAccessor globalConfigurationAccessor;
     private final WorkflowHelper workflowHelper;
 

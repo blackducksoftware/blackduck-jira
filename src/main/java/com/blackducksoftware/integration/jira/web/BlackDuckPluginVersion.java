@@ -27,14 +27,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
-
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BlackDuckPluginVersion {
     private static final String VERSION_UNKNOWN = "(unknown)";
 
-    private static final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(BlackDuckPluginVersion.class.getName()));
+    private static final Logger logger = LoggerFactory.getLogger(BlackDuckPluginVersion.class);
 
     public static String getVersion() {
         final Properties prop = new Properties();

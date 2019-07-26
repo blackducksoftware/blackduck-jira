@@ -37,17 +37,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.atlassian.jira.config.ConstantsManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.blackducksoftware.integration.jira.blackduck.BlackDuckDataHelper;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.data.accessor.JiraSettingsAccessor;
 import com.blackducksoftware.integration.jira.data.accessor.PluginErrorAccessor;
@@ -103,10 +103,13 @@ import com.synopsys.integration.blackduck.rest.CredentialsBlackDuckHttpClient;
 import com.synopsys.integration.blackduck.service.BlackDuckService;
 import com.synopsys.integration.blackduck.service.bucket.BlackDuckBucket;
 import com.synopsys.integration.exception.IntegrationException;
+import com.synopsys.integration.log.Slf4jIntLogger;
 import com.synopsys.integration.rest.credentials.Credentials;
 import com.synopsys.integration.rest.proxy.ProxyInfo;
 
 public class NotificationConverterTest {
+    private static final Logger logger = LoggerFactory.getLogger(NotificationConverterTest.class);
+
     private static final long JIRA_ISSUE_ID = 456L;
     private static final String OVERRIDER_LAST_NAME = "lastName";
     private static final String OVERRIDER_FIRST_NAME = "firstName";
@@ -178,7 +181,6 @@ public class NotificationConverterTest {
     private static JiraUserContext jiraContext;
     private static BlackDuckService mockBlackDuckSerivce;
     private static BlackDuckBucket mockBlackDuckBucket;
-    private static BlackDuckJiraLogger mockLogger;
     private static BlackDuckProjectMappings projectMappingObject;
     private static BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig;
     private static BlackDuckDataHelper blackDuckDataHelper;
@@ -237,14 +239,13 @@ public class NotificationConverterTest {
         mockHubServiceResponses(mockBlackDuckSerivce);
         mockBlackDuckBucket = Mockito.mock(BlackDuckBucket.class);
         mockBlackDuckBucketResponses(mockBlackDuckBucket);
-        mockLogger = new BlackDuckJiraLogger(Logger.getLogger(NotificationConverterTest.class));
 
         // Project Mappings
         projectMappingObject = new BlackDuckProjectMappings(jiraServices, mappings);
         fieldCopyConfig = createFieldCopyMappings();
 
         // EventData Format Helper
-        blackDuckDataHelper = new BlackDuckDataHelper(mockLogger, mockBlackDuckSerivce, mockBlackDuckBucket);
+        blackDuckDataHelper = new BlackDuckDataHelper(logger, mockBlackDuckSerivce, mockBlackDuckBucket);
         Mockito.when(blackDuckDataHelper.getResponseNullable(COMPONENT_VERSION_URL, ComponentVersionView.class)).thenReturn(createComponentVersionView());
         dataFormatHelper = new DataFormatHelper(blackDuckDataHelper);
     }
@@ -256,7 +257,7 @@ public class NotificationConverterTest {
     private static void mockHubServiceResponses(final BlackDuckService mockBlackDuckService) throws IntegrationException {
         final String blackDuckBaseUrl = "https://localhost:8080";
 
-        final BlackDuckHttpClient mockRestConnection = new CredentialsBlackDuckHttpClient(Mockito.mock(BlackDuckJiraLogger.class), 120, true, ProxyInfo.NO_PROXY_INFO, blackDuckBaseUrl, null, Credentials.NO_CREDENTIALS);
+        final BlackDuckHttpClient mockRestConnection = new CredentialsBlackDuckHttpClient(new Slf4jIntLogger(logger), 120, true, ProxyInfo.NO_PROXY_INFO, blackDuckBaseUrl, null, Credentials.NO_CREDENTIALS);
         Mockito.when(mockBlackDuckService.getBlackDuckHttpClient()).thenReturn(mockRestConnection);
         Mockito.when(mockBlackDuckService.getBlackDuckBaseUrl()).thenReturn(blackDuckBaseUrl);
 
@@ -420,42 +421,42 @@ public class NotificationConverterTest {
     @Test
     public void testVulnerability() throws URISyntaxException, IntegrationException {
         test(NotificationType.VULNERABILITY, BlackDuckIssueAction.ADD_COMMENT, VULN_EXPECTED_COMMENT, VULN_EXPECTED_COMMENT_IF_EXISTS, VULN_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE, VULN_EXPECTED_DESCRIPTION, VULN_EXPECTED_SUMMARY,
-            VULNERABILITY_ISSUE_TYPE_ID, VULN_EXPECTED_REOPEN_COMMENT, VULN_EXPECTED_RESOLVED_COMMENT, VULN_EXPECTED_PROPERTY_KEY, EXPECTED_EVENT_COUNT);
+            VULNERABILITY_ISSUE_TYPE_ID, VULN_EXPECTED_REOPEN_COMMENT, VULN_EXPECTED_RESOLVED_COMMENT, EXPECTED_EVENT_COUNT);
     }
 
     @Test
     public void testBomEdit() throws URISyntaxException, IntegrationException {
         test(NotificationType.BOM_EDIT, BlackDuckIssueAction.UPDATE_OR_OPEN, BOM_EDIT_COMMENT_VULN, BOM_EDIT_COMMENT_VULN, BOM_EDIT_COMMENT_VULN, VULN_EXPECTED_DESCRIPTION, VULN_EXPECTED_SUMMARY,
-            VULNERABILITY_ISSUE_TYPE_ID, VULN_EXPECTED_REOPEN_COMMENT, VULN_EXPECTED_RESOLVED_COMMENT, VULN_EXPECTED_PROPERTY_KEY, 2);
+            VULNERABILITY_ISSUE_TYPE_ID, VULN_EXPECTED_REOPEN_COMMENT, VULN_EXPECTED_RESOLVED_COMMENT, 2);
     }
 
     @Test
     public void testRuleViolation() throws URISyntaxException, IntegrationException {
         test(NotificationType.RULE_VIOLATION, BlackDuckIssueAction.OPEN, null, POLICY_EXPECTED_COMMENT_IF_EXISTS, POLICY_VIOLATION_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE, POLICY_VIOLATION_EXPECTED_DESCRIPTION,
-            POLICY_VIOLATION_EXPECTED_SUMMARY, POLICY_ISSUE_TYPE_ID, POLICY_VIOLATION_EXPECTED_REOPEN_COMMENT, POLICY_VIOLATION_EXPECTED_RESOLVE_COMMENT, POLICY_EXPECTED_PROPERTY_KEY, EXPECTED_EVENT_COUNT);
+            POLICY_VIOLATION_EXPECTED_SUMMARY, POLICY_ISSUE_TYPE_ID, POLICY_VIOLATION_EXPECTED_REOPEN_COMMENT, POLICY_VIOLATION_EXPECTED_RESOLVE_COMMENT, EXPECTED_EVENT_COUNT);
     }
 
     @Test
     public void testPolicyOverride() throws URISyntaxException, IntegrationException {
         test(NotificationType.POLICY_OVERRIDE, BlackDuckIssueAction.RESOLVE, null, POLICY_OVERRIDE_EXPECTED_COMMENT_IF_EXISTS, POLICY_OVERRIDE_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE, POLICY_OVERRIDE_EXPECTED_DESCRIPTION,
-            POLICY_OVERRIDE_EXPECTED_SUMMARY, POLICY_ISSUE_TYPE_ID, POLICY_OVERRIDE_EXPECTED_REOPEN_COMMENT, POLICY_OVERRIDE_EXPECTED_RESOLVE_COMMENT, POLICY_EXPECTED_PROPERTY_KEY, EXPECTED_EVENT_COUNT);
+            POLICY_OVERRIDE_EXPECTED_SUMMARY, POLICY_ISSUE_TYPE_ID, POLICY_OVERRIDE_EXPECTED_REOPEN_COMMENT, POLICY_OVERRIDE_EXPECTED_RESOLVE_COMMENT, EXPECTED_EVENT_COUNT);
     }
 
     @Test
     public void testRuleViolationCleared() throws URISyntaxException, IntegrationException {
         test(NotificationType.RULE_VIOLATION_CLEARED, BlackDuckIssueAction.RESOLVE, null, POLICY_CLEARED_EXPECTED_COMMENT_IF_EXISTS, POLICY_CLEARED_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE, POLICY_CLEARED_EXPECTED_DESCRIPTION,
-            POLICY_CLEARED_EXPECTED_SUMMARY, POLICY_ISSUE_TYPE_ID, POLICY_CLEARED_EXPECTED_REOPEN_COMMENT, POLICY_CLEARED_EXPECTED_RESOLVE_COMMENT, POLICY_EXPECTED_PROPERTY_KEY, EXPECTED_EVENT_COUNT);
+            POLICY_CLEARED_EXPECTED_SUMMARY, POLICY_ISSUE_TYPE_ID, POLICY_CLEARED_EXPECTED_REOPEN_COMMENT, POLICY_CLEARED_EXPECTED_RESOLVE_COMMENT, EXPECTED_EVENT_COUNT);
     }
 
     private void test(final NotificationType notifType, final BlackDuckIssueAction expectedBlackDuckIssueAction, final String expectedComment, final String expectedCommentIfExists, final String expectedCommentInLieuOfStateChange,
-        final String expectedDescription, final String expectedSummary, final String issueTypeId, final String expectedReOpenComment, final String expectedResolveComment, final String expectedPropertyKey, final int expectedCount)
+        final String expectedDescription, final String expectedSummary, final String issueTypeId, final String expectedReOpenComment, final String expectedResolveComment, final int expectedCount)
         throws URISyntaxException, IntegrationException {
 
         final Date startDate = new Date();
         final NotificationDetailResult notificationDetailResults = createNotification(mockBlackDuckBucket, notifType, startDate);
 
         final BomNotificationToIssueModelConverter notificationConverter = new BomNotificationToIssueModelConverter(jiraServices, jiraContext, pluginErrorAccessor, projectMappingObject, fieldCopyConfig, dataFormatHelper,
-            Arrays.asList(RULE_URL), blackDuckDataHelper, mockLogger, new TicketCriteriaConfigModel("{}", true, true));
+            Arrays.asList(RULE_URL), blackDuckDataHelper, new TicketCriteriaConfigModel("{}", true, true));
 
         final Collection<BlackDuckIssueModel> issueModels = notificationConverter.convertToModel(notificationDetailResults, startDate);
         assertEquals(expectedCount, issueModels.size());

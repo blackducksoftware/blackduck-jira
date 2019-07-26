@@ -30,12 +30,12 @@ import java.util.Optional;
 import java.util.concurrent.Callable;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.atlassian.jira.issue.fields.CustomField;
 import com.atlassian.jira.security.groups.GroupManager;
 import com.atlassian.jira.user.ApplicationUser;
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.model.PluginField;
 import com.blackducksoftware.integration.jira.common.model.PluginGroupsConfigModel;
@@ -49,7 +49,7 @@ import com.blackducksoftware.integration.jira.web.JiraServices;
 import com.blackducksoftware.integration.jira.workflow.setup.PreTaskSetup;
 
 public class JiraTaskTimed implements Callable<String> {
-    private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final JiraSettingsAccessor jiraSettingsAccessor;
     private final JiraServices jiraServices;
@@ -74,7 +74,7 @@ public class JiraTaskTimed implements Callable<String> {
         logger.debug("Retrieved plugin settings");
         logger.debug("Last run date based on SAL: " + pluginConfigurationAccessor.getFirstTimeSave());
 
-        final Optional<JiraUserContext> optionalJiraUserContext = JiraUserContext.create(logger, pluginConfigurationAccessor.getJiraAdminUser(), generalIssueConfig.getDefaultIssueCreator(), jiraServices.getUserManager());
+        final Optional<JiraUserContext> optionalJiraUserContext = JiraUserContext.create(pluginConfigurationAccessor.getJiraAdminUser(), generalIssueConfig.getDefaultIssueCreator(), jiraServices.getUserManager());
         if (!optionalJiraUserContext.isPresent()) {
             logger.error("No (valid) user in configuration data; The plugin has likely not yet been configured; The task cannot run (yet)");
             return "error";

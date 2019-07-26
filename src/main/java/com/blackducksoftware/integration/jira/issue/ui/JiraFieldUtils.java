@@ -25,27 +25,31 @@ package com.blackducksoftware.integration.jira.issue.ui;
 
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.atlassian.jira.issue.customfields.CustomFieldUtils;
 import com.atlassian.jira.issue.fields.Field;
 import com.atlassian.jira.issue.fields.FieldException;
 import com.atlassian.jira.issue.fields.FieldManager;
 import com.atlassian.jira.issue.fields.NavigableField;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.exception.JiraException;
 import com.blackducksoftware.integration.jira.web.model.Fields;
 import com.blackducksoftware.integration.jira.web.model.IdToNameMapping;
 
 public class JiraFieldUtils {
-    public static Fields getTargetFields(final BlackDuckJiraLogger logger, final FieldManager fieldManager) throws JiraException {
+    private static final Logger logger = LoggerFactory.getLogger(JiraFieldUtils.class);
+
+    public static Fields getTargetFields(final FieldManager fieldManager) throws JiraException {
         final Fields targetFields = new Fields();
-        addEligibleSystemFields(logger, fieldManager, targetFields);
-        addNonBdsCustomFields(logger, fieldManager, targetFields);
+        addEligibleSystemFields(fieldManager, targetFields);
+        addNonBdsCustomFields(fieldManager, targetFields);
         logger.debug("targetFields: " + targetFields);
         return targetFields;
     }
 
-    private static void addNonBdsCustomFields(final BlackDuckJiraLogger logger, final FieldManager fieldManager, final Fields targetFields) throws JiraException {
+    private static void addNonBdsCustomFields(final FieldManager fieldManager, final Fields targetFields) throws JiraException {
         final Set<NavigableField> navFields;
         try {
             navFields = fieldManager.getAllAvailableNavigableFields();
@@ -98,7 +102,7 @@ public class JiraFieldUtils {
          // @formatter:on
     }
 
-    private static void addEligibleSystemFields(final BlackDuckJiraLogger logger, final FieldManager fieldManager, final Fields targetFields) {
+    private static void addEligibleSystemFields(final FieldManager fieldManager, final Fields targetFields) {
         final Field componentsField = fieldManager.getField(BlackDuckJiraConstants.COMPONENTS_FIELD_ID);
         if (componentsField == null) {
             logger.error("Error getting components field (field id: " + BlackDuckJiraConstants.COMPONENTS_FIELD_ID + ") for field copy target field list");

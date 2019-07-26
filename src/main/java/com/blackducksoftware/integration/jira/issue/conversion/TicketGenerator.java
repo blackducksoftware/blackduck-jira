@@ -31,11 +31,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.atlassian.jira.issue.fields.CustomField;
 import com.blackducksoftware.integration.jira.blackduck.BlackDuckDataHelper;
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.model.PluginField;
 import com.blackducksoftware.integration.jira.data.accessor.PluginErrorAccessor;
@@ -68,7 +68,7 @@ import com.synopsys.integration.rest.exception.IntegrationRestException;
  * Collects recent notifications from Black Duck, and generates JIRA tickets for them.
  */
 public class TicketGenerator {
-    private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
+    private final Logger logger = LoggerFactory.getLogger(TicketGenerator.class);
 
     private final BlackDuckService blackDuckService;
     private final BlackDuckBucketService blackDuckBucketService;
@@ -123,7 +123,7 @@ public class TicketGenerator {
                 final DataFormatHelper dataFormatHelper = new DataFormatHelper(blackDuckDataHelper);
 
                 final BomNotificationToIssueModelConverter notificationConverter = new BomNotificationToIssueModelConverter(jiraServices, jiraUserContext, pluginErrorAccessor, blackDuckProjectMappings, fieldCopyConfig,
-                    dataFormatHelper, linksOfRulesToMonitor, blackDuckDataHelper, logger, ticketCriteria);
+                    dataFormatHelper, linksOfRulesToMonitor, blackDuckDataHelper, ticketCriteria);
 
                 handleEachIssue(notificationConverter, notificationDetailResults, issueHandler, startDate);
             }
@@ -133,7 +133,7 @@ public class TicketGenerator {
                 return optionalCreatedAtDate.get();
             }
         } catch (final Exception e) {
-            logger.error(e);
+            logger.error("Error occurred when generating issues.", e);
             pluginErrorAccessor.addBlackDuckError(e, "generateTicketsForNotificationsInDateRange");
         }
         return startDate;
@@ -154,7 +154,7 @@ public class TicketGenerator {
                 try {
                     issueHandler.handleBlackDuckIssue(model);
                 } catch (final Exception e) {
-                    logger.error(e);
+                    logger.error("Error occurred while handling Black Duck issue.", e);
                     pluginErrorAccessor.addBlackDuckError(e, "issueHandler.handleBlackDuckIssue(model)");
                 }
             }

@@ -26,7 +26,8 @@ package com.blackducksoftware.integration.jira.workflow.setup;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.atlassian.jira.issue.fields.CustomField;
 import com.atlassian.jira.issue.fields.layout.field.EditableFieldLayout;
@@ -35,7 +36,6 @@ import com.atlassian.jira.issue.fields.screen.FieldScreenScheme;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.workflow.JiraWorkflow;
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.common.exception.JiraException;
@@ -48,7 +48,7 @@ import com.blackducksoftware.integration.jira.web.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.workflow.JiraVersionCheck;
 
 public class PreTaskSetup {
-    private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     public Map<PluginField, CustomField> runPluginSetup(final JiraServices jiraServices, final PluginErrorAccessor pluginErrorAccessor, final ProjectMappingConfigModel projectMappingConfig, final JiraUserContext jiraContext)
         throws ConfigurationException, JiraException {

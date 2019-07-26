@@ -29,8 +29,10 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeoutException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.blackducksoftware.integration.jira.blackduck.BlackDuckAssignUtil;
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.data.accessor.GlobalConfigurationAccessor;
 import com.blackducksoftware.integration.jira.data.accessor.PluginErrorAccessor;
 import com.blackducksoftware.integration.jira.web.model.BlackDuckProjectMapping;
@@ -40,15 +42,15 @@ import com.synopsys.integration.blackduck.service.BlackDuckService;
 import com.synopsys.integration.exception.IntegrationException;
 
 public class UserAssignThread extends Thread {
-    private final BlackDuckJiraLogger logger;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
     private final GlobalConfigurationAccessor globalConfigurationAccessor;
     private final PluginErrorAccessor pluginErrorAccessor;
 
     private transient boolean shouldTimeout;
 
-    public UserAssignThread(final String threadName, final BlackDuckJiraLogger logger, final GlobalConfigurationAccessor globalConfigurationAccessor, final PluginErrorAccessor pluginErrorAccessor) {
+    public UserAssignThread(final String threadName, final GlobalConfigurationAccessor globalConfigurationAccessor, final PluginErrorAccessor pluginErrorAccessor) {
         super(threadName);
-        this.logger = logger;
         this.globalConfigurationAccessor = globalConfigurationAccessor;
         this.pluginErrorAccessor = pluginErrorAccessor;
     }
