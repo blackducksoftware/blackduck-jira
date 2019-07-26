@@ -23,6 +23,7 @@
  */
 package com.blackducksoftware.integration.jira.issue.ui;
 
+import java.util.Optional;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -43,7 +44,8 @@ public class JiraFieldUtils {
 
     public static Fields getTargetFields(final FieldManager fieldManager) throws JiraException {
         final Fields targetFields = new Fields();
-        addEligibleSystemFields(fieldManager, targetFields);
+        retrieveIdToNameMapping(fieldManager, BlackDuckJiraConstants.COMPONENTS_FIELD_ID).ifPresent(targetFields::add);
+        retrieveIdToNameMapping(fieldManager, BlackDuckJiraConstants.VERSIONS_FIELD_ID).ifPresent(targetFields::add);
         addNonBdsCustomFields(fieldManager, targetFields);
         logger.debug("targetFields: " + targetFields);
         return targetFields;
@@ -102,19 +104,13 @@ public class JiraFieldUtils {
          // @formatter:on
     }
 
-    private static void addEligibleSystemFields(final FieldManager fieldManager, final Fields targetFields) {
-        final Field componentsField = fieldManager.getField(BlackDuckJiraConstants.COMPONENTS_FIELD_ID);
-        if (componentsField == null) {
-            logger.error("Error getting components field (field id: " + BlackDuckJiraConstants.COMPONENTS_FIELD_ID + ") for field copy target field list");
-        } else {
-            targetFields.add(new IdToNameMapping(BlackDuckJiraConstants.COMPONENTS_FIELD_ID, componentsField.getName()));
+    private static Optional<IdToNameMapping> retrieveIdToNameMapping(FieldManager fieldManager, String jiraConstants) {
+        final Field versionsField = fieldManager.getField(jiraConstants);
+        if (versionsField == null) {
+            logger.error("Error getting field (field id: " + jiraConstants + ") for field copy target field list");
+            return Optional.empty();
         }
 
-        final Field versionsField = fieldManager.getField(BlackDuckJiraConstants.VERSIONS_FIELD_ID);
-        if (versionsField == null) {
-            logger.error("Error getting versions field (field id: " + BlackDuckJiraConstants.VERSIONS_FIELD_ID + ") for field copy target field list");
-        } else {
-            targetFields.add(new IdToNameMapping(BlackDuckJiraConstants.VERSIONS_FIELD_ID, versionsField.getName()));
-        }
+        return Optional.of(new IdToNameMapping(jiraConstants, versionsField.getName()));
     }
 }
