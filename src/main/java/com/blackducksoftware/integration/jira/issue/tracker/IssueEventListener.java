@@ -26,7 +26,8 @@ package com.blackducksoftware.integration.jira.issue.tracker;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
@@ -38,11 +39,10 @@ import com.atlassian.jira.event.type.EventType;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.issue.handler.JiraIssuePropertyWrapper;
 
 public class IssueEventListener implements InitializingBean, DisposableBean {
-    private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
+    private final Logger logger = LoggerFactory.getLogger(getClass());
     private final EventPublisher eventPublisher;
     private final PluginSettingsFactory pluginSettingsFactory;
     private final JiraIssuePropertyWrapper issueProperyWrapper;

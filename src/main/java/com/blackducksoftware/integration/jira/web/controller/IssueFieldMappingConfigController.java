@@ -36,6 +36,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.atlassian.jira.issue.fields.FieldManager;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.workflow.WorkflowManager;
@@ -54,7 +57,7 @@ import com.blackducksoftware.integration.jira.web.model.ProjectFieldCopyMapping;
 
 @Path("/config/issue/field/mapping")
 public class IssueFieldMappingConfigController extends ConfigController {
-
+    private final Logger logger = LoggerFactory.getLogger(getClass());
     final FieldManager fieldManager;
     private final IssueFieldMappingConfigActions issueFieldMappingConfigActions;
     private final ProjectMappingConfigActions projectMappingConfigActions;

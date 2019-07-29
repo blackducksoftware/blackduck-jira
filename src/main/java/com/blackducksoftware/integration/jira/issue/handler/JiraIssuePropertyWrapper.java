@@ -28,7 +28,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.atlassian.jira.bc.issue.properties.IssuePropertyService;
 import com.atlassian.jira.bc.project.property.ProjectPropertyService;
@@ -41,11 +42,10 @@ import com.atlassian.jira.entity.property.EntityPropertyService.SetPropertyValid
 import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.util.ErrorCollection;
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.exception.JiraIssueException;
 
 public class JiraIssuePropertyWrapper {
-    private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final IssuePropertyService issuePropertyService;
     private final ProjectPropertyService projectPropertyService;

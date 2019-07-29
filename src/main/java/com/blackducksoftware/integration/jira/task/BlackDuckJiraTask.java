@@ -36,16 +36,17 @@ import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.atlassian.jira.cluster.ClusterManager;
+import com.atlassian.jira.issue.fields.CustomField;
 import com.atlassian.jira.util.BuildUtilsInfoImpl;
 import com.blackducksoftware.integration.jira.blackduck.BlackDuckConnectionHelper;
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.BlackDuckPluginDateFormatter;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
-import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.common.model.PluginBlackDuckServerConfigModel;
+import com.blackducksoftware.integration.jira.common.model.PluginField;
 import com.blackducksoftware.integration.jira.data.accessor.GlobalConfigurationAccessor;
 import com.blackducksoftware.integration.jira.data.accessor.PluginConfigurationAccessor;
 import com.blackducksoftware.integration.jira.data.accessor.PluginErrorAccessor;
@@ -68,7 +69,7 @@ import com.synopsys.integration.blackduck.service.NotificationService;
 import com.synopsys.integration.exception.IntegrationException;
 
 public class BlackDuckJiraTask {
-    private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final GlobalConfigurationAccessor globalConfigurationAccessor;
     private final PluginConfigurationAccessor pluginConfigurationAccessor;
@@ -76,13 +77,13 @@ public class BlackDuckJiraTask {
     private final Date runDate;
     private final JiraServices jiraServices = new JiraServices();
     private final PluginErrorAccessor pluginErrorAccessor;
-    private final TicketInfoFromSetup ticketInfoFromSetup;
+    private final Map<PluginField, CustomField> ticketInfoFromSetup;
     private final JiraConfigDeserializer configDeserializer;
     private final BlackDuckPluginDateFormatter pluginDateFormatter;
     private final BlackDuckConnectionHelper blackDuckConnectionHelper;
 
     public BlackDuckJiraTask(final GlobalConfigurationAccessor globalConfigurationAccessor, final PluginConfigurationAccessor pluginConfigurationAccessor, final PluginErrorAccessor pluginErrorAccessor,
-        final JiraUserContext jiraUserContext, final TicketInfoFromSetup ticketInfoFromSetup) {
+        final JiraUserContext jiraUserContext, final Map<PluginField, CustomField> ticketInfoFromSetup) {
         this.globalConfigurationAccessor = globalConfigurationAccessor;
         this.pluginConfigurationAccessor = pluginConfigurationAccessor;
         this.jiraUserContext = jiraUserContext;
@@ -171,7 +172,7 @@ public class BlackDuckJiraTask {
     }
 
     private void phoneHome(final BlackDuckServicesFactory blackDuckServicesFactory) {
-        final LocalDate lastPhoneHome = pluginConfigurationAccessor.getLastPhoneHome(logger);
+        final LocalDate lastPhoneHome = pluginConfigurationAccessor.getLastPhoneHome();
         if (LocalDate.now().isAfter(lastPhoneHome)) {
             final Map<String, String> phoneHomeMetaData = new HashMap<>();
             final ClusterManager clusterManager = jiraServices.getClusterManager();
@@ -220,12 +221,12 @@ public class BlackDuckJiraTask {
     }
 
     private TicketGenerator initTicketGenerator(final JiraUserContext jiraUserContext, final BlackDuckServicesFactory blackDuckServicesFactory, final NotificationService notificationService, final boolean notificationsOldestFirst,
-        final TicketInfoFromSetup ticketInfoFromSetup, final List<String> linksOfRulesToMonitor, final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig) {
+        final Map<PluginField, CustomField> ticketInfoFromSetup, final List<String> linksOfRulesToMonitor, final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig) {
         logger.debug("JIRA user: " + this.jiraUserContext.getJiraAdminUser().getName());
 
         final CommonNotificationService commonNotificationService = blackDuckConnectionHelper.createCommonNotificationService(blackDuckServicesFactory, notificationsOldestFirst);
         return new TicketGenerator(blackDuckServicesFactory.createBlackDuckService(), blackDuckServicesFactory.createBlackDuckBucketService(), notificationService, commonNotificationService, jiraServices, jiraUserContext,
-            pluginErrorAccessor, ticketInfoFromSetup.getCustomFields(), linksOfRulesToMonitor, fieldCopyConfig);
+            pluginErrorAccessor, ticketInfoFromSetup, linksOfRulesToMonitor, fieldCopyConfig);
     }
 
     private Date deriveStartDate(final NotificationService notificationService, final UserView user, final String lastRunDateString) throws ParseException, IntegrationException {

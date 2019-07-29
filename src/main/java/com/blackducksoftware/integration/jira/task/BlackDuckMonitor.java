@@ -30,7 +30,8 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.atlassian.sal.api.lifecycle.LifecycleAware;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
@@ -42,7 +43,6 @@ import com.atlassian.scheduler.config.JobId;
 import com.atlassian.scheduler.config.JobRunnerKey;
 import com.atlassian.scheduler.config.RunMode;
 import com.atlassian.scheduler.config.Schedule;
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.BlackDuckPluginDateFormatter;
 import com.blackducksoftware.integration.jira.data.PluginConfigKeys;
 import com.blackducksoftware.integration.jira.data.accessor.GlobalConfigurationAccessor;
@@ -62,7 +62,7 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware {
     private static final JobRunnerKey PRIMARY_JOB_RUNNER_KEY = JobRunnerKey.of(PRIMARY_JOB_NAME);
     private static final JobRunnerKey MAINTENANCE_JOB_RUNNER_KEY = JobRunnerKey.of(MAINTENANCE_JOB_NAME);
 
-    private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
+    private final Logger logger = LoggerFactory.getLogger(getClass());
     private final SchedulerService schedulerService;
     private final PluginSettings pluginSettings;
     private final PluginExecutorService executorService;
@@ -203,7 +203,7 @@ public class BlackDuckMonitor implements NotificationMonitor, LifecycleAware {
         schedulerService.unregisterJobRunner(oldJobRunnerKey_6_0_0);
         reschedule(1);
 
-        final UpgradeSteps upgradeSteps = new UpgradeSteps(logger, pluginSettings);
+        final UpgradeSteps upgradeSteps = new UpgradeSteps(pluginSettings);
         upgradeSteps.updateInstallDate(installDate);
         upgradeSteps.updateOldMappingsIfNeeded();
         upgradeSteps.upgradeToV6FromAny();

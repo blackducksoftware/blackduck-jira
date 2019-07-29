@@ -32,9 +32,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.model.PluginBlackDuckServerConfigModel;
 import com.blackducksoftware.integration.jira.data.accessor.GlobalConfigurationAccessor;
 import com.blackducksoftware.integration.jira.data.accessor.PluginErrorAccessor;
@@ -51,7 +51,7 @@ import com.synopsys.integration.exception.IntegrationException;
 
 //TODO remove this when Super users in Black Duck no longer need to be assigned to a project in order to receive notifications for that project. Remove when all customers update to the fixed version of BD
 public class BlackDuckAssignUtil {
-    private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
+    private final Logger logger = LoggerFactory.getLogger(BlackDuckAssignUtil.class);
 
     public void assignUserToBlackDuckProject(final PluginErrorAccessor pluginErrorAccessor, final GlobalConfigurationAccessor globalConfigurationAccessor) {
         try {

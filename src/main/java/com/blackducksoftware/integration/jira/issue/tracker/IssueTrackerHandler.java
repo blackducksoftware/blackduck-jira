@@ -27,12 +27,12 @@ import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.config.properties.APKeys;
 import com.atlassian.jira.issue.Issue;
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.data.accessor.PluginErrorAccessor;
 import com.synopsys.integration.blackduck.api.generated.view.IssueView;
 import com.synopsys.integration.blackduck.exception.BlackDuckApiException;
@@ -44,7 +44,7 @@ public class IssueTrackerHandler {
     public final static String JIRA_ISSUE_PROPERTY_BLACKDUCK_ISSUE_URL = "bdsHubIssueURL";
     public final static String USER_NOT_ASSIGNED = "Not Assigned";
 
-    private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final PluginErrorAccessor pluginErrorAccessor;
     private final BlackDuckService blackDuckService;

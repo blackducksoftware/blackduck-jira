@@ -31,8 +31,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
 
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.web.JiraConfigErrorStrings;
 import com.blackducksoftware.integration.jira.web.model.BlackDuckServerConfigSerializable;
 import com.blackducksoftware.integration.jira.workflow.notification.CommonNotificationService;
@@ -45,6 +45,8 @@ import com.synopsys.integration.blackduck.rest.BlackDuckHttpClient;
 import com.synopsys.integration.blackduck.service.BlackDuckServicesFactory;
 import com.synopsys.integration.blackduck.service.ProjectService;
 import com.synopsys.integration.exception.IntegrationException;
+import com.synopsys.integration.log.IntLogger;
+import com.synopsys.integration.log.Slf4jIntLogger;
 import com.synopsys.integration.util.IntEnvironmentVariables;
 
 public class BlackDuckConnectionHelper {
@@ -52,7 +54,7 @@ public class BlackDuckConnectionHelper {
     public BlackDuckConnectionHelper() {
     }
 
-    public Optional<BlackDuckServicesFactory> createBlackDuckServicesFactorySafely(final BlackDuckJiraLogger logger, final BlackDuckServerConfigBuilder blackDuckServerConfigBuilder) {
+    public Optional<BlackDuckServicesFactory> createBlackDuckServicesFactorySafely(final Logger logger, final BlackDuckServerConfigBuilder blackDuckServerConfigBuilder) {
         try {
             final BlackDuckServicesFactory blackDuckServicesFactory = createBlackDuckServicesFactory(logger, blackDuckServerConfigBuilder);
             return Optional.ofNullable(blackDuckServicesFactory);
@@ -63,12 +65,13 @@ public class BlackDuckConnectionHelper {
         return Optional.empty();
     }
 
-    public BlackDuckServicesFactory createBlackDuckServicesFactory(final BlackDuckJiraLogger logger, final BlackDuckServerConfigBuilder blackDuckServerConfigBuilder) throws IntegrationException {
-        final BlackDuckHttpClient restConnection = createRestConnection(logger, blackDuckServerConfigBuilder);
-        return new BlackDuckServicesFactory(new IntEnvironmentVariables(), BlackDuckServicesFactory.createDefaultGson(), BlackDuckServicesFactory.createDefaultObjectMapper(), null, restConnection, logger);
+    public BlackDuckServicesFactory createBlackDuckServicesFactory(final Logger logger, final BlackDuckServerConfigBuilder blackDuckServerConfigBuilder) throws IntegrationException {
+        IntLogger intLogger = new Slf4jIntLogger(logger);
+        final BlackDuckHttpClient restConnection = createRestConnection(intLogger, blackDuckServerConfigBuilder);
+        return new BlackDuckServicesFactory(new IntEnvironmentVariables(), BlackDuckServicesFactory.createDefaultGson(), BlackDuckServicesFactory.createDefaultObjectMapper(), null, restConnection, intLogger);
     }
 
-    public BlackDuckHttpClient createRestConnection(final BlackDuckJiraLogger logger, final BlackDuckServerConfigBuilder blackDuckServerConfigBuilder) throws IntegrationException {
+    public BlackDuckHttpClient createRestConnection(final IntLogger logger, final BlackDuckServerConfigBuilder blackDuckServerConfigBuilder) throws IntegrationException {
         if (StringUtils.isBlank(blackDuckServerConfigBuilder.getApiToken())) {
             throw new IntegrationException(JiraConfigErrorStrings.BLACKDUCK_SERVER_MISCONFIGURATION + " " + JiraConfigErrorStrings.CHECK_BLACKDUCK_SERVER_CONFIGURATION);
         }

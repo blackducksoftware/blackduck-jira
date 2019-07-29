@@ -35,6 +35,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.workflow.WorkflowManager;
 import com.atlassian.jira.workflow.WorkflowSchemeManager;
@@ -50,6 +53,7 @@ import com.blackducksoftware.integration.jira.web.model.ProjectPatternRestModel;
 
 @Path("/config/issue/creator")
 public class IssueCreationConfigController extends ConfigController {
+    private final Logger logger = LoggerFactory.getLogger(getClass());
     final ProjectManager projectManager;
     private final IssueCreationConfigActions issueCreationConfigActions;
 

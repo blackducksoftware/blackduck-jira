@@ -26,6 +26,7 @@ package com.blackducksoftware.integration.jira.workflow.notification;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -35,7 +36,6 @@ import java.util.stream.Collectors;
 import com.synopsys.integration.blackduck.api.UriSingleResponse;
 import com.synopsys.integration.blackduck.api.core.BlackDuckResponse;
 import com.synopsys.integration.blackduck.api.manual.view.NotificationUserView;
-import com.synopsys.integration.blackduck.api.manual.view.NotificationView;
 import com.synopsys.integration.blackduck.service.bucket.BlackDuckBucket;
 import com.synopsys.integration.blackduck.service.bucket.BlackDuckBucketService;
 import com.synopsys.integration.exception.IntegrationException;
@@ -50,45 +50,26 @@ public class CommonNotificationService {
         this.oldestFirst = oldestFirst;
     }
 
-    public List<CommonNotificationView> getCommonNotifications(final List<NotificationView> notificationViews) {
-        final List<CommonNotificationView> commonStates = notificationViews.stream().map(view -> {
-            return new CommonNotificationView(view);
-        }).collect(Collectors.toList());
-
-        return commonStates;
-    }
-
     public List<CommonNotificationView> getCommonUserNotifications(final List<NotificationUserView> notificationUserViews) {
-        final List<CommonNotificationView> commonStates = notificationUserViews.stream().map(view -> {
-            return new CommonNotificationView(view);
-        }).collect(Collectors.toList());
-
-        return commonStates;
+        return notificationUserViews.stream()
+                   .map(CommonNotificationView::new)
+                   .collect(Collectors.toList());
     }
 
-    public CommonNotificationViewResults getCommonNotificationViewResults(final List<CommonNotificationView> commonNotifications) {
-        if (commonNotifications == null || commonNotifications.isEmpty()) {
-            return new CommonNotificationViewResults(Collections.emptyList(), Optional.empty(), Optional.empty());
-        }
-
-        final DatePair datePair = getLatestCreatedAtString(commonNotifications);
-        return new CommonNotificationViewResults(commonNotifications, datePair.date, datePair.dateString);
-    }
-
-    public NotificationDetailResults getNotificationDetailResults(final List<CommonNotificationView> commonNotifications) throws IntegrationException {
+    public NotificationDetailResults getNotificationDetailResults(final List<CommonNotificationView> commonNotifications) {
         if (commonNotifications == null || commonNotifications.isEmpty()) {
             return new NotificationDetailResults(Collections.emptyList(), Optional.empty(), Optional.empty());
         }
 
-        List<NotificationDetailResult> sortedDetails = commonNotifications.stream().map(view -> {
-            return notificationContentDetailFactory.generateContentDetails(view);
-        }).collect(Collectors.toList());
+        List<NotificationDetailResult> sortedDetails = commonNotifications.stream()
+                                                           .map(notificationContentDetailFactory::generateContentDetails)
+                                                           .collect(Collectors.toList());
 
         if (oldestFirst) {
             // we don't want to use the default sorting from the hub
-            sortedDetails = sortedDetails.stream().sorted((result_1, result_2) -> {
-                return result_1.getCreatedAt().compareTo(result_2.getCreatedAt());
-            }).collect(Collectors.toList());
+            sortedDetails = sortedDetails.stream()
+                                .sorted(Comparator.comparing(NotificationDetailResult::getCreatedAt))
+                                .collect(Collectors.toList());
         }
 
         final DatePair datePair = getLatestCreatedAtString(commonNotifications);
@@ -102,16 +83,16 @@ public class CommonNotificationService {
     }
 
     private DatePair getLatestCreatedAtString(final List<CommonNotificationView> views) {
-        // sortedViews will be sorted most recent to oldest
-        final List<CommonNotificationView> sortedViews = views.stream().sorted((left, right) -> {
-            return right.getCreatedAt().compareTo(left.getCreatedAt());
-        }).collect(Collectors.toList());
-
         final SimpleDateFormat sdf = new SimpleDateFormat(RestConstants.JSON_DATE_FORMAT);
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 
+        // sortedViews will be sorted most recent to oldest
         // we know that the first in the list is the most current
-        final Date latestCreatedAtDate = sortedViews.get(0).getCreatedAt();
+        final Date latestCreatedAtDate = views.stream()
+                                             .map(CommonNotificationView::getCreatedAt)
+                                             .sorted(Comparator.reverseOrder())
+                                             .findFirst()
+                                             .orElse(new Date());
         final String latestCreatedAtString = sdf.format(latestCreatedAtDate);
         return new DatePair(latestCreatedAtDate, latestCreatedAtString);
     }

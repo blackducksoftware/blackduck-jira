@@ -32,7 +32,8 @@ import java.util.Optional;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.atlassian.core.util.ClassLoaderUtils;
 import com.atlassian.jira.issue.issuetype.IssueType;
@@ -44,14 +45,13 @@ import com.atlassian.jira.workflow.JiraWorkflow;
 import com.atlassian.jira.workflow.WorkflowManager;
 import com.atlassian.jira.workflow.WorkflowUtil;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.data.accessor.PluginErrorAccessor;
 import com.blackducksoftware.integration.jira.web.JiraServices;
 import com.opensymphony.workflow.FactoryException;
 import com.opensymphony.workflow.loader.WorkflowDescriptor;
 
 public class BlackDuckWorkflowSetup {
-    private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final PluginErrorAccessor pluginErrorAccessor;
     private final JiraServices jiraServices;

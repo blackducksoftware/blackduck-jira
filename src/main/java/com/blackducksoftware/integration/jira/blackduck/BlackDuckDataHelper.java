@@ -27,8 +27,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.lang3.EnumUtils;
+import org.slf4j.Logger;
 
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.workflow.notification.NotificationContentDetail;
 import com.google.gson.JsonElement;
 import com.synopsys.integration.blackduck.api.UriSingleResponse;
@@ -52,14 +52,15 @@ import com.synopsys.integration.blackduck.service.ComponentService;
 import com.synopsys.integration.blackduck.service.bucket.BlackDuckBucket;
 import com.synopsys.integration.blackduck.service.model.ProjectVersionWrapper;
 import com.synopsys.integration.exception.IntegrationException;
+import com.synopsys.integration.log.Slf4jIntLogger;
 import com.synopsys.integration.rest.exception.IntegrationRestException;
 
 public class BlackDuckDataHelper {
-    private final BlackDuckJiraLogger logger;
+    private final Logger logger;
     private final BlackDuckService blackDuckService;
     private final BlackDuckBucket blackDuckBucket;
 
-    public BlackDuckDataHelper(final BlackDuckJiraLogger logger, final BlackDuckService blackDuckService, final BlackDuckBucket blackDuckBucket) {
+    public BlackDuckDataHelper(final Logger logger, final BlackDuckService blackDuckService, final BlackDuckBucket blackDuckBucket) {
         this.logger = logger;
         this.blackDuckService = blackDuckService;
         this.blackDuckBucket = blackDuckBucket;
@@ -77,7 +78,7 @@ public class BlackDuckDataHelper {
         } catch (final IntegrationRestException caughtRestException) {
             restException = caughtRestException;
         } catch (final Exception genericException) {
-            logger.error(genericException);
+            logger.error("An Error occurred when retrieving the bom component. ", genericException);
             throw genericException;
         }
         throw restException;
@@ -85,7 +86,7 @@ public class BlackDuckDataHelper {
 
     public Optional<RemediationOptionsView> getRemediationInformation(final ComponentVersionView componentVersionView) {
         // TODO use the BlackDuckService once the Black Duck APIs have the link.
-        final ComponentService componentService = new ComponentService(blackDuckService, logger);
+        final ComponentService componentService = new ComponentService(blackDuckService, new Slf4jIntLogger(logger));
         try {
             return componentService.getRemediationInformation(componentVersionView);
         } catch (final IntegrationException e) {

@@ -25,13 +25,13 @@ package com.blackducksoftware.integration.jira.issue.tracker;
 
 import java.util.concurrent.Callable;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.atlassian.jira.entity.property.EntityProperty;
 import com.atlassian.jira.event.type.EventType;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.exception.JiraIssueException;
 import com.blackducksoftware.integration.jira.common.model.PluginBlackDuckServerConfigModel;
 import com.blackducksoftware.integration.jira.data.accessor.GlobalConfigurationAccessor;
@@ -48,10 +48,12 @@ import com.synopsys.integration.blackduck.configuration.BlackDuckServerConfigBui
 import com.synopsys.integration.blackduck.rest.BlackDuckHttpClient;
 import com.synopsys.integration.blackduck.service.BlackDuckServicesFactory;
 import com.synopsys.integration.exception.IntegrationException;
+import com.synopsys.integration.log.IntLogger;
+import com.synopsys.integration.log.Slf4jIntLogger;
 import com.synopsys.integration.util.IntEnvironmentVariables;
 
 public class IssueTrackerTask implements Callable<Boolean> {
-    private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final Issue jiraIssue;
     private final JiraIssuePropertyWrapper issueProperyWrapper;
@@ -132,9 +134,11 @@ public class IssueTrackerTask implements Callable<Boolean> {
         }
     }
 
+    // FIXME we should use our Black Duck class to create the Services factory
     public BlackDuckServicesFactory createBlackDuckServicesFactory(final BlackDuckServerConfig config) {
-        final BlackDuckHttpClient restConnection = config.createBlackDuckHttpClient(logger);
-        return new BlackDuckServicesFactory(new IntEnvironmentVariables(), BlackDuckServicesFactory.createDefaultGson(), BlackDuckServicesFactory.createDefaultObjectMapper(), null, restConnection, logger);
+        IntLogger intLogger = new Slf4jIntLogger(logger);
+        final BlackDuckHttpClient restConnection = config.createBlackDuckHttpClient(intLogger);
+        return new BlackDuckServicesFactory(new IntEnvironmentVariables(), BlackDuckServicesFactory.createDefaultGson(), BlackDuckServicesFactory.createDefaultObjectMapper(), null, restConnection, intLogger);
     }
 
     private BlackDuckJiraConfigSerializable createJiraConfig(final PluginIssueCreationConfigModel pluginIssueCreationConfig) {

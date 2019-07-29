@@ -26,12 +26,14 @@ package com.blackducksoftware.integration.jira.data.accessor;
 import java.time.LocalDate;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.data.PluginConfigKeys;
 
 public class PluginConfigurationAccessor {
+    private final Logger logger = LoggerFactory.getLogger(getClass());
     private final JiraSettingsAccessor jiraSettingsAccessor;
 
     public PluginConfigurationAccessor(final JiraSettingsAccessor jiraSettingsAccessor) {
@@ -72,7 +74,7 @@ public class PluginConfigurationAccessor {
         jiraSettingsAccessor.setValue(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR, pluginError);
     }
 
-    public LocalDate getLastPhoneHome(final BlackDuckJiraLogger logger) {
+    public LocalDate getLastPhoneHome() {
         try {
             final String stringDate = jiraSettingsAccessor.getStringValue(BlackDuckJiraConstants.DATE_LAST_PHONED_HOME);
             return LocalDate.parse(stringDate);

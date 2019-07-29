@@ -32,21 +32,21 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.atlassian.scheduler.JobRunnerRequest;
 import com.atlassian.scheduler.JobRunnerResponse;
 import com.atlassian.scheduler.config.JobConfig;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.task.thread.PluginExecutorService;
 
 public class BlackDuckJobRunnerUtil {
-    private final BlackDuckJiraLogger logger;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
     private final PluginExecutorService executorService;
     private final String taskName;
 
-    public BlackDuckJobRunnerUtil(final BlackDuckJiraLogger logger, final PluginExecutorService executorService, final String taskName) {
-        this.logger = logger;
+    public BlackDuckJobRunnerUtil(final PluginExecutorService executorService, final String taskName) {
         this.executorService = executorService;
         this.taskName = taskName;
     }
@@ -87,7 +87,7 @@ public class BlackDuckJobRunnerUtil {
             logger.debug("Task timeout (minutes): " + taskTimeoutMinutes);
 
             if (executorService.canAcceptNewTasks()) {
-                return scheduleTask(logger, actualTask, taskTimeoutMinutes);
+                return scheduleTask(actualTask, taskTimeoutMinutes);
             }
         } else {
             logger.warn("No task interval was configured.");
@@ -95,7 +95,7 @@ public class BlackDuckJobRunnerUtil {
         return JobRunnerResponse.aborted("Too many tasks are currently scheduled.");
     }
 
-    private JobRunnerResponse scheduleTask(final BlackDuckJiraLogger logger, final Callable<String> actualTask, final int taskTimeoutMinutes) {
+    private JobRunnerResponse scheduleTask(final Callable<String> actualTask, final int taskTimeoutMinutes) {
         String reasonForFailure = null;
         Exception failureException = null;
         PluginExecutorService.PluginFuture future = null;
@@ -121,7 +121,7 @@ public class BlackDuckJobRunnerUtil {
         if (reasonForFailure != null) {
             logger.error(reasonForFailure);
             if (failureException != null) {
-                logger.error(failureException);
+                logger.error("An error occurred while executing a job", failureException);
             }
             return JobRunnerResponse.failed(reasonForFailure);
         }

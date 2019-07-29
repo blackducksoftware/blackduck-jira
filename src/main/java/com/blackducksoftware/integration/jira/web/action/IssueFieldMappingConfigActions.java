@@ -29,19 +29,18 @@ import java.util.Collections;
 import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.atlassian.core.util.ClassLoaderUtils;
 import com.atlassian.jira.issue.fields.FieldManager;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.exception.JiraException;
 import com.blackducksoftware.integration.jira.common.model.PluginField;
 import com.blackducksoftware.integration.jira.data.accessor.GlobalConfigurationAccessor;
 import com.blackducksoftware.integration.jira.data.accessor.JiraSettingsAccessor;
 import com.blackducksoftware.integration.jira.issue.model.PluginIssueFieldConfigModel;
 import com.blackducksoftware.integration.jira.issue.ui.JiraFieldUtils;
-import com.blackducksoftware.integration.jira.web.IdToNameMappingByNameComparator;
 import com.blackducksoftware.integration.jira.web.JiraConfigErrorStrings;
 import com.blackducksoftware.integration.jira.web.model.BlackDuckJiraFieldCopyConfigSerializable;
 import com.blackducksoftware.integration.jira.web.model.Fields;
@@ -49,7 +48,7 @@ import com.blackducksoftware.integration.jira.web.model.IdToNameMapping;
 import com.blackducksoftware.integration.jira.web.model.ProjectFieldCopyMapping;
 
 public class IssueFieldMappingConfigActions {
-    private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
+    private final Logger logger = LoggerFactory.getLogger(getClass());
     private final GlobalConfigurationAccessor globalConfigurationAccessor;
     private final Properties i18nProperties;
     private final FieldManager fieldManager;
@@ -76,7 +75,7 @@ public class IssueFieldMappingConfigActions {
         txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN.getLongNameProperty())));
         txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN_ID.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_COMPONENT_ORIGIN_ID.getLongNameProperty())));
         txSourceFields.add(new IdToNameMapping(PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME.getId(), getI18nProperty(PluginField.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION_NICKNAME.getLongNameProperty())));
-        Collections.sort(txSourceFields.getIdToNameMappings(), new IdToNameMappingByNameComparator());
+        Collections.sort(txSourceFields.getIdToNameMappings());
         logger.debug("sourceFields: " + txSourceFields);
         return txSourceFields;
     }
@@ -84,13 +83,13 @@ public class IssueFieldMappingConfigActions {
     public Fields getTargetFields() {
         Fields txTargetFields;
         try {
-            txTargetFields = JiraFieldUtils.getTargetFields(logger, fieldManager);
+            txTargetFields = JiraFieldUtils.getTargetFields(fieldManager);
         } catch (final JiraException e) {
             txTargetFields = new Fields();
             txTargetFields.setErrorMessage("Error getting target field list: " + e.getMessage());
             return txTargetFields;
         }
-        Collections.sort(txTargetFields.getIdToNameMappings(), new IdToNameMappingByNameComparator());
+        Collections.sort(txTargetFields.getIdToNameMappings());
         logger.debug("targetFields: " + txTargetFields);
         return txTargetFields;
     }

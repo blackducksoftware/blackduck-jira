@@ -29,7 +29,8 @@ import java.util.Optional;
 import java.util.concurrent.Callable;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.atlassian.jira.issue.CustomFieldManager;
 import com.atlassian.jira.issue.Issue;
@@ -42,7 +43,6 @@ import com.atlassian.jira.workflow.JiraWorkflow;
 import com.atlassian.query.Query;
 import com.blackducksoftware.integration.jira.blackduck.BlackDuckConnectionHelper;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.WorkflowHelper;
 import com.blackducksoftware.integration.jira.common.exception.JiraIssueException;
@@ -77,7 +77,7 @@ public class CleanUpOrphanedTicketsTask implements Callable<String> {
     private static final String NOT_CONFIGURED_STATUS_MESSAGE = "NOT CONFIGURED";
     private static final String ERROR_STATUS_MESSAGE = "ERROR";
 
-    private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
+    private final Logger logger = LoggerFactory.getLogger(getClass());
     private final JiraSettingsAccessor jiraSettingsAccessor;
     private final JiraServices jiraServices;
     private final HashSet<String> badProjectVersionUrlCache;
@@ -108,7 +108,7 @@ public class CleanUpOrphanedTicketsTask implements Callable<String> {
         final PluginConfigurationAccessor pluginConfigurationAccessor = jiraSettingsAccessor.createPluginConfigurationAccessor();
         final GlobalConfigurationAccessor globalConfigurationAccessor = jiraSettingsAccessor.createGlobalConfigurationAccessor();
         final GeneralIssueCreationConfigModel generalIssueConfig = globalConfigurationAccessor.getIssueCreationConfig().getGeneral();
-        final Optional<JiraUserContext> optionalJiraUserContext = JiraUserContext.create(logger, pluginConfigurationAccessor.getJiraAdminUser(), generalIssueConfig.getDefaultIssueCreator(), jiraServices.getUserManager());
+        final Optional<JiraUserContext> optionalJiraUserContext = JiraUserContext.create(pluginConfigurationAccessor.getJiraAdminUser(), generalIssueConfig.getDefaultIssueCreator(), jiraServices.getUserManager());
 
         final JiraUserContext jiraUserContext;
         if (optionalJiraUserContext.isPresent()) {

@@ -27,7 +27,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.atlassian.jira.issue.fields.layout.field.EditableDefaultFieldLayout;
 import com.atlassian.jira.issue.fields.layout.field.EditableFieldLayout;
@@ -40,13 +41,12 @@ import com.atlassian.jira.issue.fields.layout.field.FieldLayoutSchemeEntity;
 import com.atlassian.jira.issue.fields.layout.field.FieldLayoutSchemeEntityImpl;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.data.accessor.PluginErrorAccessor;
 import com.blackducksoftware.integration.jira.web.JiraServices;
 
 public class BlackDuckFieldConfigurationSetup {
     public final List<String> requiredDefaultFields = new ArrayList<>();
-    private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
+    private final Logger logger = LoggerFactory.getLogger(getClass());
     private final PluginErrorAccessor pluginErrorAccessor;
     private final JiraServices jiraServices;
 
@@ -172,7 +172,7 @@ public class BlackDuckFieldConfigurationSetup {
                 layoutManager.storeEditableFieldLayout(blackDuckFieldLayout);
             }
         } catch (final Exception e) {
-            logger.error(e);
+            logger.error("An Error occurred.", e);
             pluginErrorAccessor.addBlackDuckError(e, "addBlackDuckFieldConfigurationToJira");
         }
         return blackDuckFieldLayout;

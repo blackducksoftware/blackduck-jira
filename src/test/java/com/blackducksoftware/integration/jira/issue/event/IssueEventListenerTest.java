@@ -39,6 +39,8 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.atlassian.jira.entity.property.EntityProperty;
 import com.atlassian.jira.entity.property.EntityPropertyQuery;
@@ -49,7 +51,6 @@ import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.user.ApplicationUser;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.data.BlackDuckConfigKeys;
 import com.blackducksoftware.integration.jira.data.PluginConfigKeys;
 import com.blackducksoftware.integration.jira.issue.handler.JiraIssuePropertyWrapper;
@@ -79,10 +80,13 @@ import com.synopsys.integration.blackduck.api.generated.view.IssueView;
 import com.synopsys.integration.blackduck.rest.BlackDuckHttpClient;
 import com.synopsys.integration.blackduck.rest.CredentialsBlackDuckHttpClient;
 import com.synopsys.integration.blackduck.service.BlackDuckServicesFactory;
+import com.synopsys.integration.log.Slf4jIntLogger;
 import com.synopsys.integration.rest.credentials.Credentials;
 import com.synopsys.integration.rest.proxy.ProxyInfo;
 
 public class IssueEventListenerTest {
+    private static final Logger logger = LoggerFactory.getLogger(IssueEventListenerTest.class);
+
     private static final String JIRA_USER = "auser";
     private static final String BLACKDUCK_PROJECT_NAME = "HubProjectName";
     private static final String JIRA_PROJECT_NAME = "JiraProjectName";
@@ -108,7 +112,7 @@ public class IssueEventListenerTest {
         userManager.setMockApplicationUser(createApplicationUser());
         jiraServices.setUserManager(userManager);
         final String url = "http://www.google.com";
-        final BlackDuckHttpClient restConnection = new CredentialsBlackDuckHttpClient(Mockito.mock(BlackDuckJiraLogger.class), 120, true, ProxyInfo.NO_PROXY_INFO, url, null, Credentials.NO_CREDENTIALS);
+        final BlackDuckHttpClient restConnection = new CredentialsBlackDuckHttpClient(new Slf4jIntLogger(logger), 120, true, ProxyInfo.NO_PROXY_INFO, url, null, Credentials.NO_CREDENTIALS);
 
         final BlackDuckServicesFactory blackDuckServicesFactory = Mockito.mock(BlackDuckServicesFactory.class);
         Mockito.when(blackDuckServicesFactory.getBlackDuckHttpClient()).thenReturn(restConnection);

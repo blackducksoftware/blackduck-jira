@@ -26,33 +26,31 @@ package com.blackducksoftware.integration.jira.workflow.setup;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.atlassian.jira.issue.fields.CustomField;
 import com.atlassian.jira.issue.fields.layout.field.EditableFieldLayout;
 import com.atlassian.jira.issue.fields.layout.field.FieldLayoutScheme;
 import com.atlassian.jira.issue.fields.screen.FieldScreenScheme;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.workflow.JiraWorkflow;
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
-import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
 import com.blackducksoftware.integration.jira.common.exception.ConfigurationException;
 import com.blackducksoftware.integration.jira.common.exception.JiraException;
+import com.blackducksoftware.integration.jira.common.model.PluginField;
 import com.blackducksoftware.integration.jira.data.accessor.PluginErrorAccessor;
 import com.blackducksoftware.integration.jira.issue.model.ProjectMappingConfigModel;
 import com.blackducksoftware.integration.jira.web.JiraServices;
 import com.blackducksoftware.integration.jira.web.model.BlackDuckJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.web.model.BlackDuckProjectMapping;
-import com.blackducksoftware.integration.jira.workflow.JiraVersionCheck;
 
 public class PreTaskSetup {
-    private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    public void runPluginSetup(final JiraServices jiraServices, final PluginErrorAccessor pluginErrorAccessor, final ProjectMappingConfigModel projectMappingConfig, final TicketInfoFromSetup ticketInfoFromSetup,
-        final JiraUserContext jiraContext) throws ConfigurationException, JiraException {
-        // Make sure current JIRA version is supported throws exception if not
-        getJiraVersionCheck();
+    public Map<PluginField, CustomField> runPluginSetup(final JiraServices jiraServices, final PluginErrorAccessor pluginErrorAccessor, final ProjectMappingConfigModel projectMappingConfig, final JiraUserContext jiraContext)
+        throws ConfigurationException, JiraException {
 
         // Create Issue Types, workflow, etc.
         final BlackDuckIssueTypeSetup issueTypeSetup;
@@ -73,7 +71,6 @@ public class PreTaskSetup {
         if (screenSchemesByIssueType.isEmpty()) {
             throw new JiraException("No Black Duck Screen Schemes found or created");
         }
-        ticketInfoFromSetup.setCustomFields(fieldConfigurationSetup.getCustomFields());
 
         logger.debug("Number of Black Duck Screen Schemes found or created: " + screenSchemesByIssueType.size());
 
@@ -87,10 +84,7 @@ public class PreTaskSetup {
 
         // Associate these config objects with mapped projects
         adjustProjectsConfig(jiraServices, projectMappingConfig.getMappingsJson(), issueTypeSetup, issueTypes, screenSchemesByIssueType, fieldConfiguration, fieldConfigurationScheme, workflowSetup, workflow);
-    }
-
-    public JiraVersionCheck getJiraVersionCheck() throws ConfigurationException {
-        return new JiraVersionCheck();
+        return fieldConfigurationSetup.getCustomFields();
     }
 
     public BlackDuckFieldScreenSchemeSetup createBlackDuckFieldScreenSchemeSetup(final PluginErrorAccessor pluginErrorAccessor, final JiraServices jiraServices) {

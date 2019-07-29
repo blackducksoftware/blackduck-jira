@@ -37,6 +37,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
@@ -52,6 +55,7 @@ import com.blackducksoftware.integration.jira.web.model.TicketCreationErrorSeria
 
 @Path("/config/blackduck")
 public class BlackDuckConfigController extends ConfigController {
+    private final Logger logger = LoggerFactory.getLogger(getClass());
     private final JiraSettingsAccessor jiraSettingsAccessor;
     private final BlackDuckConfigActions blackDuckConfigActions;
 

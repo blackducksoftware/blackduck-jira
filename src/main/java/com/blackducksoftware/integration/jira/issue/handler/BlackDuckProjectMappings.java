@@ -30,9 +30,9 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.web.JiraServices;
 import com.blackducksoftware.integration.jira.web.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.web.model.JiraProject;
@@ -41,7 +41,7 @@ import com.synopsys.integration.blackduck.exception.BlackDuckIntegrationExceptio
 public class BlackDuckProjectMappings {
     public static final String MAP_ALL_PROJECTS = "-- ALL BLACK DUCK PROJECTS --";
 
-    private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
+    private final Logger logger = LoggerFactory.getLogger(BlackDuckProjectMapping.class);
 
     private final Set<BlackDuckProjectMapping> mappings;
     private final JiraServices jiraServices;

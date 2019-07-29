@@ -25,17 +25,19 @@ package com.blackducksoftware.integration.jira.task;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.atlassian.jira.issue.fields.CustomField;
 import com.atlassian.jira.security.groups.GroupManager;
 import com.atlassian.jira.user.ApplicationUser;
-import com.blackducksoftware.integration.jira.common.BlackDuckJiraLogger;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
-import com.blackducksoftware.integration.jira.common.TicketInfoFromSetup;
+import com.blackducksoftware.integration.jira.common.model.PluginField;
 import com.blackducksoftware.integration.jira.common.model.PluginGroupsConfigModel;
 import com.blackducksoftware.integration.jira.data.accessor.GlobalConfigurationAccessor;
 import com.blackducksoftware.integration.jira.data.accessor.JiraSettingsAccessor;
@@ -47,7 +49,7 @@ import com.blackducksoftware.integration.jira.web.JiraServices;
 import com.blackducksoftware.integration.jira.workflow.setup.PreTaskSetup;
 
 public class JiraTaskTimed implements Callable<String> {
-    private final BlackDuckJiraLogger logger = new BlackDuckJiraLogger(Logger.getLogger(this.getClass().getName()));
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final JiraSettingsAccessor jiraSettingsAccessor;
     private final JiraServices jiraServices;
@@ -72,7 +74,7 @@ public class JiraTaskTimed implements Callable<String> {
         logger.debug("Retrieved plugin settings");
         logger.debug("Last run date based on SAL: " + pluginConfigurationAccessor.getFirstTimeSave());
 
-        final Optional<JiraUserContext> optionalJiraUserContext = JiraUserContext.create(logger, pluginConfigurationAccessor.getJiraAdminUser(), generalIssueConfig.getDefaultIssueCreator(), jiraServices.getUserManager());
+        final Optional<JiraUserContext> optionalJiraUserContext = JiraUserContext.create(pluginConfigurationAccessor.getJiraAdminUser(), generalIssueConfig.getDefaultIssueCreator(), jiraServices.getUserManager());
         if (!optionalJiraUserContext.isPresent()) {
             logger.error("No (valid) user in configuration data; The plugin has likely not yet been configured; The task cannot run (yet)");
             return "error";
@@ -84,10 +86,10 @@ public class JiraTaskTimed implements Callable<String> {
             return "error";
         }
         final LocalDateTime beforeSetup = LocalDateTime.now();
-        final TicketInfoFromSetup ticketInfoFromSetup = new TicketInfoFromSetup();
+        final Map<PluginField, CustomField> ticketInfoFromSetup;
         try {
             final PreTaskSetup preTaskSetup = new PreTaskSetup();
-            preTaskSetup.runPluginSetup(jiraServices, pluginErrorAccessor, issueCreationConfig.getProjectMapping(), ticketInfoFromSetup, jiraUserContext);
+            ticketInfoFromSetup = preTaskSetup.runPluginSetup(jiraServices, pluginErrorAccessor, issueCreationConfig.getProjectMapping(), jiraUserContext);
         } catch (final Exception e) {
             logger.error("Error during JIRA setup: " + e.getMessage() + "; The task cannot run", e);
             return "error";
