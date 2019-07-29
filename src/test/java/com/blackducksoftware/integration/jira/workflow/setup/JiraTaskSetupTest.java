@@ -113,7 +113,6 @@ import com.blackducksoftware.integration.jira.web.JiraServices;
 import com.blackducksoftware.integration.jira.web.model.BlackDuckJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.web.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.web.model.JiraProject;
-import com.blackducksoftware.integration.jira.workflow.JiraVersionCheck;
 
 public class JiraTaskSetupTest {
     private static final int NUM_FIELDS = PluginField.values().length;
@@ -404,8 +403,6 @@ public class JiraTaskSetupTest {
         buildInfoUtil.setVersion("7.4.5");
         final int[] versionNumbers = { 7, 4, 5 };
         buildInfoUtil.setVersionNumbers(versionNumbers);
-        final JiraVersionCheck jiraVersionCheck = new JiraVersionCheck(buildInfoUtil);
-        Mockito.when(preTaskSetup.getJiraVersionCheck()).thenReturn(jiraVersionCheck);
 
         Mockito.when(fieldConfigSetup.createNewScreenImpl(Mockito.any(FieldScreenManager.class))).thenAnswer(x -> new FieldScreenMock());
         Mockito.when(fieldConfigSetup.createNewScreenSchemeImpl(Mockito.any(FieldScreenSchemeManager.class))).thenAnswer(x -> new FieldScreenSchemeMock());
