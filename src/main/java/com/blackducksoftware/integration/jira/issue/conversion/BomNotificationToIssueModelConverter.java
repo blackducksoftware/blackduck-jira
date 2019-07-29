@@ -148,7 +148,7 @@ public class BomNotificationToIssueModelConverter {
                 final Collection<BlackDuckIssueModel> createdIssueWrappers = populateModelFromContentDetail(jiraProject, projectVersionWrapper, notificationType, detail, notificationContent, batchStartDate);
                 issueWrapperList.addAll(createdIssueWrappers);
             } catch (final Exception e) {
-                logger.error("An error occurred while converting from notifications to models", e);
+                logger.error("An error occurred while converting from notification contents to models", e);
                 pluginErrorAccessor.addBlackDuckError(e, blackDuckProjectName, detail.getProjectVersionName().orElse("?"), jiraProject.getProjectName(), jiraUserContext.getJiraAdminUser().getName(),
                     jiraUserContext.getDefaultJiraIssueCreatorUser().getName(), "createEventDataFromContentDetail");
             }

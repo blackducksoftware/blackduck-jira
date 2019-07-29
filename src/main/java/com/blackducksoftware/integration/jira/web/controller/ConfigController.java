@@ -35,7 +35,6 @@ import com.blackducksoftware.integration.jira.data.accessor.GlobalConfigurationA
 import com.blackducksoftware.integration.jira.data.accessor.JiraSettingsAccessor;
 
 public class ConfigController {
-    // This must be "package protected" to avoid synthetic access
     private final PluginSettingsFactory pluginSettingsFactory;
     private final TransactionTemplate transactionTemplate;
     private final AuthorizationChecker authorizationChecker;

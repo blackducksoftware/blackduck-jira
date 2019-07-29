@@ -48,7 +48,6 @@ import org.slf4j.LoggerFactory;
 import com.atlassian.jira.bc.group.search.GroupPickerSearchService;
 import com.atlassian.jira.issue.fields.FieldManager;
 import com.atlassian.jira.project.ProjectManager;
-import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
@@ -61,7 +60,6 @@ import com.blackducksoftware.integration.jira.web.model.TicketCreationErrorSeria
 
 @Path("/")
 public class BlackDuckJiraConfigController extends ConfigController {
-    // This must be "package protected" to avoid synthetic access
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     // These must be "package protected" to avoid synthetic access
@@ -188,25 +186,6 @@ public class BlackDuckJiraConfigController extends ConfigController {
             return Response.ok(responseString).status(Status.BAD_REQUEST).build();
         }
         return Response.noContent().build();
-    }
-
-    // This must be "package protected" to avoid synthetic access
-    Object getValue(final PluginSettings settings, final String key) {
-        return settings.get(key);
-    }
-
-    // This must be "package protected" to avoid synthetic access
-    String getStringValue(final PluginSettings settings, final String key) {
-        return (String) getValue(settings, key);
-    }
-
-    // This must be "package protected" to avoid synthetic access
-    void setValue(final PluginSettings settings, final String key, final Object value) {
-        if (value == null) {
-            settings.remove(key);
-        } else {
-            settings.put(key, value);
-        }
     }
 
 }

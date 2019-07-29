@@ -48,7 +48,6 @@ import com.synopsys.integration.rest.HttpMethod;
 
 @Path("/config/access")
 public class AccessConfigController extends ConfigController {
-    // This must be "package protected" to avoid synthetic access
     private final Logger logger = LoggerFactory.getLogger(getClass());
     final AccessConfigActions accessConfigActions;
     final GroupPickerSearchService groupPickerSearchService;

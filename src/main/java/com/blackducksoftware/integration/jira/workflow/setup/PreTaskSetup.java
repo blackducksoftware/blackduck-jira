@@ -45,15 +45,12 @@ import com.blackducksoftware.integration.jira.issue.model.ProjectMappingConfigMo
 import com.blackducksoftware.integration.jira.web.JiraServices;
 import com.blackducksoftware.integration.jira.web.model.BlackDuckJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.web.model.BlackDuckProjectMapping;
-import com.blackducksoftware.integration.jira.workflow.JiraVersionCheck;
 
 public class PreTaskSetup {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     public Map<PluginField, CustomField> runPluginSetup(final JiraServices jiraServices, final PluginErrorAccessor pluginErrorAccessor, final ProjectMappingConfigModel projectMappingConfig, final JiraUserContext jiraContext)
         throws ConfigurationException, JiraException {
-        // Make sure current JIRA version is supported throws exception if not
-        getJiraVersionCheck();
 
         // Create Issue Types, workflow, etc.
         final BlackDuckIssueTypeSetup issueTypeSetup;
@@ -88,10 +85,6 @@ public class PreTaskSetup {
         // Associate these config objects with mapped projects
         adjustProjectsConfig(jiraServices, projectMappingConfig.getMappingsJson(), issueTypeSetup, issueTypes, screenSchemesByIssueType, fieldConfiguration, fieldConfigurationScheme, workflowSetup, workflow);
         return fieldConfigurationSetup.getCustomFields();
-    }
-
-    public JiraVersionCheck getJiraVersionCheck() throws ConfigurationException {
-        return new JiraVersionCheck();
     }
 
     public BlackDuckFieldScreenSchemeSetup createBlackDuckFieldScreenSchemeSetup(final PluginErrorAccessor pluginErrorAccessor, final JiraServices jiraServices) {
