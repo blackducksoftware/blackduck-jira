@@ -1,12 +1,32 @@
+/**
+ * Black Duck JIRA Plugin
+ *
+ * Copyright (C) 2019 Synopsys, Inc.
+ * https://www.synopsys.com/
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package com.blackducksoftware.integration.jira.issue.handler;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.atlassian.jira.bc.ServiceResultImpl;
 import com.atlassian.jira.bc.issue.IssueService;
@@ -24,8 +44,6 @@ import com.blackducksoftware.integration.jira.common.exception.JiraIssueExceptio
 import com.blackducksoftware.integration.jira.web.model.ProjectFieldCopyMapping;
 
 public class IssueEditor {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
-
     private IssueService issueService;
     private IssueFieldCopyMappingHandler issueFieldCopyMappingHandler;
     private CommentManager commentManager;
@@ -47,7 +65,6 @@ public class IssueEditor {
     }
 
     public Issue transitionIssue(Long issueId, ApplicationUser issueCreator, Integer transitionActionId, IssueInputParameters issueInputParameters) throws JiraIssueException {
-        issueInputParameters.setRetainExistingValuesWhenParameterNotProvided(true);
         final TransitionValidationResult validationResult = issueService.validateTransition(issueCreator, issueId, transitionActionId, issueInputParameters);
         return issueHandling(validationResult, "transitionIssue", () -> issueService.transition(issueCreator, validationResult));
     }

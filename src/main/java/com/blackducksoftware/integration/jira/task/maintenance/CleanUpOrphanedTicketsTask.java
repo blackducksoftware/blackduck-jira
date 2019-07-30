@@ -54,7 +54,6 @@ import com.blackducksoftware.integration.jira.issue.handler.JiraIssueServiceWrap
 import com.blackducksoftware.integration.jira.issue.model.GeneralIssueCreationConfigModel;
 import com.blackducksoftware.integration.jira.web.JiraServices;
 import com.google.common.collect.ImmutableMap;
-import com.google.gson.Gson;
 import com.opensymphony.workflow.loader.ActionDescriptor;
 import com.synopsys.integration.blackduck.exception.BlackDuckApiException;
 import com.synopsys.integration.blackduck.service.BlackDuckService;
@@ -142,7 +141,7 @@ public class CleanUpOrphanedTicketsTask implements Callable<String> {
         }
 
         try {
-            final JiraIssueServiceWrapper issueServiceWrapper = JiraIssueServiceWrapper.createIssueServiceWrapperFromJiraServices(jiraServices, jiraUserContext, new Gson(), ImmutableMap.of());
+            final JiraIssueServiceWrapper issueServiceWrapper = JiraIssueServiceWrapper.createIssueServiceWrapperFromJiraServices(jiraServices, jiraUserContext, ImmutableMap.of());
             findAndUpdateIssuesInBatches(issueServiceWrapper, jiraUserContext.getJiraAdminUser(), searchQuery, projectVersionUrlField, projectVersionLastUpdatedField, blackDuckService);
         } catch (final Exception e) {
             logger.warn("There was a problem while attempting to clean up orphan tickets: " + e.getMessage());

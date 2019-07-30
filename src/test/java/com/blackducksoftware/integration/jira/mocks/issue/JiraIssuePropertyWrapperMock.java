@@ -28,12 +28,13 @@ import java.lang.reflect.Field;
 import com.atlassian.jira.entity.property.EntityProperty;
 import com.blackducksoftware.integration.jira.issue.handler.JiraIssuePropertyWrapper;
 import com.blackducksoftware.integration.jira.web.JiraServices;
+import com.google.gson.GsonBuilder;
 
 public class JiraIssuePropertyWrapperMock extends JiraIssuePropertyWrapper {
     private final JiraServices jiraServices;
 
     public JiraIssuePropertyWrapperMock(final JiraServices jiraServices) {
-        super(jiraServices.getPropertyService(), jiraServices.getProjectPropertyService(), jiraServices.getJsonEntityPropertyManager());
+        super(jiraServices.getPropertyService(), jiraServices.getProjectPropertyService(), jiraServices.getJsonEntityPropertyManager(), new GsonBuilder().create());
         this.jiraServices = jiraServices;
     }
 

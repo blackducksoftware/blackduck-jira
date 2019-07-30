@@ -69,6 +69,7 @@ import com.atlassian.jira.workflow.WorkflowSchemeManager;
 import com.atlassian.plugin.util.ClassLoaderUtils;
 import com.blackducksoftware.integration.jira.issue.handler.JiraIssuePropertyWrapper;
 import com.blackducksoftware.integration.jira.web.model.JiraProject;
+import com.google.gson.GsonBuilder;
 import com.synopsys.integration.blackduck.exception.BlackDuckIntegrationException;
 
 @InjectableComponent
@@ -171,7 +172,7 @@ public class JiraServices {
     }
 
     public JiraIssuePropertyWrapper createIssuePropertyWrapper() {
-        return new JiraIssuePropertyWrapper(getPropertyService(), getProjectPropertyService(), getJsonEntityPropertyManager());
+        return new JiraIssuePropertyWrapper(getPropertyService(), getProjectPropertyService(), getJsonEntityPropertyManager(), new GsonBuilder().create());
     }
 
     public JiraProject getJiraProject(final Long jiraProjectId) throws BlackDuckIntegrationException {
