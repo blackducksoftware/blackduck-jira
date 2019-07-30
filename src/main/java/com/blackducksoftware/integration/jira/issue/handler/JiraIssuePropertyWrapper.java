@@ -24,9 +24,8 @@
 package com.blackducksoftware.integration.jira.issue.handler;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -70,15 +69,6 @@ public class JiraIssuePropertyWrapper {
         return null;
     }
 
-    public Map<String, String> getIssueProperties(final Long issueId, final ApplicationUser user) {
-        final Map<String, String> properties = new HashMap<>();
-        final List<EntityProperty> entityProperties = issuePropertyService.getProperties(user, issueId);
-        for (final EntityProperty entityProp : entityProperties) {
-            properties.put(entityProp.getKey(), entityProp.getValue());
-        }
-        return properties;
-    }
-
     public void addIssuePropertyJson(final Long issueId, final ApplicationUser user, final String key, final String jsonValue) throws JiraIssueException {
         logger.debug("addIssuePropertyJson(): issueId: " + issueId);
         if (isKeyOrValueBlank(key, jsonValue, "addIssuePropertyJson()")) {
@@ -117,6 +107,9 @@ public class JiraIssuePropertyWrapper {
     }
 
     public List<EntityProperty> findProperties(final String queryString) {
+        if (queryString == null) {
+            return Arrays.asList();
+        }
         logger.debug("Querying for property: " + queryString);
         final EntityPropertyQuery<?> query = jsonEntityPropertyManager.query();
         final EntityPropertyQuery.ExecutableQuery executableQuery = query.key(queryString);

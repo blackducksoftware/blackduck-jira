@@ -23,7 +23,6 @@
  */
 package com.blackducksoftware.integration.jira.issue.handler;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
@@ -193,7 +192,7 @@ public class JiraIssueHandler {
         try {
             final String bomComponentUri = blackDuckIssueModel.getBomComponentUri();
             logger.debug("Resolving all issues associated with the missing component: " + bomComponentUri);
-            final List<IssueProperties> foundProperties = findIssuePropertiesByBomComponentUri(bomComponentUri);
+            final List<IssueProperties> foundProperties = issueServiceWrapper.getIssuePropertyWrapper().findIssuePropertiesByBomComponentUri(bomComponentUri);
             for (final IssueProperties properties : foundProperties) {
                 blackDuckIssueModel.setJiraIssueId(properties.getJiraIssueId());
                 final Issue matchingIssue = issueServiceWrapper.getIssue(properties.getJiraIssueId());
@@ -332,7 +331,7 @@ public class JiraIssueHandler {
     }
 
     private Optional<Issue> findIssueByBomComponentUri(final BlackDuckIssueModel blackDuckIssueModel) throws JiraIssueException {
-        final List<IssueProperties> propertyCandidates = findIssuePropertiesByBomComponentUri(blackDuckIssueModel.getBomComponentUri());
+        final List<IssueProperties> propertyCandidates = issueServiceWrapper.getIssuePropertyWrapper().findIssuePropertiesByBomComponentUri(blackDuckIssueModel.getBomComponentUri());
         for (final IssueProperties candidate : propertyCandidates) {
             final Long candidateIssueId = candidate.getJiraIssueId();
             final IssueCategory candidateIssueType = candidate.getType();
@@ -353,13 +352,6 @@ public class JiraIssueHandler {
             }
         }
         return Optional.empty();
-    }
-
-    private List<IssueProperties> findIssuePropertiesByBomComponentUri(final String bomComponentUri) throws JiraIssueException {
-        if (bomComponentUri != null) {
-            return issueServiceWrapper.getIssuePropertyWrapper().findIssuePropertiesByBomComponentUri(bomComponentUri);
-        }
-        return Collections.emptyList();
     }
 
     private Issue createIssue(final BlackDuckIssueModel blackDuckIssueModel) {
