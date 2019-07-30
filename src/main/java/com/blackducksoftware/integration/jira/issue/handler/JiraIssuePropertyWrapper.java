@@ -45,6 +45,7 @@ import com.atlassian.jira.util.ErrorCollection;
 import com.blackducksoftware.integration.jira.common.exception.JiraIssueException;
 import com.blackducksoftware.integration.jira.issue.conversion.output.IssueProperties;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class JiraIssuePropertyWrapper {
     private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -54,11 +55,11 @@ public class JiraIssuePropertyWrapper {
     private final JsonEntityPropertyManager jsonEntityPropertyManager;
     private Gson gson;
 
-    public JiraIssuePropertyWrapper(final IssuePropertyService issuePropertyService, final ProjectPropertyService projectPropertyService, final JsonEntityPropertyManager jsonEntityPropertyManager, final Gson gson) {
+    public JiraIssuePropertyWrapper(final IssuePropertyService issuePropertyService, final ProjectPropertyService projectPropertyService, final JsonEntityPropertyManager jsonEntityPropertyManager) {
         this.issuePropertyService = issuePropertyService;
         this.projectPropertyService = projectPropertyService;
         this.jsonEntityPropertyManager = jsonEntityPropertyManager;
-        this.gson = gson;
+        this.gson = new GsonBuilder().create();
     }
 
     public String getIssueProperty(final Long issueId, final ApplicationUser user, final String propertyName) {
