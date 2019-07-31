@@ -45,13 +45,16 @@ import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.issue.model.IssueCategory;
 import com.synopsys.integration.blackduck.api.core.LinkSingleResponse;
 import com.synopsys.integration.blackduck.api.generated.component.RemediatingVersionView;
+import com.synopsys.integration.blackduck.api.generated.component.RiskCountView;
 import com.synopsys.integration.blackduck.api.generated.component.VersionBomLicenseView;
 import com.synopsys.integration.blackduck.api.generated.enumeration.ComplexLicenseType;
+import com.synopsys.integration.blackduck.api.generated.enumeration.RiskCountType;
 import com.synopsys.integration.blackduck.api.generated.response.RemediationOptionsView;
 import com.synopsys.integration.blackduck.api.generated.view.ComplexLicenseView;
 import com.synopsys.integration.blackduck.api.generated.view.ComponentVersionView;
 import com.synopsys.integration.blackduck.api.generated.view.LicenseView;
 import com.synopsys.integration.blackduck.api.generated.view.ProjectVersionView;
+import com.synopsys.integration.blackduck.api.generated.view.RiskProfileView;
 import com.synopsys.integration.exception.IntegrationException;
 
 public class DataFormatHelper {
@@ -141,13 +144,35 @@ public class DataFormatHelper {
         return commentText.toString();
     }
 
-    public String generateVulnerabilitiesComment(final List<NotificationVulnerability> addedIds, final List<NotificationVulnerability> updatedIds, final List<NotificationVulnerability> deletedIds) {
+    public String generateVulnerabilitiesComment(final List<NotificationVulnerability> addedIds, final List<NotificationVulnerability> updatedIds, final List<NotificationVulnerability> deletedIds, RiskProfileView riskProfileView) {
         final StringBuilder commentText = new StringBuilder();
         commentText.append("(Black Duck plugin auto-generated comment)\n");
         appendVulnerabilitiesCommentText(commentText, addedIds, "added");
         appendVulnerabilitiesCommentText(commentText, updatedIds, "updated");
         appendVulnerabilitiesCommentText(commentText, deletedIds, "deleted");
+
+        appendVulnerabilitiesCountComment(commentText, riskProfileView);
         return commentText.toString();
+    }
+
+    private void appendVulnerabilitiesCountComment(StringBuilder commentText, RiskProfileView riskProfileView) {
+        commentText.append("\n");
+        commentText.append("Vulnerabilities Added/Updated:");
+
+        final List<RiskCountView> counts = riskProfileView.getCounts();
+        for (RiskCountView riskCountView : counts) {
+            final Integer count = riskCountView.getCount();
+            final RiskCountType countType = riskCountView.getCountType();
+            if (count != null && count > 0 && countType != null) {
+                final String severity = countType.prettyPrint();
+                commentText.append("\n");
+                commentText.append(severity);
+                commentText.append(": ");
+                commentText.append(count);
+            }
+
+        }
+
     }
 
     private void appendRemediationOptionsText(final StringBuilder stringBuilder, final ComponentVersionView componentVersionView) {
