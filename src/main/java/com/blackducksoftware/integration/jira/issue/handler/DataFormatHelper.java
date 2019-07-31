@@ -150,7 +150,6 @@ public class DataFormatHelper {
         appendVulnerabilitiesCommentText(commentText, addedIds, "added");
         appendVulnerabilitiesCommentText(commentText, updatedIds, "updated");
         appendVulnerabilitiesCommentText(commentText, deletedIds, "deleted");
-
         appendVulnerabilitiesCountComment(commentText, riskProfileView);
         return commentText.toString();
     }
@@ -170,9 +169,7 @@ public class DataFormatHelper {
                 commentText.append(": ");
                 commentText.append(count);
             }
-
         }
-
     }
 
     private void appendRemediationOptionsText(final StringBuilder stringBuilder, final ComponentVersionView componentVersionView) {
