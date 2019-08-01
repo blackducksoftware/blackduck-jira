@@ -251,7 +251,8 @@ public class BomNotificationToIssueModelConverter {
         final List<VulnerabilitySourceQualifiedId> addedIds, final List<VulnerabilitySourceQualifiedId> updatedIds, final List<VulnerabilitySourceQualifiedId> deletedIds) throws IntegrationException, ConfigurationException {
         logger.debug("Creating model for vulnerability");
 
-        final String comment = dataFormatHelper.generateVulnerabilitiesComment(convertToNotificationVulnerabilities(addedIds), convertToNotificationVulnerabilities(updatedIds), convertToNotificationVulnerabilities(deletedIds));
+        final String comment = dataFormatHelper
+                                   .generateVulnerabilitiesComment(convertToNotificationVulnerabilities(addedIds), convertToNotificationVulnerabilities(updatedIds), convertToNotificationVulnerabilities(deletedIds), securityRiskProfile);
         blackDuckIssueModelBuilder.setVulnerabilityComments(comment);
 
         if (!NotificationType.BOM_EDIT.equals(notificationType)) {
