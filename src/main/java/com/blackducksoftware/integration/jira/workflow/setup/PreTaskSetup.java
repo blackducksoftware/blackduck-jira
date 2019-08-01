@@ -50,7 +50,7 @@ public class PreTaskSetup {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     public Map<PluginField, CustomField> runPluginSetup(final JiraServices jiraServices, final PluginErrorAccessor pluginErrorAccessor, final ProjectMappingConfigModel projectMappingConfig, final JiraUserContext jiraContext)
-        throws ConfigurationException, JiraException {
+        throws JiraException {
 
         // Create Issue Types, workflow, etc.
         final BlackDuckIssueTypeSetup issueTypeSetup;

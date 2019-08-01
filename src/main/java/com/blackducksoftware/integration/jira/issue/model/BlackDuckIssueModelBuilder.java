@@ -241,7 +241,7 @@ public class BlackDuckIssueModelBuilder extends Stringable implements Cloneable 
         this.licenseString = dataFormatHelper.getComponentLicensesStringPlainText(versionBomComponent.getLicenses());
         this.licenseLink = dataFormatHelper.getLicenseTextLink(versionBomComponent.getLicenses(), this.licenseString);
         this.usagesString = createCommaSeparatedString(versionBomComponent.getUsages(), MatchedFileUsagesType::prettyPrint);
-        this.updatedTimeString = dataFormatHelper.getBomLastUpdated(projectVersion);
+        this.updatedTimeString = dataFormatHelper.getBomLastUpdatedDateFormatted(projectVersion);
 
         this.bomComponentUri = blackDuckDataHelper.getHrefNullable(versionBomComponent);
         this.componentIssueUrl = blackDuckDataHelper.getFirstLinkSafely(versionBomComponent, VersionBomComponentView.COMPONENT_ISSUES_LINK);

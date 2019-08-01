@@ -45,14 +45,14 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final EventPublisher eventPublisher;
     private final PluginSettingsFactory pluginSettingsFactory;
-    private final JiraIssuePropertyWrapper issueProperyWrapper;
+    private final JiraIssuePropertyWrapper issuePropertyWrapper;
 
     private final ExecutorService executorService;
 
-    public IssueEventListener(final EventPublisher eventPublisher, final PluginSettingsFactory pluginSettingsFactory, final JiraIssuePropertyWrapper issueProperyWrapper) {
+    public IssueEventListener(final EventPublisher eventPublisher, final PluginSettingsFactory pluginSettingsFactory, final JiraIssuePropertyWrapper issuePropertyWrapper) {
         this.eventPublisher = eventPublisher;
         this.pluginSettingsFactory = pluginSettingsFactory;
-        this.issueProperyWrapper = issueProperyWrapper;
+        this.issuePropertyWrapper = issuePropertyWrapper;
         this.executorService = createExecutorService();
     }
 
@@ -83,7 +83,7 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
                 logger.debug(String.format("Issue:            %s", issue));
 
                 final String propertyKey = IssueTrackerHandler.createEntityPropertyKey(issue.getId());
-                final EntityProperty blackDuckIssueUrlProperty = issueProperyWrapper.findProperty(propertyKey);
+                final EntityProperty blackDuckIssueUrlProperty = issuePropertyWrapper.findProperty(propertyKey);
 
                 if (blackDuckIssueUrlProperty == null) {
                     logger.debug(String.format("Black Duck Issue Tracker URL not present. No further processing for issue: %s", issue));
@@ -98,7 +98,7 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
     }
 
     public IssueTrackerTask createTask(final Issue issue, final Long eventTypeID, final PluginSettings settings, final String propertyKey, final EntityProperty property) {
-        return new IssueTrackerTask(issue, issueProperyWrapper, eventTypeID, settings, propertyKey, property);
+        return new IssueTrackerTask(issue, issuePropertyWrapper, eventTypeID, settings, propertyKey, property);
     }
 
 }

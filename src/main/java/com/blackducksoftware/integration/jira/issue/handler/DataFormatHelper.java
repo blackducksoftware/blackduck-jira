@@ -65,10 +65,6 @@ public class DataFormatHelper {
         this.blackDuckDataHelper = blackDuckDataHelper;
     }
 
-    public String getIssueDescription(final IssueCategory issueCategory, final String projectVersionUrl, final String componentVersionUrl, final boolean includeRemediationInfo) {
-        return getIssueDescription(issueCategory, projectVersionUrl, null, componentVersionUrl, includeRemediationInfo);
-    }
-
     public String getIssueDescription(final IssueCategory issueCategory, final String projectVersionUrl, final String componentName, final String componentVersionUrl, final boolean includeRemediationInfo) {
         final StringBuilder issueDescription = new StringBuilder();
 
@@ -222,7 +218,7 @@ public class DataFormatHelper {
         commentText.append("\n");
     }
 
-    public String getBomLastUpdated(final ProjectVersionView projectVersion) {
+    public String getBomLastUpdatedDateFormatted(final ProjectVersionView projectVersion) {
         try {
             return blackDuckDataHelper.getResponse(projectVersion, ProjectVersionView.RISKPROFILE_LINK_RESPONSE)
                        .map(versionRiskProfileView -> new SimpleDateFormat().format(versionRiskProfileView.getBomLastUpdatedAt()))
@@ -241,28 +237,12 @@ public class DataFormatHelper {
         return "";
     }
 
-    public String getComponentLicensesStringWithLinksAtlassianFormat(final List<VersionBomLicenseView> licenses) {
-        if (CollectionUtils.isNotEmpty(licenses)) {
-            final EventDataLicense license = getEventLicense(licenses);
-            return getComponentLicensesString(license, true);
-        }
-        return "";
-    }
-
     private EventDataLicense getEventLicense(final List<VersionBomLicenseView> licenses) {
         if (licenses.size() == 1) {
             return new EventDataLicense(licenses.get(0));
         }
 
         return new EventDataLicense(licenses);
-    }
-
-    public String getComponentLicensesStringPlainText(final ComponentVersionView componentVersion) {
-        if (componentVersion != null) {
-            final EventDataLicense license = new EventDataLicense(componentVersion.getLicense());
-            return getComponentLicensesString(license, false);
-        }
-        return "";
     }
 
     public String getComponentLicensesStringWithLinksAtlassianFormat(final ComponentVersionView componentVersion) {
@@ -318,25 +298,25 @@ public class DataFormatHelper {
                     if (licenseIndex++ > 0) {
                         sb.append(licenseJoinString);
                     }
-                    createLicenseString(sb, license, includeLinks);
+                    createLicenseString(sb, license.licenseUrl, license.licenseDisplay, includeLinks);
                 }
 
             } else {
-                createLicenseString(sb, eventDataLicense, includeLinks);
+                createLicenseString(sb, eventDataLicense.licenseUrl, eventDataLicense.licenseDisplay, includeLinks);
             }
             licensesString = sb.toString();
         }
         return licensesString;
     }
 
-    private void createLicenseString(final StringBuilder sb, final EventDataLicense license, final boolean includeLinks) {
-        final String licenseTextUrl = getLicenseTextUrl(license);
+    private void createLicenseString(final StringBuilder sb, final String licenseUrl, String licenseDisplay, final boolean includeLinks) {
+        final String licenseTextUrl = getLicenseTextUrl(licenseUrl);
         logger.debug("Link to license text: " + licenseTextUrl);
 
         if (includeLinks) {
             sb.append("[");
         }
-        sb.append(license.licenseDisplay);
+        sb.append(licenseDisplay);
         if (includeLinks) {
             sb.append("|");
             sb.append(licenseTextUrl);
@@ -344,8 +324,7 @@ public class DataFormatHelper {
         }
     }
 
-    private String getLicenseTextUrl(final EventDataLicense license) {
-        final String licenseUrl = license.licenseUrl;
+    private String getLicenseTextUrl(final String licenseUrl) {
         try {
             final ComplexLicenseView fullLicense = blackDuckDataHelper.getResponse(licenseUrl, ComplexLicenseView.class);
             return blackDuckDataHelper.getFirstLink(fullLicense, "text").orElse(blackDuckDataHelper.getBlackDuckBaseUrl());

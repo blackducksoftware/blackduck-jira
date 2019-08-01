@@ -52,7 +52,6 @@ import com.blackducksoftware.integration.jira.workflow.notification.CommonNotifi
 import com.blackducksoftware.integration.jira.workflow.notification.CommonNotificationView;
 import com.blackducksoftware.integration.jira.workflow.notification.NotificationDetailResult;
 import com.blackducksoftware.integration.jira.workflow.notification.NotificationDetailResults;
-import com.google.gson.GsonBuilder;
 import com.synopsys.integration.blackduck.api.generated.enumeration.NotificationType;
 import com.synopsys.integration.blackduck.api.generated.view.UserView;
 import com.synopsys.integration.blackduck.api.manual.view.NotificationUserView;
@@ -116,7 +115,7 @@ public class TicketGenerator {
             logger.info(String.format("There are %d notifications to handle", notificationDetailResults.size()));
 
             if (!notificationDetailResults.isEmpty()) {
-                final JiraIssueServiceWrapper issueServiceWrapper = JiraIssueServiceWrapper.createIssueServiceWrapperFromJiraServices(jiraServices, jiraUserContext, new GsonBuilder().create(), customFields);
+                final JiraIssueServiceWrapper issueServiceWrapper = JiraIssueServiceWrapper.createIssueServiceWrapperFromJiraServices(jiraServices, jiraUserContext, customFields);
                 final JiraIssueHandler issueHandler = new JiraIssueHandler(issueServiceWrapper, pluginErrorAccessor, issueTrackerHandler, jiraServices.getAuthContext(), jiraUserContext, ticketCriteria);
 
                 final BlackDuckDataHelper blackDuckDataHelper = new BlackDuckDataHelper(logger, blackDuckService, blackDuckBucket);

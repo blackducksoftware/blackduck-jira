@@ -23,7 +23,6 @@
  */
 package com.blackducksoftware.integration.jira.issue.handler;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -32,12 +31,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.atlassian.jira.bc.issue.IssueService;
-import com.atlassian.jira.bc.issue.IssueService.CreateValidationResult;
 import com.atlassian.jira.bc.issue.IssueService.IssueResult;
-import com.atlassian.jira.bc.issue.IssueService.TransitionValidationResult;
-import com.atlassian.jira.bc.issue.IssueService.UpdateValidationResult;
 import com.atlassian.jira.bc.issue.search.SearchService;
-import com.atlassian.jira.entity.property.EntityProperty;
 import com.atlassian.jira.event.type.EventDispatchOption;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.IssueInputParameters;
@@ -49,7 +44,6 @@ import com.atlassian.jira.issue.search.SearchException;
 import com.atlassian.jira.issue.search.SearchResults;
 import com.atlassian.jira.issue.watchers.WatcherManager;
 import com.atlassian.jira.user.ApplicationUser;
-import com.atlassian.jira.util.ErrorCollection;
 import com.atlassian.jira.web.bean.PagerFilter;
 import com.atlassian.jira.workflow.JiraWorkflow;
 import com.atlassian.jira.workflow.WorkflowManager;
@@ -57,12 +51,10 @@ import com.atlassian.query.Query;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.exception.JiraIssueException;
 import com.blackducksoftware.integration.jira.common.model.PluginField;
-import com.blackducksoftware.integration.jira.issue.conversion.output.IssueProperties;
 import com.blackducksoftware.integration.jira.issue.model.BlackDuckIssueFieldTemplate;
 import com.blackducksoftware.integration.jira.issue.model.BlackDuckIssueModel;
 import com.blackducksoftware.integration.jira.issue.model.JiraIssueFieldTemplate;
 import com.blackducksoftware.integration.jira.web.JiraServices;
-import com.google.gson.Gson;
 
 public class JiraIssueServiceWrapper {
     private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -74,29 +66,27 @@ public class JiraIssueServiceWrapper {
     private final WatcherManager watcherManager;
     private final SearchService jiraSearchService;
     private final JiraIssuePropertyWrapper issuePropertyWrapper;
-    private final IssueFieldCopyMappingHandler issueFieldCopyHandler;
     private final ApplicationUser jiraAdminUser;
     private final Map<PluginField, CustomField> customFieldsMap;
-    private final Gson gson;
+    private IssueEditor issueEditor;
 
     public JiraIssueServiceWrapper(final IssueService jiraIssueService, final IssueManager jiraIssueManager, final CommentManager commentManager, final WorkflowManager workflowManager,
-        final SearchService searchService, final JiraIssuePropertyWrapper issuePropertyWrapper,
-        final IssueFieldCopyMappingHandler issueFieldCopyHandler, final ApplicationUser jiraAdminUser, final Map<PluginField, CustomField> customFieldsMap, final Gson gson, final WatcherManager watcherManager) {
+        final SearchService searchService, final JiraIssuePropertyWrapper issuePropertyWrapper, final IssueFieldCopyMappingHandler issueFieldCopyHandler, final ApplicationUser jiraAdminUser,
+        final Map<PluginField, CustomField> customFieldsMap, final WatcherManager watcherManager) {
         this.jiraIssueService = jiraIssueService;
         this.jiraIssueManager = jiraIssueManager;
         this.commentManager = commentManager;
         this.workflowManager = workflowManager;
         this.jiraSearchService = searchService;
         this.issuePropertyWrapper = issuePropertyWrapper;
-        this.issueFieldCopyHandler = issueFieldCopyHandler;
         this.jiraAdminUser = jiraAdminUser;
         this.customFieldsMap = customFieldsMap;
-        this.gson = gson;
         this.watcherManager = watcherManager;
+        this.issueEditor = new IssueEditor(jiraIssueService, issueFieldCopyHandler, commentManager);
     }
 
     // @formatter:off
-    public static JiraIssueServiceWrapper createIssueServiceWrapperFromJiraServices(final JiraServices jiraServices, final JiraUserContext jiraUserContext, final Gson gson, final Map<PluginField, CustomField> customFieldsMap) {
+    public static JiraIssueServiceWrapper createIssueServiceWrapperFromJiraServices(final JiraServices jiraServices, final JiraUserContext jiraUserContext, final Map<PluginField, CustomField> customFieldsMap) {
         return new JiraIssueServiceWrapper(
                  jiraServices.getIssueService()
                 ,jiraServices.getIssueManager()
@@ -107,7 +97,6 @@ public class JiraIssueServiceWrapper {
                 ,new IssueFieldCopyMappingHandler(jiraServices, jiraUserContext, customFieldsMap)
                 ,jiraUserContext.getJiraAdminUser()
                 ,customFieldsMap
-                ,gson
                 ,jiraServices.getWatcherManager());
     }
     // @formatter:on
@@ -138,48 +127,23 @@ public class JiraIssueServiceWrapper {
         logger.debug("issueInputParameters.applyDefaultValuesWhenParameterNotProvided(): " + issueInputParameters.applyDefaultValuesWhenParameterNotProvided());
         logger.debug("issueInputParameters.retainExistingValuesWhenParameterNotProvided(): " + issueInputParameters.retainExistingValuesWhenParameterNotProvided());
 
-        final Map<Long, String> blackDuckFieldMappings = blackDuckIssueModel.getBlackDuckIssueTemplate().createBlackDuckFieldMappings(customFieldsMap);
         final JiraIssueFieldTemplate jiraIssueFieldTemplate = blackDuckIssueModel.getJiraIssueFieldTemplate();
-        final List<String> labels = issueFieldCopyHandler.setFieldCopyMappings(issueInputParameters, blackDuckIssueModel.getProjectFieldCopyMappings(), blackDuckFieldMappings,
-            jiraIssueFieldTemplate.getProjectName(), jiraIssueFieldTemplate.getProjectId());
+        final ApplicationUser issueCreator = jiraIssueFieldTemplate.getIssueCreator();
+        final Issue issue = issueEditor.createIssue(issueCreator, issueInputParameters);
+        final Map<Long, String> blackDuckFieldMappings = blackDuckIssueModel.getBlackDuckIssueTemplate().createBlackDuckFieldMappings(customFieldsMap);
+        issueEditor.addLabel(issue, blackDuckIssueModel.getProjectFieldCopyMappings(), issueInputParameters, blackDuckFieldMappings);
 
-        final CreateValidationResult validationResult = jiraIssueService.validateCreate(jiraIssueFieldTemplate.getIssueCreator(), issueInputParameters);
-
-        if (validationResult.isValid()) {
-            final IssueResult result = jiraIssueService.create(jiraIssueFieldTemplate.getIssueCreator(), validationResult);
-            final ErrorCollection errors = result.getErrorCollection();
-            if (!errors.hasAnyErrors()) {
-                final MutableIssue jiraIssue = result.getIssue();
-                issueFieldCopyHandler.addLabels(jiraIssue.getId(), labels);
-                return jiraIssue;
-            }
-            throw new JiraIssueException("createIssue", errors);
-        }
-        throw new JiraIssueException("createIssue", validationResult.getErrorCollection());
+        return issue;
     }
 
     public Issue updateIssue(final BlackDuckIssueModel blackDuckIssueModel) throws JiraIssueException {
         final Long jiraIssueId = blackDuckIssueModel.getJiraIssueId();
         logger.debug("Update issue (id: " + jiraIssueId + "): " + blackDuckIssueModel);
         final IssueInputParameters issueInputParameters = createPopulatedIssueInputParameters(blackDuckIssueModel);
-
+        final Issue issue = issueEditor.editIssue(jiraIssueId, blackDuckIssueModel.getJiraIssueFieldTemplate().getIssueCreator(), issueInputParameters);
         final Map<Long, String> blackDuckFieldMappings = blackDuckIssueModel.getBlackDuckIssueTemplate().createBlackDuckFieldMappings(customFieldsMap);
-        final JiraIssueFieldTemplate jiraIssueFieldTemplate = blackDuckIssueModel.getJiraIssueFieldTemplate();
-        final List<String> labels = issueFieldCopyHandler.setFieldCopyMappings(issueInputParameters, blackDuckIssueModel.getProjectFieldCopyMappings(), blackDuckFieldMappings,
-            jiraIssueFieldTemplate.getProjectName(), jiraIssueFieldTemplate.getProjectId());
-        final UpdateValidationResult validationResult = jiraIssueService.validateUpdate(jiraIssueFieldTemplate.getIssueCreator(), jiraIssueId, issueInputParameters);
-        if (validationResult.isValid()) {
-            final boolean sendMail = false;
-            final IssueResult result = jiraIssueService.update(jiraIssueFieldTemplate.getIssueCreator(), validationResult, EventDispatchOption.ISSUE_UPDATED, sendMail);
-            final ErrorCollection errors = result.getErrorCollection();
-            if (!errors.hasAnyErrors()) {
-                final MutableIssue jiraIssue = result.getIssue();
-                issueFieldCopyHandler.addLabels(jiraIssue.getId(), labels);
-                return jiraIssue;
-            }
-            throw new JiraIssueException("updateIssue", errors);
-        }
-        throw new JiraIssueException("updateIssue", validationResult.getErrorCollection());
+        issueEditor.addLabel(issue, blackDuckIssueModel.getProjectFieldCopyMappings(), issueInputParameters, blackDuckFieldMappings);
+        return issue;
     }
 
     public Issue updateCustomField(final Issue issue, final ApplicationUser updater, final CustomField customField, final Object newFieldValue) throws JiraIssueException {
@@ -197,20 +161,7 @@ public class JiraIssueServiceWrapper {
         logger.debug("Transition issue (" + existingIssue.getKey() + "): " + transitionActionId);
         final IssueInputParameters issueInputParameters = jiraIssueService.newIssueInputParameters();
         issueInputParameters.setRetainExistingValuesWhenParameterNotProvided(true);
-
-        logger.debug("Previous issue status: " + existingIssue.getStatus().getName());
-        final TransitionValidationResult validationResult = jiraIssueService.validateTransition(existingIssue.getCreator(), existingIssue.getId(), transitionActionId, issueInputParameters);
-        if (validationResult.isValid()) {
-            final IssueResult result = jiraIssueService.transition(existingIssue.getCreator(), validationResult);
-            final ErrorCollection errors = result.getErrorCollection();
-            if (!errors.hasAnyErrors()) {
-                final Issue jiraIssue = result.getIssue();
-                logger.debug("New issue status: " + jiraIssue.getStatus().getName());
-                return jiraIssue;
-            }
-            throw new JiraIssueException("transitionIssue", errors);
-        }
-        throw new JiraIssueException("transitionIssue", validationResult.getErrorCollection());
+        return issueEditor.transitionIssue(existingIssue.getId(), existingIssue.getCreator(), transitionActionId, issueInputParameters);
     }
 
     public void addComment(final Issue issue, final String comment) {
@@ -218,41 +169,12 @@ public class JiraIssueServiceWrapper {
         commentManager.create(issue, issue.getCreator(), comment, dispatchCommentEvent);
     }
 
-    public String getIssueProperty(final Long issueId, final String propertyName) {
-        return issuePropertyWrapper.getIssueProperty(issueId, jiraAdminUser, propertyName);
+    public JiraIssuePropertyWrapper getIssuePropertyWrapper() {
+        return issuePropertyWrapper;
     }
 
-    public List<IssueProperties> findIssuePropertiesByBomComponentUri(final String bomComponentUri) throws JiraIssueException {
-        logger.debug("Find issue by Bom Component URI: " + bomComponentUri);
-        final List<IssueProperties> foundProperties = new ArrayList<>();
-
-        final List<EntityProperty> properties = issuePropertyWrapper.findProperties(bomComponentUri);
-        for (final EntityProperty property : properties) {
-            final IssueProperties issueProperties = createIssuePropertiesFromJson(property.getValue());
-            logger.debug("findIssuesByBomComponentUri(): propertyValue (converted from JSON): " + issueProperties);
-            foundProperties.add(issueProperties);
-        }
-        return foundProperties;
-    }
-
-    public void addIssueProperties(final Long issueId, final String key, final IssueProperties propertiesObject) throws JiraIssueException {
-        String jsonValue = "";
-        if (null != propertiesObject) {
-            jsonValue = gson.toJson(propertiesObject);
-        }
-        addIssuePropertyJson(issueId, key, jsonValue);
-    }
-
-    public void addIssuePropertyJson(final Long issueId, final String key, final String jsonValue) throws JiraIssueException {
-        issuePropertyWrapper.addIssuePropertyJson(issueId, jiraAdminUser, key, jsonValue);
-    }
-
-    public void addProjectProperty(final Long issueId, final String key, final Object value) throws JiraIssueException {
-        String jsonValue = "";
-        if (null != value) {
-            jsonValue = gson.toJson(value);
-        }
-        issuePropertyWrapper.addProjectPropertyJson(issueId, jiraAdminUser, key, jsonValue);
+    public ApplicationUser getJiraAdminUser() {
+        return jiraAdminUser;
     }
 
     public JiraWorkflow getWorkflow(final Issue issue) {
@@ -262,14 +184,6 @@ public class JiraIssueServiceWrapper {
     public void addWatcher(final Issue issue, final ApplicationUser watcher) {
         if (!watcherManager.isWatching(watcher, issue)) {
             watcherManager.startWatching(watcher, issue);
-        }
-    }
-
-    private IssueProperties createIssuePropertiesFromJson(final String json) throws JiraIssueException {
-        try {
-            return gson.fromJson(json, IssueProperties.class);
-        } catch (final Exception e) {
-            throw new JiraIssueException("Could not deserialize issue properties.", "createIssuePropertiesFromJson");
         }
     }
 

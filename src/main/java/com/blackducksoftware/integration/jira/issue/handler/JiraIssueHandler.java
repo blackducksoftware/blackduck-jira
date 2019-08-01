@@ -23,7 +23,6 @@
  */
 package com.blackducksoftware.integration.jira.issue.handler;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
@@ -193,7 +192,7 @@ public class JiraIssueHandler {
         try {
             final String bomComponentUri = blackDuckIssueModel.getBomComponentUri();
             logger.debug("Resolving all issues associated with the missing component: " + bomComponentUri);
-            final List<IssueProperties> foundProperties = findIssuePropertiesByBomComponentUri(bomComponentUri);
+            final List<IssueProperties> foundProperties = issueServiceWrapper.getIssuePropertyWrapper().findIssuePropertiesByBomComponentUri(bomComponentUri);
             for (final IssueProperties properties : foundProperties) {
                 blackDuckIssueModel.setJiraIssueId(properties.getJiraIssueId());
                 final Issue matchingIssue = issueServiceWrapper.getIssue(properties.getJiraIssueId());
@@ -278,7 +277,7 @@ public class JiraIssueHandler {
         logger.debug(String.format("Attempting to add comment to %s: %s", issueKey, comment));
         if (StringUtils.isNotBlank(comment) && !checkIfAlreadyProcessedAndUpdateLastBatch(blackDuckIssueModel)) {
             final String newCommentKey = String.valueOf(comment.hashCode());
-            final String storedLastCommentKey = issueServiceWrapper.getIssueProperty(issue.getId(), BlackDuckJiraConstants.BLACKDUCK_JIRA_ISSUE_LAST_COMMENT_KEY);
+            final String storedLastCommentKey = issueServiceWrapper.getIssuePropertyWrapper().getIssueProperty(issue.getId(), jiraUserContext.getJiraAdminUser(), BlackDuckJiraConstants.BLACKDUCK_JIRA_ISSUE_LAST_COMMENT_KEY);
             if (storedLastCommentKey != null && newCommentKey.equals(storedLastCommentKey)) {
                 // This comment would be a duplicate of the previous one, so there is no need to add it.
                 logger.debug("Ignoring a comment that would be an exact duplicate of the previous comment.");
@@ -286,7 +285,7 @@ public class JiraIssueHandler {
             }
             issueServiceWrapper.addComment(issue, comment);
             try {
-                issueServiceWrapper.addIssuePropertyJson(blackDuckIssueModel.getJiraIssueId(), BlackDuckJiraConstants.BLACKDUCK_JIRA_ISSUE_LAST_COMMENT_KEY, newCommentKey);
+                issueServiceWrapper.getIssuePropertyWrapper().addIssuePropertyJson(blackDuckIssueModel.getJiraIssueId(), jiraUserContext.getJiraAdminUser(), BlackDuckJiraConstants.BLACKDUCK_JIRA_ISSUE_LAST_COMMENT_KEY, newCommentKey);
             } catch (final JiraIssueException e) {
                 handleJiraIssueException(e, blackDuckIssueModel);
             }
@@ -299,7 +298,7 @@ public class JiraIssueHandler {
             final IssueTrackerProperties issueTrackerProperties = new IssueTrackerProperties(blackDuckIssueUrl, blackDuckIssueModel.getJiraIssueId());
             try {
                 final String key = IssueTrackerHandler.createEntityPropertyKey(blackDuckIssueModel.getJiraIssueId());
-                issueServiceWrapper.addProjectProperty(blackDuckIssueModel.getJiraIssueFieldTemplate().getProjectId(), key, issueTrackerProperties);
+                issueServiceWrapper.getIssuePropertyWrapper().addProjectProperty(blackDuckIssueModel.getJiraIssueFieldTemplate().getProjectId(), jiraUserContext.getJiraAdminUser(), key, issueTrackerProperties);
             } catch (final JiraIssueException e) {
                 handleJiraIssueException(e, blackDuckIssueModel);
             }
@@ -313,7 +312,7 @@ public class JiraIssueHandler {
             final IssueProperties properties = new IssueProperties(category, blackDuckIssueModel.getBomComponentUri(), blackDuckIssueFieldTemplate.getPolicyRuleName(), blackDuckIssueModel.getJiraIssueId());
             logger.debug("Setting default properties on issue: " + properties);
             try {
-                issueServiceWrapper.addIssueProperties(blackDuckIssueModel.getJiraIssueId(), blackDuckIssueModel.getBomComponentUri(), properties);
+                issueServiceWrapper.getIssuePropertyWrapper().addIssueProperties(blackDuckIssueModel.getJiraIssueId(), jiraUserContext.getJiraAdminUser(), blackDuckIssueModel.getBomComponentUri(), properties);
             } catch (final JiraIssueException e) {
                 handleJiraIssueException(e, blackDuckIssueModel);
             }
@@ -332,7 +331,7 @@ public class JiraIssueHandler {
     }
 
     private Optional<Issue> findIssueByBomComponentUri(final BlackDuckIssueModel blackDuckIssueModel) throws JiraIssueException {
-        final List<IssueProperties> propertyCandidates = findIssuePropertiesByBomComponentUri(blackDuckIssueModel.getBomComponentUri());
+        final List<IssueProperties> propertyCandidates = issueServiceWrapper.getIssuePropertyWrapper().findIssuePropertiesByBomComponentUri(blackDuckIssueModel.getBomComponentUri());
         for (final IssueProperties candidate : propertyCandidates) {
             final Long candidateIssueId = candidate.getJiraIssueId();
             final IssueCategory candidateIssueType = candidate.getType();
@@ -353,13 +352,6 @@ public class JiraIssueHandler {
             }
         }
         return Optional.empty();
-    }
-
-    private List<IssueProperties> findIssuePropertiesByBomComponentUri(final String bomComponentUri) throws JiraIssueException {
-        if (bomComponentUri != null) {
-            return issueServiceWrapper.findIssuePropertiesByBomComponentUri(bomComponentUri);
-        }
-        return Collections.emptyList();
     }
 
     private Issue createIssue(final BlackDuckIssueModel blackDuckIssueModel) {
@@ -444,7 +436,8 @@ public class JiraIssueHandler {
     private boolean checkIfAlreadyProcessedAndUpdateLastBatch(final BlackDuckIssueModel blackDuckIssueModel) {
         final Date eventBatchStartDate = blackDuckIssueModel.getLastBatchStartDate();
         if (eventBatchStartDate != null) {
-            final String lastBatchStartKey = issueServiceWrapper.getIssueProperty(blackDuckIssueModel.getJiraIssueId(), BlackDuckJiraConstants.BLACKDUCK_JIRA_ISSUE_LAST_BATCH_START_KEY);
+            final String lastBatchStartKey = issueServiceWrapper.getIssuePropertyWrapper()
+                                                 .getIssueProperty(blackDuckIssueModel.getJiraIssueId(), issueServiceWrapper.getJiraAdminUser(), BlackDuckJiraConstants.BLACKDUCK_JIRA_ISSUE_LAST_BATCH_START_KEY);
             if (lastBatchStartKey != null && isAlreadyProcessed(lastBatchStartKey, eventBatchStartDate)) {
                 // This issue has already been updated by a notification within the same startDate range, but outside of this batch (i.e. we
                 // already processed this notification at some point with a different instance of this class, perhaps on a different thread).
@@ -475,7 +468,8 @@ public class JiraIssueHandler {
         if (eventBatchStartDate != null) {
             final String newBatchStartKey = getTimeString(eventBatchStartDate) + getTimeString(instanceUniqueDate);
             try {
-                issueServiceWrapper.addIssuePropertyJson(blackDuckIssueModel.getJiraIssueId(), BlackDuckJiraConstants.BLACKDUCK_JIRA_ISSUE_LAST_BATCH_START_KEY, newBatchStartKey);
+                issueServiceWrapper.getIssuePropertyWrapper()
+                    .addIssuePropertyJson(blackDuckIssueModel.getJiraIssueId(), issueServiceWrapper.getJiraAdminUser(), BlackDuckJiraConstants.BLACKDUCK_JIRA_ISSUE_LAST_BATCH_START_KEY, newBatchStartKey);
             } catch (final JiraIssueException e) {
                 handleJiraIssueException(e, blackDuckIssueModel);
             }
