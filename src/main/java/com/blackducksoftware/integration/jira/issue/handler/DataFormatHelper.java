@@ -152,7 +152,7 @@ public class DataFormatHelper {
 
     private void appendVulnerabilitiesCountComment(StringBuilder commentText, RiskProfileView riskProfileView) {
         commentText.append("\n");
-        commentText.append("Vulnerabilities Added/Updated:");
+        commentText.append("Total Vulnerabilities:");
 
         final List<RiskCountView> counts = riskProfileView.getCounts();
         for (RiskCountView riskCountView : counts) {

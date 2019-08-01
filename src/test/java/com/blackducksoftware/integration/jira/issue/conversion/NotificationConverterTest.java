@@ -168,7 +168,7 @@ public class NotificationConverterTest {
     private static final String VULN_EXPECTED_RESOLVED_COMMENT = BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_RESOLVE;
     private static final String VULN_EXPECTED_REOPEN_COMMENT = BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_REOPEN;
     private final static String VULN_EXPECTED_COMMENT = "(Black Duck plugin auto-generated comment)\n" + "Vulnerabilities *added*: http://localhost:8080/api/components/componentId/versions/versionId (NVD)\n"
-                                                            + "Vulnerabilities _updated_: None\n" + "Vulnerabilities _deleted_: None\n" + "\nVulnerabilities Added/Updated:\n"
+                                                            + "Vulnerabilities _updated_: None\n" + "Vulnerabilities _deleted_: None\n" + "\nTotal Vulnerabilities:\n"
                                                             + "High: 1";
     private final static String VULN_EXPECTED_COMMENT_IF_EXISTS = VULN_EXPECTED_COMMENT;
     private final static String VULN_EXPECTED_COMMENT_IN_LIEU_OF_STATE_CHANGE = VULN_EXPECTED_COMMENT;
