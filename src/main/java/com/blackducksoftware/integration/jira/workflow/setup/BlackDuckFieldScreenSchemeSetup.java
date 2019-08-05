@@ -181,7 +181,7 @@ public class BlackDuckFieldScreenSchemeSetup {
                                                                               .findFirst();
                         if (!associatedBDIssueType.isPresent()) {
                             // Setup is incomplete, but the only available way to recover (by deleting the custom attribute and re-creating it) is too dangerous
-                            final String msg = "The custom field " + customField.getName() + " is missing one or more IssueType associations.";
+                            final String msg = "The custom field " + customField.getName() + " is missing the Black Duck IssueType associations.";
                             logger.error(msg);
                             pluginErrorAccessor.addBlackDuckError(msg, "getOrderedFieldFromCustomField");
                         } else {
