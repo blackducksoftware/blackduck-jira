@@ -183,6 +183,7 @@ public class BlackDuckFieldScreenSchemeSetup {
                             logger.error(msg);
                             pluginErrorAccessor.addBlackDuckError(msg, "getOrderedFieldFromCustomField");
                         } else {
+                            Map<String, FieldConfig> updatedConfig = new HashMap<>();
                             IssueType existingBDIssueType = associatedBDIssueType.get();
                             FieldConfig existingFieldConfig = issueTypeIdToFieldConfig.get(existingBDIssueType.getId());
 
@@ -190,12 +191,13 @@ public class BlackDuckFieldScreenSchemeSetup {
                                                                           .filter(issueType -> !associatedIssueTypes.contains(issueType))
                                                                           .collect(Collectors.toList());
 
+                            updatedConfig.putAll(issueTypeIdToFieldConfig);
                             for (IssueType issueType : missingIssueTypes) {
-                                issueTypeIdToFieldConfig.put(issueType.getId(), existingFieldConfig);
+                                updatedConfig.put(issueType.getId(), existingFieldConfig);
                             }
 
                             FieldConfigScheme.Builder builder = new FieldConfigScheme.Builder(fieldConfigScheme);
-                            builder.setConfigs(issueTypeIdToFieldConfig);
+                            builder.setConfigs(updatedConfig);
                             final FieldConfigScheme updatedFieldConfigScheme = builder.toFieldConfigScheme();
 
                             fieldConfigSchemeManager.updateFieldConfigScheme(updatedFieldConfigScheme);
