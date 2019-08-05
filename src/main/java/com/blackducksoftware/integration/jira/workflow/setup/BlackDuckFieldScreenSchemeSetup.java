@@ -166,9 +166,7 @@ public class BlackDuckFieldScreenSchemeSetup {
                 boolean needToUpdateCustomField = false;
                 for (final IssueType issueTypeValue : issueTypeList) {
                     if (!associatatedIssueTypeList.contains(issueTypeValue)) {
-                        logger.debug("This issue type is not in the associated issue type list. Adding it.");
                         needToUpdateCustomField = true;
-                        associatatedIssueTypeList.add(issueTypeValue);
                     }
                 }
                 if (needToUpdateCustomField) {

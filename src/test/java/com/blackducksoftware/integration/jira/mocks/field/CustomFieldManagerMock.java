@@ -34,9 +34,11 @@ import org.ofbiz.core.entity.GenericValue;
 import com.atlassian.jira.exception.RemoveException;
 import com.atlassian.jira.issue.CustomFieldManager;
 import com.atlassian.jira.issue.Issue;
+import com.atlassian.jira.issue.context.JiraContextNode;
 import com.atlassian.jira.issue.customfields.CustomFieldSearcher;
 import com.atlassian.jira.issue.customfields.CustomFieldType;
 import com.atlassian.jira.issue.fields.CustomField;
+import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.issue.search.SearchContext;
 import com.atlassian.jira.project.Project;
 
@@ -54,12 +56,14 @@ public class CustomFieldManagerMock implements CustomFieldManager {
     }
 
     @Override
-    public CustomField createCustomField(final String name, final String description, final CustomFieldType fieldType, final CustomFieldSearcher searcher, final List contexts, final List genericValues) throws GenericEntityException {
+    public CustomField createCustomField(final String name, final String description, final CustomFieldType fieldType, final CustomFieldSearcher searcher, final List<JiraContextNode> contexts, final List<IssueType> issueTypes) {
         final CustomFieldMock customField = new CustomFieldMock();
         customField.setName(name);
         customField.setDescription(description);
         customField.setCustomFieldType(fieldType);
         customField.setCustomFieldSearcher(searcher);
+        customField.setAssociatedIssueTypes(issueTypes);
+        customField.setFieldConfigSchemes(new ArrayList<>());
         customFields.add(customField);
         return customField;
     }

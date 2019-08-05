@@ -38,13 +38,20 @@ import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.project.Project;
 
 public class FieldConfigSchemeMock implements FieldConfigScheme {
+    private Map<String, FieldConfig> configs;
+
+    private List<IssueType> associatedIssueTypes;
 
     public FieldConfigSchemeMock() {
     }
 
+    public void setConfigs(final Map<String, FieldConfig> configs) {
+        this.configs = configs;
+    }
+
     @Override
     public Collection<String> getAssociatedIssueTypeIds() {
-        return null;
+        return configs.keySet();
     }
 
     @Override
@@ -64,7 +71,7 @@ public class FieldConfigSchemeMock implements FieldConfigScheme {
 
     @Override
     public Map<String, FieldConfig> getConfigs() {
-        return null;
+        return configs;
     }
 
     @Override
@@ -135,8 +142,10 @@ public class FieldConfigSchemeMock implements FieldConfigScheme {
 
     @Override
     public Collection<IssueType> getAssociatedIssueTypes() {
-        // Auto-generated method stub
-        return null;
+        return associatedIssueTypes;
     }
 
+    public void setAssociatedIssueTypes(final List<IssueType> associatedIssueTypes) {
+        this.associatedIssueTypes = associatedIssueTypes;
+    }
 }

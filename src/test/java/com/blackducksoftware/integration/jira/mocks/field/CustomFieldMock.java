@@ -77,6 +77,8 @@ public class CustomFieldMock implements CustomField {
 
     private String description;
 
+    private List<FieldConfigScheme> fieldConfigSchemes;
+
     @SuppressWarnings("rawtypes")
     private CustomFieldType fieldType;
 
@@ -208,21 +210,21 @@ public class CustomFieldMock implements CustomField {
 
     @Override
     public String getBulkEditHtml(final OperationContext arg0, final Action arg1, final BulkEditBean arg2,
-            final Map arg3) {
+        final Map arg3) {
 
         return null;
     }
 
     @Override
     public String getCreateHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2,
-            final Issue arg3) {
+        final Issue arg3) {
 
         return null;
     }
 
     @Override
     public String getCreateHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2,
-            final Issue arg3, final Map arg4) {
+        final Issue arg3, final Map arg4) {
 
         return null;
     }
@@ -235,14 +237,14 @@ public class CustomFieldMock implements CustomField {
 
     @Override
     public String getEditHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2,
-            final Issue arg3) {
+        final Issue arg3) {
 
         return null;
     }
 
     @Override
     public String getEditHtml(final FieldLayoutItem arg0, final OperationContext arg1, final Action arg2,
-            final Issue arg3, final Map arg4) {
+        final Issue arg3, final Map arg4) {
 
         return null;
     }
@@ -267,7 +269,7 @@ public class CustomFieldMock implements CustomField {
 
     @Override
     public String getViewHtml(final FieldLayoutItem arg0, final Action arg1, final Issue arg2, final Object arg3,
-            final Map arg4) {
+        final Map arg4) {
 
         return null;
     }
@@ -318,7 +320,7 @@ public class CustomFieldMock implements CustomField {
 
     @Override
     public void populateParamsFromString(final Map<String, Object> arg0, final String arg1, final Issue arg2)
-            throws FieldValidationException {
+        throws FieldValidationException {
 
     }
 
@@ -334,13 +336,13 @@ public class CustomFieldMock implements CustomField {
 
     @Override
     public void updateValue(final FieldLayoutItem arg0, final Issue arg1, final ModifiedValue arg2,
-            final IssueChangeHolder arg3) {
+        final IssueChangeHolder arg3) {
 
     }
 
     @Override
     public void validateParams(final OperationContext arg0, final ErrorCollection arg1, final I18nHelper arg2,
-            final Issue arg3, final FieldScreenRenderLayoutItem arg4) {
+        final Issue arg3, final FieldScreenRenderLayoutItem arg4) {
 
     }
 
@@ -412,8 +414,11 @@ public class CustomFieldMock implements CustomField {
 
     @Override
     public List<FieldConfigScheme> getConfigurationSchemes() {
+        return fieldConfigSchemes;
+    }
 
-        return null;
+    public void setFieldConfigSchemes(final List<FieldConfigScheme> fieldConfigSchemes) {
+        this.fieldConfigSchemes = fieldConfigSchemes;
     }
 
     @Override

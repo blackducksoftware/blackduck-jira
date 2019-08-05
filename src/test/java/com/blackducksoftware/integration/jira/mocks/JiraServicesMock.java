@@ -36,6 +36,7 @@ import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
 import com.atlassian.jira.issue.CustomFieldManager;
 import com.atlassian.jira.issue.comments.CommentManager;
 import com.atlassian.jira.issue.fields.FieldManager;
+import com.atlassian.jira.issue.fields.config.manager.FieldConfigSchemeManager;
 import com.atlassian.jira.issue.fields.config.manager.IssueTypeSchemeManager;
 import com.atlassian.jira.issue.fields.layout.field.FieldLayoutManager;
 import com.atlassian.jira.issue.fields.screen.FieldScreenManager;
@@ -76,6 +77,16 @@ public class JiraServicesMock extends JiraServices {
     private IssueTypeScreenSchemeManager issueTypeScreenSchemeManager;
     private SearchService searchService;
     private NotificationSchemeManager notificationSchemeManager;
+    private FieldConfigSchemeManager fieldConfigSchemeManager;
+
+    @Override
+    public FieldConfigSchemeManager getFieldConfigSchemeManager() {
+        return fieldConfigSchemeManager;
+    }
+
+    public void setFieldConfigSchemeManager(final FieldConfigSchemeManager fieldConfigSchemeManager) {
+        this.fieldConfigSchemeManager = fieldConfigSchemeManager;
+    }
 
     @Override
     public UserUtil getUserUtil() {

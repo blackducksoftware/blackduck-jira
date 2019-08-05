@@ -46,4 +46,8 @@ public class PluginSettingsMock implements PluginSettings {
         return settings.remove(key);
     }
 
+    public boolean isEmpty() {
+        return settings.isEmpty();
+    }
+
 }

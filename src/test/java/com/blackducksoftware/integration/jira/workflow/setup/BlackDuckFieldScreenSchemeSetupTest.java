@@ -24,12 +24,16 @@
 package com.blackducksoftware.integration.jira.workflow.setup;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -39,6 +43,8 @@ import org.ofbiz.core.entity.GenericValue;
 
 import com.atlassian.jira.issue.fields.CustomField;
 import com.atlassian.jira.issue.fields.FieldManager;
+import com.atlassian.jira.issue.fields.config.FieldConfig;
+import com.atlassian.jira.issue.fields.config.manager.FieldConfigSchemeManager;
 import com.atlassian.jira.issue.fields.screen.FieldScreen;
 import com.atlassian.jira.issue.fields.screen.FieldScreenManager;
 import com.atlassian.jira.issue.fields.screen.FieldScreenScheme;
@@ -54,6 +60,8 @@ import com.blackducksoftware.integration.jira.mocks.JiraServicesMock;
 import com.blackducksoftware.integration.jira.mocks.PluginSettingsMock;
 import com.blackducksoftware.integration.jira.mocks.field.CustomFieldManagerMock;
 import com.blackducksoftware.integration.jira.mocks.field.CustomFieldMock;
+import com.blackducksoftware.integration.jira.mocks.field.FieldConfigSchemeManagerMock;
+import com.blackducksoftware.integration.jira.mocks.field.FieldConfigSchemeMock;
 import com.blackducksoftware.integration.jira.mocks.field.FieldManagerMock;
 import com.blackducksoftware.integration.jira.mocks.field.FieldScreenManagerMock;
 import com.blackducksoftware.integration.jira.mocks.field.FieldScreenMock;
@@ -62,6 +70,7 @@ import com.blackducksoftware.integration.jira.mocks.field.FieldScreenSchemeManag
 import com.blackducksoftware.integration.jira.mocks.field.FieldScreenSchemeMock;
 import com.blackducksoftware.integration.jira.mocks.field.FieldScreenTabMock;
 import com.blackducksoftware.integration.jira.mocks.issue.IssueTypeMock;
+import com.blackducksoftware.integration.jira.web.JiraServices;
 
 public class BlackDuckFieldScreenSchemeSetupTest {
     private static final String POLICY_RULE_ERROR_MESSAGE = "The custom field " + BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_POLICY_RULE + " has no IssueType associations";
@@ -83,6 +92,8 @@ public class BlackDuckFieldScreenSchemeSetupTest {
         jiraServices.setFieldScreenManager(fieldScreenManager);
         final FieldScreenSchemeManager fieldScreenSchemeManager = new FieldScreenSchemeManagerMock();
         jiraServices.setFieldScreenSchemeManager(fieldScreenSchemeManager);
+        FieldConfigSchemeManager fieldConfigSchemeManager = new FieldConfigSchemeManagerMock();
+        jiraServices.setFieldConfigSchemeManager(fieldConfigSchemeManager);
 
         final BlackDuckFieldScreenSchemeSetup fieldConfigSetupOrig = new BlackDuckFieldScreenSchemeSetup(pluginErrorAccessor, jiraServices);
         final BlackDuckFieldScreenSchemeSetup fieldConfigSetup = Mockito.spy(fieldConfigSetupOrig);
@@ -92,19 +103,57 @@ public class BlackDuckFieldScreenSchemeSetupTest {
 
         // Create a custom field
         jiraServices.setCustomFieldManager(customFieldManagerMock);
-        final CustomField customField = jiraServices.getCustomFieldManager().createCustomField(BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT, BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT, null, null, null, null);
         final List<IssueType> blackDuckIssueTypes = getBlackDuckIssueTypes();
-        final CustomFieldMock customFieldMock = (CustomFieldMock) customField;
-
         // Associated only ONE Black Duck IssueType with it (an incomplete/broken config)
         final List<IssueType> associatedIssueTypes = new ArrayList<>();
         associatedIssueTypes.add(blackDuckIssueTypes.get(0));
-        customFieldMock.setAssociatedIssueTypes(associatedIssueTypes);
+
+        createCustomField(jiraServices, BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT, BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT, associatedIssueTypes);
 
         // See how this handles the incomplete config
         fieldConfigSetup.addBlackDuckFieldConfigurationToJira(blackDuckIssueTypes);
 
-        assertTrue(((String) settingsMock.get(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR)).contains("The custom field " + BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT + " is missing one or more IssueType associations"));
+        assertTrue(settingsMock.isEmpty());
+    }
+
+    @Test
+    public void testAddBlackDuckFieldConfigurationToJiraMissingAllIssueTypeAssoc() throws GenericEntityException {
+        final PluginSettingsMock settingsMock = new PluginSettingsMock();
+        final PluginErrorAccessor pluginErrorAccessor = new PluginErrorAccessor(new JiraSettingsAccessor(settingsMock));
+
+        final JiraServicesMock jiraServices = new JiraServicesMock();
+        final CustomFieldManagerMock customFieldManagerMock = new CustomFieldManagerMock();
+        final FieldManager fieldManager = new FieldManagerMock(customFieldManagerMock);
+        jiraServices.setFieldManager(fieldManager);
+        final FieldScreenManager fieldScreenManager = new FieldScreenManagerMock();
+        jiraServices.setFieldScreenManager(fieldScreenManager);
+        final FieldScreenSchemeManager fieldScreenSchemeManager = new FieldScreenSchemeManagerMock();
+        jiraServices.setFieldScreenSchemeManager(fieldScreenSchemeManager);
+        FieldConfigSchemeManager fieldConfigSchemeManager = new FieldConfigSchemeManagerMock();
+        jiraServices.setFieldConfigSchemeManager(fieldConfigSchemeManager);
+
+        final BlackDuckFieldScreenSchemeSetup fieldConfigSetupOrig = new BlackDuckFieldScreenSchemeSetup(pluginErrorAccessor, jiraServices);
+        final BlackDuckFieldScreenSchemeSetup fieldConfigSetup = Mockito.spy(fieldConfigSetupOrig);
+        Mockito.when(fieldConfigSetup.createNewScreenSchemeImpl(Mockito.any(FieldScreenSchemeManager.class))).thenAnswer(x -> new FieldScreenSchemeMock());
+        final FieldScreen screen = new FieldScreenMock();
+        Mockito.when(fieldConfigSetup.createNewScreenImpl(Mockito.any(FieldScreenManager.class))).thenReturn(screen);
+
+        // Create a custom field
+        jiraServices.setCustomFieldManager(customFieldManagerMock);
+        // Associated no Black Duck IssueType with it (an incomplete/broken config)
+        final IssueTypeMock randomIssueType = createMockIssueType("Random", "Random");
+        final List<IssueType> associatedIssueTypes = new ArrayList<>();
+        associatedIssueTypes.add(randomIssueType);
+
+        createCustomField(jiraServices, BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT, BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT, associatedIssueTypes);
+
+        final List<IssueType> blackDuckIssueTypes = getBlackDuckIssueTypes();
+
+        // See how this handles the incomplete config
+        fieldConfigSetup.addBlackDuckFieldConfigurationToJira(blackDuckIssueTypes);
+
+        assertFalse(settingsMock.isEmpty());
+        assertTrue(((String) settingsMock.get(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR)).contains("The custom field " + BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT + " is missing the Black Duck IssueType associations"));
     }
 
     @Test
@@ -191,7 +240,7 @@ public class BlackDuckFieldScreenSchemeSetupTest {
         assertEquals(2, fieldScreenSchemeManager.getUpdatedSchemes().size());
         assertEquals(6, fieldScreenSchemeManager.getUpdatedSchemeItems().size());
         assertNotNull(settingsMock);
-        assertTrue(((String) settingsMock.get(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR)).contains(POLICY_RULE_ERROR_MESSAGE));
+        assertTrue(settingsMock.isEmpty());
     }
 
     @Test
@@ -267,13 +316,6 @@ public class BlackDuckFieldScreenSchemeSetupTest {
         }
         assertTrue(fieldScreenSchemeManager.getUpdatedSchemes().size() == 2);
         assertTrue(fieldScreenSchemeManager.getUpdatedSchemeItems().size() == 6);
-        if (includeSomeNullCustomFields) {
-            assertNotNull(settingsMock);
-            assertTrue(((String) settingsMock.get(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR)).contains(POLICY_RULE_ERROR_MESSAGE));
-        } else {
-            assertNotNull(settingsMock);
-            assertTrue(((String) settingsMock.get(BlackDuckJiraConstants.BLACKDUCK_JIRA_ERROR)).contains(POLICY_RULE_ERROR_MESSAGE));
-        }
     }
 
     @Test
@@ -423,26 +465,42 @@ public class BlackDuckFieldScreenSchemeSetupTest {
     }
 
     private void addVulnIssueType(final List<IssueType> issueTypes) {
-        final IssueTypeMock securityIssueType = new IssueTypeMock();
-        securityIssueType.setName(BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE);
-        securityIssueType.setId(BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE);
-        securityIssueType.setValue(Mockito.mock(GenericValue.class));
-        issueTypes.add(securityIssueType);
+        issueTypes.add(createMockIssueType(BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE, BlackDuckJiraConstants.BLACKDUCK_VULNERABILITY_ISSUE));
     }
 
     private void addPolicyIssueType(final List<IssueType> issueTypes) {
-        final IssueTypeMock policyIssueType = new IssueTypeMock();
-        policyIssueType.setName(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE);
-        policyIssueType.setId(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE);
-        policyIssueType.setValue(Mockito.mock(GenericValue.class));
-        issueTypes.add(policyIssueType);
+        issueTypes.add(createMockIssueType(BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE, BlackDuckJiraConstants.BLACKDUCK_POLICY_VIOLATION_ISSUE));
     }
 
     private void addSecurityPolicyIssueType(final List<IssueType> issueTypes) {
-        final IssueTypeMock securityPolicyIssueType = new IssueTypeMock();
-        securityPolicyIssueType.setName(BlackDuckJiraConstants.BLACKDUCK_SECURITY_POLICY_VIOLATION_ISSUE);
-        securityPolicyIssueType.setId(BlackDuckJiraConstants.BLACKDUCK_SECURITY_POLICY_VIOLATION_ISSUE);
-        securityPolicyIssueType.setValue(Mockito.mock(GenericValue.class));
-        issueTypes.add(securityPolicyIssueType);
+        issueTypes.add(createMockIssueType(BlackDuckJiraConstants.BLACKDUCK_SECURITY_POLICY_VIOLATION_ISSUE, BlackDuckJiraConstants.BLACKDUCK_SECURITY_POLICY_VIOLATION_ISSUE));
+    }
+
+    private IssueTypeMock createMockIssueType(String name, String id) {
+        final IssueTypeMock issueTypeMock = new IssueTypeMock();
+        issueTypeMock.setName(name);
+        issueTypeMock.setId(id);
+        issueTypeMock.setValue(Mockito.mock(GenericValue.class));
+        return issueTypeMock;
+    }
+
+    private void createCustomField(JiraServices jiraServices, String name, String description, List<IssueType> associatedIssueTypes) throws GenericEntityException {
+        final CustomField customField = jiraServices.getCustomFieldManager().createCustomField(name, description, null, null, null, associatedIssueTypes);
+        final CustomFieldMock customFieldMock = (CustomFieldMock) customField;
+        customFieldMock.setAssociatedIssueTypes(associatedIssueTypes);
+
+        FieldConfig fieldConfig = Mockito.mock(FieldConfig.class);
+
+        Map<String, FieldConfig> configs = new HashMap<>();
+        associatedIssueTypes.stream()
+            .forEach(issueType -> {
+                configs.put(issueType.getId(), fieldConfig);
+            });
+
+        FieldConfigSchemeMock fieldConfigSchemeMock = new FieldConfigSchemeMock();
+        fieldConfigSchemeMock.setConfigs(configs);
+        fieldConfigSchemeMock.setAssociatedIssueTypes(associatedIssueTypes);
+
+        customFieldMock.setFieldConfigSchemes(Arrays.asList(fieldConfigSchemeMock));
     }
 }
