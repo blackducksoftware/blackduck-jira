@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 import org.ofbiz.core.entity.GenericEntityException;
 import org.slf4j.Logger;
@@ -41,6 +42,9 @@ import com.atlassian.jira.issue.customfields.CustomFieldSearcher;
 import com.atlassian.jira.issue.customfields.CustomFieldType;
 import com.atlassian.jira.issue.fields.CustomField;
 import com.atlassian.jira.issue.fields.OrderableField;
+import com.atlassian.jira.issue.fields.config.FieldConfig;
+import com.atlassian.jira.issue.fields.config.FieldConfigScheme;
+import com.atlassian.jira.issue.fields.config.manager.FieldConfigSchemeManager;
 import com.atlassian.jira.issue.fields.screen.FieldScreen;
 import com.atlassian.jira.issue.fields.screen.FieldScreenImpl;
 import com.atlassian.jira.issue.fields.screen.FieldScreenLayoutItem;
@@ -168,10 +172,36 @@ public class BlackDuckFieldScreenSchemeSetup {
                     }
                 }
                 if (needToUpdateCustomField) {
-                    // Setup is incomplete, but the only available way to recover (by deleting the custom attribute and re-creating it) is too dangerous
-                    final String msg = "The custom field " + customField.getName() + " is missing one or more IssueType associations.";
-                    logger.error(msg);
-                    pluginErrorAccessor.addBlackDuckError(msg, "getOrderedFieldFromCustomField");
+                    final FieldConfigSchemeManager fieldConfigSchemeManager = jiraServices.getFieldConfigSchemeManager();
+                    for (FieldConfigScheme fieldConfigScheme : customField.getConfigurationSchemes()) {
+                        final Collection<IssueType> associatedIssueTypes = fieldConfigScheme.getAssociatedIssueTypes();
+                        final Map<String, FieldConfig> issueTypeIdToFieldConfig = fieldConfigScheme.getConfigs();
+                        final Optional<IssueType> associatedBDIssueType = issueTypeList.stream()
+                                                                              .filter(issueType -> associatedIssueTypes.contains(issueType))
+                                                                              .findFirst();
+                        if (!associatedBDIssueType.isPresent()) {
+                            // Setup is incomplete, but the only available way to recover (by deleting the custom attribute and re-creating it) is too dangerous
+                            final String msg = "The custom field " + customField.getName() + " is missing one or more IssueType associations.";
+                            logger.error(msg);
+                            pluginErrorAccessor.addBlackDuckError(msg, "getOrderedFieldFromCustomField");
+                        } else {
+                            IssueType existingBDIssueType = associatedBDIssueType.get();
+                            FieldConfig existingFieldConfig = issueTypeIdToFieldConfig.get(existingBDIssueType.getId());
+
+                            final List<IssueType> missingIssueTypes = issueTypeList.stream()
+                                                                          .filter(issueType -> !associatedIssueTypes.contains(issueType))
+                                                                          .collect(Collectors.toList());
+
+                            missingIssueTypes.stream()
+                                .forEach(issueType -> issueTypeIdToFieldConfig.put(issueType.getId(), existingFieldConfig));
+
+                            FieldConfigScheme.Builder builder = new FieldConfigScheme.Builder(fieldConfigScheme);
+                            builder.setConfigs(issueTypeIdToFieldConfig);
+                            final FieldConfigScheme updatedFieldConfigScheme = builder.toFieldConfigScheme();
+
+                            fieldConfigSchemeManager.updateFieldConfigScheme(updatedFieldConfigScheme);
+                        }
+                    }
                 }
             } else {
                 // Setup is incomplete, but the only available way to recover (by deleting the custom attribute and re-creating it) is too dangerous

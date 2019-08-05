@@ -46,6 +46,7 @@ import com.atlassian.jira.issue.CustomFieldManager;
 import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.comments.CommentManager;
 import com.atlassian.jira.issue.fields.FieldManager;
+import com.atlassian.jira.issue.fields.config.manager.FieldConfigSchemeManager;
 import com.atlassian.jira.issue.fields.config.manager.IssueTypeSchemeManager;
 import com.atlassian.jira.issue.fields.layout.field.FieldLayoutManager;
 import com.atlassian.jira.issue.fields.screen.FieldScreenManager;
@@ -239,5 +240,7 @@ public class JiraServices {
     public WatcherManager getWatcherManager() {
         return ComponentAccessor.getWatcherManager();
     }
+
+    public FieldConfigSchemeManager getFieldConfigSchemeManager() { return ComponentAccessor.getFieldConfigSchemeManager(); }
 
 }
