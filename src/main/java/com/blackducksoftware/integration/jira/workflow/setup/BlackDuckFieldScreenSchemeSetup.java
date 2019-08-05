@@ -190,8 +190,9 @@ public class BlackDuckFieldScreenSchemeSetup {
                                                                           .filter(issueType -> !associatedIssueTypes.contains(issueType))
                                                                           .collect(Collectors.toList());
 
-                            missingIssueTypes.stream()
-                                .forEach(issueType -> issueTypeIdToFieldConfig.put(issueType.getId(), existingFieldConfig));
+                            for (IssueType issueType : missingIssueTypes) {
+                                issueTypeIdToFieldConfig.put(issueType.getId(), existingFieldConfig);
+                            }
 
                             FieldConfigScheme.Builder builder = new FieldConfigScheme.Builder(fieldConfigScheme);
                             builder.setConfigs(issueTypeIdToFieldConfig);
