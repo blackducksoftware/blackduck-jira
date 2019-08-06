@@ -28,9 +28,7 @@ import static junit.framework.TestCase.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.Test;
 
@@ -51,42 +49,9 @@ public class WorkflowHelperTest {
         assertTrue(WorkflowHelper.matchesBlackDuckWorkflowName(BlackDuckJiraConstants.BLACKDUCK_JIRA_WORKFLOW));
         assertTrue(WorkflowHelper.matchesBlackDuckWorkflowName(BlackDuckJiraConstants.BLACKDUCK_JIRA_WORKFLOW + "test"));
         assertTrue(WorkflowHelper.matchesBlackDuckWorkflowName(BlackDuckJiraConstants.BLACKDUCK_JIRA_WORKFLOW + " this should still match"));
-        assertFalse(WorkflowHelper.matchesBlackDuckWorkflowName("BDS Hub PlugIn"));
+        assertTrue(WorkflowHelper.matchesBlackDuckWorkflowName("bds Hub Plugin workflow"));
+        assertFalse(WorkflowHelper.matchesBlackDuckWorkflowName("bds Hub Plugin"));
         assertFalse(WorkflowHelper.matchesBlackDuckWorkflowName("Some other workflow"));
-    }
-
-    @Test
-    public void usesBlackDuckWorkflowTest() {
-        final WorkflowManager workflowManager = new WorkflowManagerMock();
-        final WorkflowSchemeManager workflowSchemeManager = new WorkflowSchemeManagerMock();
-        final ProjectManager projectManager = new ProjectManagerMock();
-
-        WorkflowHelper workflowHelper = new WorkflowHelper(workflowManager, workflowSchemeManager, projectManager);
-
-        assertFalse(workflowHelper.usesBlackDuckWorkflow(null, null));
-
-        final Map<String, String> issueTypeIdToWorkflowName = new HashMap<>();
-        final IssueTypeMock issueType = new IssueTypeMock();
-        issueType.setId("Test ID");
-        issueType.setName("Test Issue Type");
-
-        assertFalse(workflowHelper.usesBlackDuckWorkflow(issueTypeIdToWorkflowName, issueType));
-
-        final IssueTypeMock otherIssueType = new IssueTypeMock();
-        otherIssueType.setId("Other Test ID");
-        otherIssueType.setName("Other Test Issue Type");
-
-        issueTypeIdToWorkflowName.put(otherIssueType.getId(), BlackDuckJiraConstants.BLACKDUCK_JIRA_WORKFLOW);
-
-        assertFalse(workflowHelper.usesBlackDuckWorkflow(issueTypeIdToWorkflowName, issueType));
-
-        issueTypeIdToWorkflowName.put(issueType.getId(), "Other workflow");
-
-        assertFalse(workflowHelper.usesBlackDuckWorkflow(issueTypeIdToWorkflowName, issueType));
-
-        issueTypeIdToWorkflowName.put(issueType.getId(), BlackDuckJiraConstants.BLACKDUCK_JIRA_WORKFLOW);
-
-        assertTrue(workflowHelper.usesBlackDuckWorkflow(issueTypeIdToWorkflowName, issueType));
     }
 
     @Test
