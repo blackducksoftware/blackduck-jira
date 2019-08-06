@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
@@ -38,6 +37,7 @@ import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.workflow.AssignableWorkflowScheme;
 import com.atlassian.jira.workflow.JiraWorkflow;
 import com.atlassian.jira.workflow.WorkflowManager;
+import com.atlassian.jira.workflow.WorkflowScheme;
 import com.atlassian.jira.workflow.WorkflowSchemeManager;
 
 public class WorkflowHelper {
@@ -47,7 +47,7 @@ public class WorkflowHelper {
 
     public static boolean matchesBlackDuckWorkflowName(final String workflowName) {
         if (StringUtils.isNotBlank(workflowName)) {
-            return workflowName.contains(BlackDuckJiraConstants.BLACKDUCK_JIRA_WORKFLOW);
+            return StringUtils.containsIgnoreCase(workflowName, BlackDuckJiraConstants.BLACKDUCK_JIRA_WORKFLOW);
         }
         return false;
     }
@@ -79,11 +79,10 @@ public class WorkflowHelper {
         }
 
         final AssignableWorkflowScheme projectWorkflowScheme = workflowSchemeManager.getWorkflowSchemeObj(jiraProject);
-        final Map<String, String> issueTypeIdToWorkflowName = projectWorkflowScheme.getMappings();
 
-        final boolean policyUsesBlackDuckWorkflow = usesBlackDuckWorkflow(issueTypeIdToWorkflowName, policyIssueType);
-        final boolean securityPolicyUsesBlackDuckWorkflow = usesBlackDuckWorkflow(issueTypeIdToWorkflowName, securityPolicyIssueType);
-        final boolean vulnUsesBlackDuckWorkflow = usesBlackDuckWorkflow(issueTypeIdToWorkflowName, vulnIssueType);
+        final boolean policyUsesBlackDuckWorkflow = usesBlackDuckWorkflow(projectWorkflowScheme, policyIssueType);
+        final boolean securityPolicyUsesBlackDuckWorkflow = usesBlackDuckWorkflow(projectWorkflowScheme, securityPolicyIssueType);
+        final boolean vulnUsesBlackDuckWorkflow = usesBlackDuckWorkflow(projectWorkflowScheme, vulnIssueType);
 
         if (policyUsesBlackDuckWorkflow && securityPolicyUsesBlackDuckWorkflow && vulnUsesBlackDuckWorkflow) {
             return EnumSet.of(BlackDuckWorkflowStatus.ENABLED);
@@ -104,12 +103,21 @@ public class WorkflowHelper {
         return EnumSet.of(BlackDuckWorkflowStatus.DISABLED);
     }
 
-    public boolean usesBlackDuckWorkflow(final Map<String, String> issueTypeIdToWorkflowName, final IssueType issueType) {
+    public boolean usesBlackDuckWorkflow(final WorkflowScheme workflowScheme, final IssueType issueType) {
         if (null != issueType) {
-            final String workflowName = issueTypeIdToWorkflowName.get(issueType.getId());
+            final String workflowName = getWorkflowFromScheme(workflowScheme, issueType.getId());
             return matchesBlackDuckWorkflowName(workflowName);
         }
         return false;
+    }
+
+    private String getWorkflowFromScheme(WorkflowScheme workflowScheme, String issueTypeId) {
+        String workflowName = workflowScheme.getConfiguredWorkflow(issueTypeId);
+        // Jira will return null if the workflow is the "default" workflow
+        if (StringUtils.isBlank(workflowName)) {
+            workflowName = workflowScheme.getConfiguredDefaultWorkflow();
+        }
+        return workflowName;
     }
 
     public Optional<IssueType> getIssueTypeByName(final Collection<IssueType> issueTypes, final String name) {
