@@ -96,12 +96,24 @@ public class BlackDuckConfigActions {
 
     public BlackDuckServerConfigSerializable updateBlackDuckConfig(final BlackDuckServerConfigSerializable config) {
         final BlackDuckServerConfigSerializable newConfig = new BlackDuckServerConfigSerializable(config);
+        final PluginBlackDuckServerConfigModel storedConfig = globalConfigurationAccessor.getBlackDuckServerConfig();
 
-        final Integer intTimeout = StringUtils.isNotBlank(newConfig.getTimeout()) ? Integer.parseInt(newConfig.getTimeout()) : null;
-        final Integer proxyPort = StringUtils.isNotBlank(newConfig.getHubProxyPort()) ? Integer.parseInt(newConfig.getHubProxyPort()) : null;
-        final Boolean trustCert = Boolean.parseBoolean(newConfig.getTrustCert());
+        Integer intTimeout = StringUtils.isNotBlank(newConfig.getTimeout()) ? Integer.parseInt(newConfig.getTimeout()) : null;
+        Integer proxyPort = StringUtils.isNotBlank(newConfig.getHubProxyPort()) ? Integer.parseInt(newConfig.getHubProxyPort()) : null;
+        Boolean trustCert = Boolean.parseBoolean(newConfig.getTrustCert());
+
+        String blackDuckAPIToken = newConfig.getApiToken();
+        if (newConfig.isApiTokenMasked()) {
+            blackDuckAPIToken = storedConfig.getApiToken();
+        }
+
+        String proxyPassword = newConfig.getHubProxyPassword();
+        if (newConfig.isProxyPasswordMasked()) {
+            proxyPassword = storedConfig.getProxyPassword();
+        }
+
         final PluginBlackDuckServerConfigModel pluginBlackDuckServerConfigModel =
-            new PluginBlackDuckServerConfigModel(newConfig.getHubUrl(), newConfig.getApiToken(), intTimeout, trustCert, newConfig.getHubProxyHost(), proxyPort, newConfig.getHubProxyUser(), newConfig.getHubProxyPassword());
+            new PluginBlackDuckServerConfigModel(newConfig.getHubUrl(), blackDuckAPIToken, intTimeout, trustCert, newConfig.getHubProxyHost(), proxyPort, newConfig.getHubProxyUser(), proxyPassword);
 
         logger.debug(String.format("Saving connection to %s...", newConfig.getHubUrl()));
         globalConfigurationAccessor.setBlackDuckServerConfig(pluginBlackDuckServerConfigModel);
