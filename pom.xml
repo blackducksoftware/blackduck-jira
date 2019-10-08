@@ -43,9 +43,18 @@
     <plugin.testrunner.version>1.1.4</plugin.testrunner.version>
       <!-- TestKit version 5.x for JIRA 5.x, 6.x for JIRA 6.x -->
       <testkit.version>5.2.26</testkit.version>
-    <bds.int.public.repository.release.url>https://sig-repo.synopsys.com/bds-integrations-release/</bds.int.public.repository.release.url>
-    <bds.int.public.repository.snapshot.url>https://sig-repo.synopsys.com/bds-integrations-snapshot/</bds.int.public.repository.snapshot.url>
   </properties>
+
+  <distributionManagement>
+    <repository>
+      <id>bds-artifactory</id>
+      <url>https://artifactory.internal.synopsys.com/artifactory/integration</url>
+    </repository>
+    <snapshotRepository>
+      <id>artifactory.blackducksoftware.com</id>
+      <url>https://artifactory.internal.synopsys.com/artifactory/integration-snapshot</url>
+    </snapshotRepository>
+  </distributionManagement>
 
   <repositories>
     <repository>
