@@ -48,11 +48,11 @@
   <distributionManagement>
     <repository>
       <id>bds-artifactory</id>
-      <url>https://artifactory.internal.synopsys.com/artifactory/integration</url>
+      <url>https://artifactory.internal.synopsys.com/artifactory/bds-integrations-release</url>
     </repository>
     <snapshotRepository>
       <id>artifactory.blackducksoftware.com</id>
-      <url>https://artifactory.internal.synopsys.com/artifactory/integration-snapshot</url>
+      <url>https://artifactory.internal.synopsys.com/artifactory/bds-integrations-snapshot</url>
     </snapshotRepository>
   </distributionManagement>
 
