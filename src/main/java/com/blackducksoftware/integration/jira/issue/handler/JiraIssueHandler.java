@@ -312,11 +312,9 @@ public class JiraIssueHandler {
         if (!IssueCategory.SPECIAL.equals(category)) {
             IssueProperties properties = new IssueProperties(category, blackDuckIssueModel.getBomComponentUri(), blackDuckIssueFieldTemplate.getPolicyRuleName(), blackDuckIssueModel.getJiraIssueId());
 
-            String alertCategory;
+            String alertCategory = "Policy";
             if (category == IssueCategory.VULNERABILITY) {
                 alertCategory = "Vulnerability";
-            } else {
-                alertCategory = "Policy";
             }
 
             AlertIssueSearchProperties alertIssueSearchProperties = new AlertIssueSearchProperties("Black Duck", "Project", blackDuckIssueFieldTemplate.getProjectName(), "Project Version",
