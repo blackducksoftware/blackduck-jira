@@ -43,11 +43,14 @@ import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.util.ErrorCollection;
 import com.blackducksoftware.integration.jira.common.exception.JiraIssueException;
+import com.blackducksoftware.integration.jira.issue.conversion.output.AlertIssueSearchProperties;
 import com.blackducksoftware.integration.jira.issue.conversion.output.IssueProperties;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 public class JiraIssuePropertyWrapper {
+    public static final String ALERT_PROPERTY_KEY = "com-synopsys-integration-alert";
+
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final IssuePropertyService issuePropertyService;
@@ -55,32 +58,32 @@ public class JiraIssuePropertyWrapper {
     private final JsonEntityPropertyManager jsonEntityPropertyManager;
     private Gson gson;
 
-    public JiraIssuePropertyWrapper(final IssuePropertyService issuePropertyService, final ProjectPropertyService projectPropertyService, final JsonEntityPropertyManager jsonEntityPropertyManager) {
+    public JiraIssuePropertyWrapper(IssuePropertyService issuePropertyService, ProjectPropertyService projectPropertyService, JsonEntityPropertyManager jsonEntityPropertyManager) {
         this.issuePropertyService = issuePropertyService;
         this.projectPropertyService = projectPropertyService;
         this.jsonEntityPropertyManager = jsonEntityPropertyManager;
         this.gson = new GsonBuilder().create();
     }
 
-    public String getIssueProperty(final Long issueId, final ApplicationUser user, final String propertyName) {
-        final PropertyResult propResult = issuePropertyService.getProperty(user, issueId, propertyName);
+    public String getIssueProperty(Long issueId, ApplicationUser user, String propertyName) {
+        PropertyResult propResult = issuePropertyService.getProperty(user, issueId, propertyName);
         if (propResult.isValid() && propResult.getEntityProperty().isDefined()) {
             return propResult.getEntityProperty().get().getValue();
         }
         return null;
     }
 
-    public void addIssuePropertyJson(final Long issueId, final ApplicationUser user, final String key, final String jsonValue) throws JiraIssueException {
+    public void addIssuePropertyJson(Long issueId, ApplicationUser user, String key, String jsonValue) throws JiraIssueException {
         logger.debug("addIssuePropertyJson(): issueId: " + issueId);
         if (isKeyOrValueBlank(key, jsonValue, "addIssuePropertyJson()")) {
             return;
         }
-        final EntityPropertyService.PropertyInput propertyInput = new EntityPropertyService.PropertyInput(jsonValue, key);
+        EntityPropertyService.PropertyInput propertyInput = new EntityPropertyService.PropertyInput(jsonValue, key);
 
-        final SetPropertyValidationResult validationResult = issuePropertyService.validateSetProperty(user, issueId, propertyInput);
+        SetPropertyValidationResult validationResult = issuePropertyService.validateSetProperty(user, issueId, propertyInput);
         if (validationResult.isValid()) {
-            final PropertyResult result = issuePropertyService.setProperty(user, validationResult);
-            final ErrorCollection errors = result.getErrorCollection();
+            PropertyResult result = issuePropertyService.setProperty(user, validationResult);
+            ErrorCollection errors = result.getErrorCollection();
             if (errors.hasAnyErrors()) {
                 throw new JiraIssueException("addIssuePropertyJson", errors);
             }
@@ -89,8 +92,8 @@ public class JiraIssuePropertyWrapper {
         }
     }
 
-    public void deleteIssueProperty(final Long entityId, final ApplicationUser user, final String propertyKey) throws JiraIssueException {
-        final DeletePropertyValidationResult validationResult = projectPropertyService.validateDeleteProperty(user, entityId, propertyKey);
+    public void deleteIssueProperty(Long entityId, ApplicationUser user, String propertyKey) throws JiraIssueException {
+        DeletePropertyValidationResult validationResult = projectPropertyService.validateDeleteProperty(user, entityId, propertyKey);
         if (validationResult.isValid()) {
             projectPropertyService.deleteProperty(user, validationResult);
         } else {
@@ -98,8 +101,8 @@ public class JiraIssuePropertyWrapper {
         }
     }
 
-    public EntityProperty findProperty(final String queryString) {
-        final List<EntityProperty> results = findProperties(queryString);
+    public EntityProperty findProperty(String queryString) {
+        List<EntityProperty> results = findProperties(queryString);
         if (results.isEmpty()) {
             logger.debug("No property found with that query string");
             return null;
@@ -107,31 +110,31 @@ public class JiraIssuePropertyWrapper {
         return results.get(0);
     }
 
-    public List<EntityProperty> findProperties(final String queryString) {
+    public List<EntityProperty> findProperties(String queryString) {
         if (queryString == null) {
             return Arrays.asList();
         }
         logger.debug("Querying for property: " + queryString);
-        final EntityPropertyQuery<?> query = jsonEntityPropertyManager.query();
-        final EntityPropertyQuery.ExecutableQuery executableQuery = query.key(queryString);
-        final List<EntityProperty> props = executableQuery.find();
+        EntityPropertyQuery<?> query = jsonEntityPropertyManager.query();
+        EntityPropertyQuery.ExecutableQuery executableQuery = query.key(queryString);
+        List<EntityProperty> props = executableQuery.find();
         return props;
     }
 
-    public List<IssueProperties> findIssuePropertiesByBomComponentUri(final String bomComponentUri) throws JiraIssueException {
+    public List<IssueProperties> findIssuePropertiesByBomComponentUri(String bomComponentUri) throws JiraIssueException {
         logger.debug("Find issue by Bom Component URI: " + bomComponentUri);
-        final List<IssueProperties> foundProperties = new ArrayList<>();
+        List<IssueProperties> foundProperties = new ArrayList<>();
 
-        final List<EntityProperty> properties = findProperties(bomComponentUri);
-        for (final EntityProperty property : properties) {
-            final IssueProperties issueProperties = createIssuePropertiesFromJson(property.getValue());
+        List<EntityProperty> properties = findProperties(bomComponentUri);
+        for (EntityProperty property : properties) {
+            IssueProperties issueProperties = createIssuePropertiesFromJson(property.getValue());
             logger.debug("findIssuesByBomComponentUri(): propertyValue (converted from JSON): " + issueProperties);
             foundProperties.add(issueProperties);
         }
         return foundProperties;
     }
 
-    public void addIssueProperties(final Long issueId, final ApplicationUser user, final String key, final IssueProperties propertiesObject) throws JiraIssueException {
+    public void addIssueProperties(Long issueId, ApplicationUser user, String key, IssueProperties propertiesObject) throws JiraIssueException {
         String jsonValue = "";
         if (null != propertiesObject) {
             jsonValue = gson.toJson(propertiesObject);
@@ -139,7 +142,15 @@ public class JiraIssuePropertyWrapper {
         addIssuePropertyJson(issueId, user, key, jsonValue);
     }
 
-    public void addProjectProperty(final Long issueId, ApplicationUser user, final String key, final Object value) throws JiraIssueException {
+    public void addAlertIssueProperties(Long issueId, ApplicationUser user, AlertIssueSearchProperties propertiesObject) throws JiraIssueException {
+        String jsonValue = "";
+        if (null != propertiesObject) {
+            jsonValue = gson.toJson(propertiesObject);
+        }
+        addIssuePropertyJson(issueId, user, ALERT_PROPERTY_KEY, jsonValue);
+    }
+
+    public void addProjectProperty(Long issueId, ApplicationUser user, String key, Object value) throws JiraIssueException {
         String jsonValue = "";
         if (null != value) {
             jsonValue = gson.toJson(value);
@@ -147,18 +158,18 @@ public class JiraIssuePropertyWrapper {
         addProjectPropertyJson(issueId, user, key, jsonValue);
     }
 
-    public void addProjectPropertyJson(final Long issueId, final ApplicationUser user, final String key, final String jsonValue) throws JiraIssueException {
+    public void addProjectPropertyJson(Long issueId, ApplicationUser user, String key, String jsonValue) throws JiraIssueException {
         logger.debug("addProjectPropertyJson(): issueId: " + issueId);
         if (isKeyOrValueBlank(key, jsonValue, "addProjectPropertyJson()")) {
             return;
         }
-        final EntityPropertyService.PropertyInput propertyInput = new EntityPropertyService.PropertyInput(jsonValue, key);
+        EntityPropertyService.PropertyInput propertyInput = new EntityPropertyService.PropertyInput(jsonValue, key);
 
-        final SetPropertyValidationResult validationResult = projectPropertyService.validateSetProperty(user, issueId, propertyInput);
+        SetPropertyValidationResult validationResult = projectPropertyService.validateSetProperty(user, issueId, propertyInput);
 
         if (validationResult.isValid()) {
-            final PropertyResult result = projectPropertyService.setProperty(user, validationResult);
-            final ErrorCollection errorCollection = result.getErrorCollection();
+            PropertyResult result = projectPropertyService.setProperty(user, validationResult);
+            ErrorCollection errorCollection = result.getErrorCollection();
             if (errorCollection.hasAnyErrors()) {
                 throw new JiraIssueException("addProjectPropertyJson", errorCollection);
             }
@@ -167,15 +178,15 @@ public class JiraIssuePropertyWrapper {
         }
     }
 
-    private IssueProperties createIssuePropertiesFromJson(final String json) throws JiraIssueException {
+    private IssueProperties createIssuePropertiesFromJson(String json) throws JiraIssueException {
         try {
             return gson.fromJson(json, IssueProperties.class);
-        } catch (final Exception e) {
+        } catch (Exception e) {
             throw new JiraIssueException("Could not deserialize issue properties.", "createIssuePropertiesFromJson");
         }
     }
 
-    private boolean isKeyOrValueBlank(final String key, final String json, final String method) {
+    private boolean isKeyOrValueBlank(String key, String json, String method) {
         if (StringUtils.isBlank(key) || StringUtils.isBlank(json)) {
             if (StringUtils.isBlank(key)) {
                 logger.error(String.format("%s: key is blank", method, key, json));
