@@ -77,13 +77,13 @@ public class JiraIssueHandler {
         this.instanceUniqueDate = new Date();
     }
 
-    public void handleBlackDuckIssue(BlackDuckIssueModel blackDuckIssueModel) {
+    public void handleBlackDuckIssue(BlackDuckIssueModel blackDuckIssueModel, String blackDuckURL) {
         logger.info(String.format("Performing action '%s' on BOM Component: %s", blackDuckIssueModel.getIssueAction(), blackDuckIssueModel.getBomComponentUri()));
         BlackDuckIssueAction actionToTake = blackDuckIssueModel.getIssueAction();
         Issue jiraIssue = null;
         //TODO: clean up code to find or create a jira issue and then add a comment if possible.
         if (BlackDuckIssueAction.OPEN.equals(actionToTake)) {
-            ExistenceAwareIssue openedIssue = openIssue(blackDuckIssueModel);
+            ExistenceAwareIssue openedIssue = openIssue(blackDuckIssueModel, blackDuckURL);
             if (openedIssue != null) {
                 jiraIssue = openedIssue.getIssue();
                 if (openedIssue.isIssueStateChangeBlocked()) {
@@ -102,7 +102,7 @@ public class JiraIssueHandler {
                 }
             }
         } else if (BlackDuckIssueAction.ADD_COMMENT.equals(actionToTake)) {
-            ExistenceAwareIssue issueToCommentOn = openIssue(blackDuckIssueModel);
+            ExistenceAwareIssue issueToCommentOn = openIssue(blackDuckIssueModel, blackDuckURL);
             if (issueToCommentOn != null && issueToCommentOn.getIssue() != null) {
                 jiraIssue = issueToCommentOn.getIssue();
                 if (!issueToCommentOn.isExisted()) {
@@ -120,7 +120,7 @@ public class JiraIssueHandler {
                 addComment(blackDuckIssueModel, blackDuckIssueModel.getJiraIssueCommentInLieuOfStateChange(), jiraIssue);
             }
         } else if (BlackDuckIssueAction.UPDATE_OR_OPEN.equals(actionToTake)) {
-            ExistenceAwareIssue openedIssue = updateIssueIfExists(blackDuckIssueModel);
+            ExistenceAwareIssue openedIssue = updateIssueIfExists(blackDuckIssueModel, blackDuckURL);
             if (openedIssue != null && !openedIssue.isExisted()) {
                 jiraIssue = openedIssue.getIssue();
                 addComment(blackDuckIssueModel, blackDuckIssueModel.getJiraIssueComment(), jiraIssue);
@@ -134,7 +134,7 @@ public class JiraIssueHandler {
         addComponentReviewerAsWatcher(jiraIssue, blackDuckIssueModel);
     }
 
-    private ExistenceAwareIssue openIssue(BlackDuckIssueModel blackDuckIssueModel) {
+    private ExistenceAwareIssue openIssue(BlackDuckIssueModel blackDuckIssueModel, String blackDuckURL) {
         ApplicationUser issueCreator = blackDuckIssueModel.getJiraIssueFieldTemplate().getIssueCreator();
         logger.debug("Setting logged in User : " + issueCreator);
         authContext.setLoggedInUser(issueCreator);
@@ -176,7 +176,7 @@ public class JiraIssueHandler {
                 logger.info("Created new Issue.");
                 printIssueInfo(issue);
                 updateIssueTrackerProperties(blackDuckIssueModel, issue);
-                updateDefaultIssueProperties(blackDuckIssueModel);
+                updateDefaultIssueProperties(blackDuckIssueModel, blackDuckURL);
                 addLastBatchStartKeyToIssue(blackDuckIssueModel);
                 return new ExistenceAwareIssue(issue, false, false);
             }
@@ -236,7 +236,7 @@ public class JiraIssueHandler {
         }
     }
 
-    private ExistenceAwareIssue updateIssueIfExists(BlackDuckIssueModel blackDuckIssueModel) {
+    private ExistenceAwareIssue updateIssueIfExists(BlackDuckIssueModel blackDuckIssueModel, String blackDuckURL) {
         Optional<Issue> optionalIssue = findIssueAndAddIssueIdToModel(blackDuckIssueModel);
         if (optionalIssue.isPresent()) {
             if (!blockStateChange(optionalIssue.get(), blackDuckIssueModel)) {
@@ -244,7 +244,7 @@ public class JiraIssueHandler {
             }
             return null;
         } else {
-            return openIssue(blackDuckIssueModel);
+            return openIssue(blackDuckIssueModel, blackDuckURL);
         }
     }
 
@@ -306,7 +306,7 @@ public class JiraIssueHandler {
         }
     }
 
-    private void updateDefaultIssueProperties(BlackDuckIssueModel blackDuckIssueModel) {
+    private void updateDefaultIssueProperties(BlackDuckIssueModel blackDuckIssueModel, String blackDuckURL) {
         BlackDuckIssueFieldTemplate blackDuckIssueFieldTemplate = blackDuckIssueModel.getBlackDuckIssueFieldTemplate();
         IssueCategory category = blackDuckIssueFieldTemplate.getIssueCategory();
         if (!IssueCategory.SPECIAL.equals(category)) {
@@ -317,7 +317,7 @@ public class JiraIssueHandler {
                 alertCategory = "Vulnerability";
             }
 
-            AlertIssueSearchProperties alertIssueSearchProperties = new AlertIssueSearchProperties("Black Duck", "Project", blackDuckIssueFieldTemplate.getProjectName(), "Project Version",
+            AlertIssueSearchProperties alertIssueSearchProperties = new AlertIssueSearchProperties("Black Duck", blackDuckURL, "Project", blackDuckIssueFieldTemplate.getProjectName(), "Project Version",
                 blackDuckIssueFieldTemplate.getProjectVersionName(), alertCategory,
                 "Component", blackDuckIssueFieldTemplate.getComponentName(), "Component Version", blackDuckIssueFieldTemplate.getComponentVersionName(), "");
 

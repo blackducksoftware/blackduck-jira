@@ -81,9 +81,9 @@ public class TicketGenerator {
     private final List<String> linksOfRulesToMonitor;
     private final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig;
 
-    public TicketGenerator(final BlackDuckService blackDuckService, final BlackDuckBucketService blackDuckBucketService, final NotificationService notificationService, final CommonNotificationService commonNotificationService,
-        final JiraServices jiraServices, final JiraUserContext jiraUserContext, final PluginErrorAccessor pluginErrorAccessor, final Map<PluginField, CustomField> customFields,
-        final List<String> listOfRulesToMonitor, final BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig) {
+    public TicketGenerator(BlackDuckService blackDuckService, BlackDuckBucketService blackDuckBucketService, NotificationService notificationService, CommonNotificationService commonNotificationService,
+        JiraServices jiraServices, JiraUserContext jiraUserContext, PluginErrorAccessor pluginErrorAccessor, Map<PluginField, CustomField> customFields,
+        List<String> listOfRulesToMonitor, BlackDuckJiraFieldCopyConfigSerializable fieldCopyConfig) {
         this.blackDuckService = blackDuckService;
         this.blackDuckBucketService = blackDuckBucketService;
         this.notificationService = notificationService;
@@ -97,41 +97,41 @@ public class TicketGenerator {
         this.fieldCopyConfig = fieldCopyConfig;
     }
 
-    public Date generateTicketsForNotificationsInDateRange(final UserView blackDuckUser, final BlackDuckProjectMappings blackDuckProjectMappings, final TicketCriteriaConfigModel ticketCriteria, final Date startDate, final Date endDate) {
+    public Date generateTicketsForNotificationsInDateRange(UserView blackDuckUser, BlackDuckProjectMappings blackDuckProjectMappings, TicketCriteriaConfigModel ticketCriteria, Date startDate, Date endDate) {
         if ((blackDuckProjectMappings == null) || (blackDuckProjectMappings.size() == 0)) {
             logger.debug("The configuration does not specify any Black Duck projects to monitor");
             return startDate;
         }
         try {
-            final List<NotificationUserView> userNotifications = notificationService.getFilteredUserNotifications(blackDuckUser, startDate, endDate, getAllNotificationTypes());
-            final List<CommonNotificationView> commonNotifications = commonNotificationService.getCommonUserNotifications(userNotifications);
-            final NotificationDetailResults results = commonNotificationService.getNotificationDetailResults(commonNotifications);
-            final List<NotificationDetailResult> notificationDetailResults = results.getResults();
+            List<NotificationUserView> userNotifications = notificationService.getFilteredUserNotifications(blackDuckUser, startDate, endDate, getAllNotificationTypes());
+            List<CommonNotificationView> commonNotifications = commonNotificationService.getCommonUserNotifications(userNotifications);
+            NotificationDetailResults results = commonNotificationService.getNotificationDetailResults(commonNotifications);
+            List<NotificationDetailResult> notificationDetailResults = results.getResults();
 
-            final BlackDuckBucket blackDuckBucket = new BlackDuckBucket();
+            BlackDuckBucket blackDuckBucket = new BlackDuckBucket();
             commonNotificationService.populateHubBucket(blackDuckBucketService, blackDuckBucket, results);
             reportAnyErrors(blackDuckBucket);
 
             logger.info(String.format("There are %d notifications to handle", notificationDetailResults.size()));
 
             if (!notificationDetailResults.isEmpty()) {
-                final JiraIssueServiceWrapper issueServiceWrapper = JiraIssueServiceWrapper.createIssueServiceWrapperFromJiraServices(jiraServices, jiraUserContext, customFields);
-                final JiraIssueHandler issueHandler = new JiraIssueHandler(issueServiceWrapper, pluginErrorAccessor, issueTrackerHandler, jiraServices.getAuthContext(), jiraUserContext, ticketCriteria);
+                JiraIssueServiceWrapper issueServiceWrapper = JiraIssueServiceWrapper.createIssueServiceWrapperFromJiraServices(jiraServices, jiraUserContext, customFields);
+                JiraIssueHandler issueHandler = new JiraIssueHandler(issueServiceWrapper, pluginErrorAccessor, issueTrackerHandler, jiraServices.getAuthContext(), jiraUserContext, ticketCriteria);
 
-                final BlackDuckDataHelper blackDuckDataHelper = new BlackDuckDataHelper(logger, blackDuckService, blackDuckBucket);
-                final DataFormatHelper dataFormatHelper = new DataFormatHelper(blackDuckDataHelper);
+                BlackDuckDataHelper blackDuckDataHelper = new BlackDuckDataHelper(logger, blackDuckService, blackDuckBucket);
+                DataFormatHelper dataFormatHelper = new DataFormatHelper(blackDuckDataHelper);
 
-                final BomNotificationToIssueModelConverter notificationConverter = new BomNotificationToIssueModelConverter(jiraServices, jiraUserContext, pluginErrorAccessor, blackDuckProjectMappings, fieldCopyConfig,
+                BomNotificationToIssueModelConverter notificationConverter = new BomNotificationToIssueModelConverter(jiraServices, jiraUserContext, pluginErrorAccessor, blackDuckProjectMappings, fieldCopyConfig,
                     dataFormatHelper, linksOfRulesToMonitor, blackDuckDataHelper, ticketCriteria);
 
                 handleEachIssue(notificationConverter, notificationDetailResults, issueHandler, startDate);
             }
 
-            final Optional<Date> optionalCreatedAtDate = results.getLatestNotificationCreatedAtDate();
+            Optional<Date> optionalCreatedAtDate = results.getLatestNotificationCreatedAtDate();
             if (optionalCreatedAtDate.isPresent()) {
                 return optionalCreatedAtDate.get();
             }
-        } catch (final Exception e) {
+        } catch (Exception e) {
             logger.error("Error occurred when generating issues.", e);
             pluginErrorAccessor.addBlackDuckError(e, "generateTicketsForNotificationsInDateRange");
         }
@@ -139,20 +139,20 @@ public class TicketGenerator {
     }
 
     private List<String> getAllNotificationTypes() {
-        final List<String> types = new ArrayList<>();
-        for (final NotificationType notificationType : NotificationType.values()) {
+        List<String> types = new ArrayList<>();
+        for (NotificationType notificationType : NotificationType.values()) {
             types.add(notificationType.name());
         }
         return types;
     }
 
-    private void handleEachIssue(final BomNotificationToIssueModelConverter converter, final List<NotificationDetailResult> notificationDetailResults, final JiraIssueHandler issueHandler, final Date batchStartDate) {
-        for (final NotificationDetailResult detailResult : notificationDetailResults) {
-            final Collection<BlackDuckIssueModel> issueModels = converter.convertToModel(detailResult, batchStartDate);
-            for (final BlackDuckIssueModel model : issueModels) {
+    private void handleEachIssue(BomNotificationToIssueModelConverter converter, List<NotificationDetailResult> notificationDetailResults, JiraIssueHandler issueHandler, Date batchStartDate) {
+        for (NotificationDetailResult detailResult : notificationDetailResults) {
+            Collection<BlackDuckIssueModel> issueModels = converter.convertToModel(detailResult, batchStartDate);
+            for (BlackDuckIssueModel model : issueModels) {
                 try {
-                    issueHandler.handleBlackDuckIssue(model);
-                } catch (final Exception e) {
+                    issueHandler.handleBlackDuckIssue(model, blackDuckService.getBlackDuckBaseUrl());
+                } catch (Exception e) {
                     logger.error("Error occurred while handling Black Duck issue.", e);
                     pluginErrorAccessor.addBlackDuckError(e, "issueHandler.handleBlackDuckIssue(model)");
                 }
@@ -160,13 +160,13 @@ public class TicketGenerator {
         }
     }
 
-    private void reportAnyErrors(final BlackDuckBucket blackDuckBucket) {
+    private void reportAnyErrors(BlackDuckBucket blackDuckBucket) {
         blackDuckBucket.getAvailableUris().parallelStream().forEach(uri -> {
-            final Optional<Exception> uriError = blackDuckBucket.getError(uri);
+            Optional<Exception> uriError = blackDuckBucket.getError(uri);
             if (uriError.isPresent()) {
-                final Exception e = uriError.get();
+                Exception e = uriError.get();
                 if ((e instanceof ExecutionException) && (e.getCause() != null) && (e.getCause() instanceof BlackDuckItemTransformException)) {
-                    final String msg = String.format(
+                    String msg = String.format(
                         "WARNING: An error occurred while collecting supporting information from Black Duck for a notification: %s; "
                             + "This can be caused by deletion of Black Duck data (project version, component, etc.) relevant to the notification soon after the notification was generated",
                         e.getMessage());

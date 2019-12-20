@@ -27,9 +27,10 @@ import java.io.Serializable;
 import com.synopsys.integration.util.Stringable;
 
 public class AlertIssueSearchProperties extends Stringable implements Serializable {
-    private static final long serialVersionUID = 5118359576459062327L;
+    private static final long serialVersionUID = -8689982489394630046L;
 
     private String provider;
+    private String providerUrl;
     private String topicName;
     private String topicValue;
     private String subTopicName;
@@ -47,6 +48,7 @@ public class AlertIssueSearchProperties extends Stringable implements Serializab
 
     public AlertIssueSearchProperties(
         String provider,
+        String providerUrl,
         String topicName,
         String topicValue,
         String subTopicName,
@@ -59,6 +61,7 @@ public class AlertIssueSearchProperties extends Stringable implements Serializab
         String additionalKey
     ) {
         this.provider = provider;
+        this.providerUrl = providerUrl;
         this.topicName = topicName;
         this.topicValue = topicValue;
         this.subTopicName = subTopicName;
@@ -73,6 +76,10 @@ public class AlertIssueSearchProperties extends Stringable implements Serializab
 
     public String getProvider() {
         return provider;
+    }
+
+    public String getProviderUrl() {
+        return providerUrl;
     }
 
     public String getTopicName() {
