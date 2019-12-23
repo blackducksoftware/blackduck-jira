@@ -36,6 +36,7 @@ public class PluginConfigKeys {
     public static final String BLACKDUCK_CONFIG_JIRA_ADMIN_USER = BLACKDUCK_CONFIG_JIRA_KEY_PREFIX + ".jiraUser";
     public static final String BLACKDUCK_CONFIG_JIRA_ISSUE_CREATOR_USER = BLACKDUCK_CONFIG_JIRA_KEY_PREFIX + ".creator";
     public static final String BLACKDUCK_CONFIG_CREATOR_CANDIDATES_JSON = BLACKDUCK_CONFIG_JIRA_KEY_PREFIX + ".creatorCandidates";
+    public static final String PROJECTS_MIGRATED_TO_ALERT = BLACKDUCK_CONFIG_JIRA_KEY_PREFIX + ".projectsMigratedToAlert";
     public static final String BLACKDUCK_CONFIG_GROUPS = "com.blackducksoftware.integration.hub.configuration.hubGroups";
     public static final String BLACKDUCK_CONFIG_PROJECT_REVIEWER_NOTIFICATIONS_CHOICE = BLACKDUCK_CONFIG_JIRA_KEY_PREFIX + ".projectReviewerNotificationsChoice";
 

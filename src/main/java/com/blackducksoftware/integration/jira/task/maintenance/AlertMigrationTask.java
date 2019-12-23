@@ -23,20 +23,16 @@
  */
 package com.blackducksoftware.integration.jira.task.maintenance;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.atlassian.jira.bc.issue.properties.IssuePropertyService;
-import com.atlassian.jira.bc.project.property.ProjectPropertyService;
 import com.atlassian.jira.entity.property.EntityPropertyService;
-import com.atlassian.jira.entity.property.JsonEntityPropertyManager;
 import com.atlassian.jira.issue.CustomFieldManager;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.fields.CustomField;
@@ -44,34 +40,24 @@ import com.atlassian.jira.jql.parser.DefaultJqlQueryParser;
 import com.atlassian.jira.jql.parser.JqlParseException;
 import com.atlassian.jira.jql.parser.JqlQueryParser;
 import com.atlassian.jira.user.ApplicationUser;
-import com.atlassian.jira.workflow.JiraWorkflow;
 import com.atlassian.query.Query;
-import com.blackducksoftware.integration.jira.blackduck.BlackDuckConnectionHelper;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
-import com.blackducksoftware.integration.jira.common.WorkflowHelper;
 import com.blackducksoftware.integration.jira.common.exception.JiraIssueException;
 import com.blackducksoftware.integration.jira.common.model.PluginBlackDuckServerConfigModel;
 import com.blackducksoftware.integration.jira.data.accessor.GlobalConfigurationAccessor;
 import com.blackducksoftware.integration.jira.data.accessor.JiraSettingsAccessor;
+import com.blackducksoftware.integration.jira.data.accessor.MigrationAccessor;
 import com.blackducksoftware.integration.jira.data.accessor.PluginConfigurationAccessor;
 import com.blackducksoftware.integration.jira.issue.conversion.output.AlertIssueSearchProperties;
 import com.blackducksoftware.integration.jira.issue.handler.JiraIssuePropertyWrapper;
 import com.blackducksoftware.integration.jira.issue.handler.JiraIssueServiceWrapper;
 import com.blackducksoftware.integration.jira.issue.model.GeneralIssueCreationConfigModel;
-import com.blackducksoftware.integration.jira.issue.model.IssueCategory;
 import com.blackducksoftware.integration.jira.issue.model.ProjectMappingConfigModel;
 import com.blackducksoftware.integration.jira.web.JiraServices;
 import com.blackducksoftware.integration.jira.web.model.BlackDuckJiraConfigSerializable;
 import com.blackducksoftware.integration.jira.web.model.JiraProject;
 import com.google.common.collect.ImmutableMap;
-import com.opensymphony.workflow.loader.ActionDescriptor;
-import com.synopsys.integration.blackduck.exception.BlackDuckApiException;
-import com.synopsys.integration.blackduck.service.BlackDuckService;
-import com.synopsys.integration.blackduck.service.BlackDuckServicesFactory;
-import com.synopsys.integration.exception.IntegrationException;
-import com.synopsys.integration.rest.exception.IntegrationRestException;
-import com.synopsys.integration.rest.request.Response;
 
 public class AlertMigrationTask implements Callable<String> {
     private static final String JIRA_QUERY_PARAM_NAME_ISSUE_TYPE = "issuetype";
@@ -79,10 +65,7 @@ public class AlertMigrationTask implements Callable<String> {
     private static final String JIRA_QUERY_CONJUNCTION = " AND ";
     private static final String JIRA_QUERY_DISJUNCTION = " OR ";
 
-    // TODO determine reasonable numbers here
     private static final Integer MAX_BATCH_SIZE = 100;
-    private static final Integer MAX_BATCHES_PER_RUN = 100;
-
     private static final String COMPLETE_STATUS_MESSAGE = "Complete";
     private static final String NOT_CONFIGURED_STATUS_MESSAGE = "NOT CONFIGURED";
     private static final String ERROR_STATUS_MESSAGE = "ERROR";
@@ -91,11 +74,13 @@ public class AlertMigrationTask implements Callable<String> {
     private final JiraSettingsAccessor jiraSettingsAccessor;
     private final JiraServices jiraServices;
     private final IssuePropertyService issuePropertyService;
+    private final MigrationAccessor migrationAccessor;
 
     public AlertMigrationTask(JiraSettingsAccessor jiraSettingsAccessor, IssuePropertyService issuePropertyService) {
         this.jiraSettingsAccessor = jiraSettingsAccessor;
         this.jiraServices = new JiraServices();
         this.issuePropertyService = issuePropertyService;
+        this.migrationAccessor = new MigrationAccessor(jiraSettingsAccessor);
     }
 
     @Override
@@ -144,7 +129,12 @@ public class AlertMigrationTask implements Callable<String> {
         config.setHubProjectMappingsJson(projectMapping.getMappingsJson());
 
         List<JiraProject> jiraProjects = config.getJiraProjects();
-        for (JiraProject jiraProject : jiraProjects) {
+        List<String> migratedProjects = migrationAccessor.getMigratedProjects();
+
+        List<JiraProject> projectsToMigrate = jiraProjects.stream()
+                                                  .filter(jiraProject -> !migratedProjects.contains(jiraProject.getProjectName()))
+                                                  .collect(Collectors.toList());
+        for (JiraProject jiraProject : projectsToMigrate) {
             logger.info(String.format("Checking Jira Project %s for Black Duck issues to migrate.", jiraProject.getProjectName()));
             Optional<Query> optionalBlackDuckIssueQuery = createBlackDuckIssueQuery(jiraProject.getProjectName());
             Query searchQuery;
@@ -157,8 +147,10 @@ public class AlertMigrationTask implements Callable<String> {
             try {
                 JiraIssueServiceWrapper issueServiceWrapper = JiraIssueServiceWrapper.createIssueServiceWrapperFromJiraServices(jiraServices, jiraUserContext, ImmutableMap.of());
                 findAndUpdateIssuesInBatches(issueServiceWrapper, jiraUserContext.getJiraAdminUser(), jiraProject.getProjectName(), searchQuery, blackDuckUrl, projectField, projectVersionField, componentField, componentVersionField);
+                migratedProjects.add(jiraProject.getProjectName());
+                migrationAccessor.updateMigratedProjects(migratedProjects);
             } catch (Exception e) {
-                logger.warn("There was a problem while attempting to clean up orphan tickets: " + e.getMessage());
+                logger.warn("There was a problem while attempting to migrate the existing Black Duck issues: " + e.getMessage());
                 return ERROR_STATUS_MESSAGE;
             }
         }
@@ -168,7 +160,6 @@ public class AlertMigrationTask implements Callable<String> {
     private void findAndUpdateIssuesInBatches(JiraIssueServiceWrapper issueServiceWrapper, ApplicationUser user, String jiraProject, Query query, String blackDuckUrl, CustomField projectField, CustomField projectVersionField,
         CustomField componentField,
         CustomField componentVersionField) throws JiraIssueException {
-        int batchCount = 0;
         int offset = 0;
         final int limit = MAX_BATCH_SIZE;
         List<Issue> foundIssues;
@@ -177,8 +168,7 @@ public class AlertMigrationTask implements Callable<String> {
             offset += limit;
             logger.info(String.format("Processing %s issues for project %s between %s and %s.", foundIssues.size(), jiraProject, offset, limit));
             processBatch(issueServiceWrapper, user, foundIssues, blackDuckUrl, projectField, projectVersionField, componentField, componentVersionField);
-            batchCount++;
-        } while (foundIssues.size() == limit || batchCount <= MAX_BATCHES_PER_RUN);
+        } while (foundIssues.size() == limit);
     }
 
     private void processBatch(JiraIssueServiceWrapper issueServiceWrapper, ApplicationUser admin, List<Issue> issuesToProcess, String blackDuckUrl, CustomField projectField, CustomField projectVersionField, CustomField componentField,
@@ -205,6 +195,7 @@ public class AlertMigrationTask implements Callable<String> {
                 projectVersionName, alertCategory, "Component", componentName, "Component Version", componentVersionName, "");
             try {
                 issueServiceWrapper.getIssuePropertyWrapper().addAlertIssueProperties(issue.getId(), admin, alertIssueSearchProperties);
+                logger.trace(String.format("Added the Alert issue properties to issue %s.", issue.getKey()));
             } catch (JiraIssueException e) {
                 logger.error(String.format("Error adding issue properties to issue %s : %s", issue.getKey(), e.getMessage()), e);
             }
