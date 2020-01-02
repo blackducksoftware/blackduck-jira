@@ -215,7 +215,11 @@ public class AlertMigrationRunner implements JobRunner {
             String componentName = (String) issue.getCustomFieldValue(componentField);
             String componentVersionName = (String) issue.getCustomFieldValue(componentVersionField);
 
-            AlertIssueSearchProperties alertIssueSearchProperties = new AlertIssueSearchProperties("Black Duck", blackDuckUrl, "Project", projectName, "Project Version",
+            String correctedURL = blackDuckUrl.trim();
+            if (!correctedURL.endsWith("/")) {
+                correctedURL += "/";
+            }
+            AlertIssueSearchProperties alertIssueSearchProperties = new AlertIssueSearchProperties("Black Duck", correctedURL, "Project", projectName, "Project Version",
                 projectVersionName, alertCategory, "Component", componentName, "Component Version", componentVersionName, "");
             try {
                 issueServiceWrapper.getIssuePropertyWrapper().addAlertIssueProperties(issue.getId(), admin, alertIssueSearchProperties);

@@ -317,7 +317,11 @@ public class JiraIssueHandler {
                 alertCategory = "Vulnerability";
             }
 
-            AlertIssueSearchProperties alertIssueSearchProperties = new AlertIssueSearchProperties("Black Duck", blackDuckURL, "Project", blackDuckIssueFieldTemplate.getProjectName(), "Project Version",
+            String correctedURL = blackDuckURL.trim();
+            if (!correctedURL.endsWith("/")) {
+                correctedURL += "/";
+            }
+            AlertIssueSearchProperties alertIssueSearchProperties = new AlertIssueSearchProperties("Black Duck", correctedURL, "Project", blackDuckIssueFieldTemplate.getProjectName(), "Project Version",
                 blackDuckIssueFieldTemplate.getProjectVersionName(), alertCategory,
                 "Component", blackDuckIssueFieldTemplate.getComponentName(), "Component Version", blackDuckIssueFieldTemplate.getComponentVersionName(), "");
 
