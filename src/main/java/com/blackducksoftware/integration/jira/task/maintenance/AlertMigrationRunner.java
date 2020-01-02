@@ -75,6 +75,7 @@ public class AlertMigrationRunner implements JobRunner {
     private static final String RUNNING_STATUS_MESSAGE = "Running";
     private static final String COMPLETE_STATUS_MESSAGE = "Complete";
     private static final String LOGGER_MESSAGE = "Please refer to the logs, make sure you have a logger configured for 'com.blackducksoftware.integration'.";
+    private static final String MIGRATION_NOT_NEEDED_MESSAGE = "If the plugin wasn't configured then there are no issues to migrate, please start using Alert instead";
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final JiraSettingsAccessor jiraSettingsAccessor;
@@ -122,9 +123,9 @@ public class AlertMigrationRunner implements JobRunner {
             componentField = optionalComponentField.get();
             componentVersionField = optionalComponentVersionField.get();
         } else {
-            String message = String.format("Cannot find the custom field(s) necessary for this task: %s, %s, %s, %s",
+            String message = String.format("The custom field(s): %s, %s, %s, %s are missing. %s",
                 BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT, BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION, BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_COMPONENT,
-                BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_COMPONENT_VERSION);
+                BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_COMPONENT_VERSION, MIGRATION_NOT_NEEDED_MESSAGE);
             logger.warn(message);
             return JobRunnerResponse.aborted(message);
         }
@@ -139,7 +140,7 @@ public class AlertMigrationRunner implements JobRunner {
         if (optionalJiraUserContext.isPresent()) {
             jiraUserContext = optionalJiraUserContext.get();
         } else {
-            String message = "No (valid) user in configuration data; The plugin has likely not yet been configured; The task cannot run (yet)";
+            String message = "No (valid) user in configuration data. The plugin has likely not yet been configured. " + MIGRATION_NOT_NEEDED_MESSAGE;
             logger.warn(message);
             return JobRunnerResponse.aborted(message);
         }
