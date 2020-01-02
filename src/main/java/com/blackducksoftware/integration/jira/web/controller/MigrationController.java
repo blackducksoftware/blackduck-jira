@@ -1,8 +1,6 @@
 package com.blackducksoftware.integration.jira.web.controller;
 
-import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
@@ -28,31 +26,30 @@ import com.blackducksoftware.integration.jira.data.accessor.JiraSettingsAccessor
 import com.blackducksoftware.integration.jira.data.accessor.MigrationAccessor;
 import com.blackducksoftware.integration.jira.task.maintenance.AlertMigrationRunner;
 import com.blackducksoftware.integration.jira.web.action.MigrationActions;
+import com.blackducksoftware.integration.jira.web.model.MigrationDetails;
 
 @Path("/blackduck/migration")
 public class MigrationController extends ConfigController {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final MigrationActions migrationActions;
-    private final MigrationAccessor migrationAccessor;
 
     public MigrationController(PluginSettingsFactory pluginSettingsFactory, TransactionTemplate transactionTemplate, UserManager userManager, SchedulerService schedulerService, JiraSettingsAccessor jiraSettingsAccessor,
         IssuePropertyService issuePropertyService, MigrationAccessor migrationAccessor) {
         super(pluginSettingsFactory, transactionTemplate, userManager);
-        this.migrationActions = new MigrationActions(schedulerService, jiraSettingsAccessor, issuePropertyService);
-        this.migrationAccessor = migrationAccessor;
+        this.migrationActions = new MigrationActions(schedulerService, jiraSettingsAccessor, issuePropertyService, migrationAccessor);
     }
 
-    @Path("/projects")
+    @Path("/details")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getMigratedProjects(@Context HttpServletRequest request) {
+    public Response getMigrationDetails(@Context HttpServletRequest request) {
         boolean validAuthentication = isAuthorized(request);
         if (!validAuthentication) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
 
-        List<String> migratedProjects = migrationAccessor.getMigratedProjects();
-        return Response.ok(migratedProjects).build();
+        MigrationDetails migrationDetails = migrationActions.getMigrationDetails();
+        return Response.ok(migrationDetails).build();
     }
 
     @Path("/projects")
@@ -63,51 +60,9 @@ public class MigrationController extends ConfigController {
         if (!validAuthentication) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
-        List<String> migratedProjects = migrationAccessor.getMigratedProjects();
-        List<String> updatedProjects = migratedProjects.stream()
-                                           .filter(project -> !projectsToDelete.contains(project))
-                                           .collect(Collectors.toList());
-        migrationAccessor.updateMigratedProjects(updatedProjects);
+        migrationActions.removeProjectsFromCompletedList(projectsToDelete);
 
         return Response.ok().build();
-    }
-
-    @Path("/start")
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getMigrationTaskStartTime(@Context HttpServletRequest request) {
-        boolean validAuthentication = isAuthorized(request);
-        if (!validAuthentication) {
-            return Response.status(Response.Status.UNAUTHORIZED).build();
-        }
-        Date migrationStartTime = migrationActions.getMigrationStartTime();
-        return Response.ok(migrationStartTime).build();
-    }
-
-    @Path("/end")
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getMigrationTaskEndTime(@Context HttpServletRequest request) {
-        boolean validAuthentication = isAuthorized(request);
-        if (!validAuthentication) {
-            return Response.status(Response.Status.UNAUTHORIZED).build();
-        }
-
-        Date migrationEndTime = migrationActions.getMigrationStartTime();
-        return Response.ok(migrationEndTime).build();
-    }
-
-    @Path("/status")
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getMigrationTaskStatus(@Context HttpServletRequest request) {
-        boolean validAuthentication = isAuthorized(request);
-        if (!validAuthentication) {
-            return Response.status(Response.Status.UNAUTHORIZED).build();
-        }
-
-        String status = migrationActions.getMigrationStatus();
-        return Response.ok(status).build();
     }
 
     @POST

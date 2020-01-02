@@ -2,6 +2,8 @@ package com.blackducksoftware.integration.jira.web.action;
 
 import java.time.Instant;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +17,9 @@ import com.atlassian.scheduler.config.JobRunnerKey;
 import com.atlassian.scheduler.config.RunMode;
 import com.atlassian.scheduler.config.Schedule;
 import com.blackducksoftware.integration.jira.data.accessor.JiraSettingsAccessor;
+import com.blackducksoftware.integration.jira.data.accessor.MigrationAccessor;
 import com.blackducksoftware.integration.jira.task.maintenance.AlertMigrationRunner;
+import com.blackducksoftware.integration.jira.web.model.MigrationDetails;
 
 public class MigrationActions {
     private static final String MIGRATION_JOB_NAME = MigrationActions.class.getName() + ":migration";
@@ -23,17 +27,22 @@ public class MigrationActions {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final SchedulerService schedulerService;
-    private final JiraSettingsAccessor jiraSettingsAccessor;
-    private final IssuePropertyService issuePropertyService;
+    private final MigrationAccessor migrationAccessor;
     private final AlertMigrationRunner alertMigrationRunner;
 
-    public MigrationActions(SchedulerService schedulerService, JiraSettingsAccessor jiraSettingsAccessor, IssuePropertyService issuePropertyService) {
+    public MigrationActions(SchedulerService schedulerService, JiraSettingsAccessor jiraSettingsAccessor, IssuePropertyService issuePropertyService, MigrationAccessor migrationAccessor) {
         this.schedulerService = schedulerService;
-        this.jiraSettingsAccessor = jiraSettingsAccessor;
-        this.issuePropertyService = issuePropertyService;
         this.alertMigrationRunner = new AlertMigrationRunner(jiraSettingsAccessor, issuePropertyService);
-
+        this.migrationAccessor = migrationAccessor;
         schedulerService.registerJobRunner(MIGRATION_JOB_RUNNER_KEY, alertMigrationRunner);
+    }
+
+    public void removeProjectsFromCompletedList(List<String> projectsToDelete) {
+        List<String> migratedProjects = migrationAccessor.getMigratedProjects();
+        List<String> updatedProjects = migratedProjects.stream()
+                                           .filter(project -> !projectsToDelete.contains(project))
+                                           .collect(Collectors.toList());
+        migrationAccessor.updateMigratedProjects(updatedProjects);
     }
 
     public void startMigration() throws SchedulerServiceException {
@@ -48,16 +57,14 @@ public class MigrationActions {
         logger.info(String.format("%s scheduled to run now.", AlertMigrationRunner.HUMAN_READABLE_TASK_NAME));
     }
 
-    public Date getMigrationStartTime() {
-        return alertMigrationRunner.getStartTime();
+    public MigrationDetails getMigrationDetails() {
+        MigrationDetails migrationDetails = new MigrationDetails();
+        migrationDetails.setMigratedProjects(migrationAccessor.getMigratedProjects());
+        migrationDetails.setMigrationStartTime(alertMigrationRunner.getStartTime());
+        migrationDetails.setMigrationEndTime(alertMigrationRunner.getEndTime());
+        migrationDetails.setMigrationStatus(alertMigrationRunner.getStatus());
+        return migrationDetails;
     }
 
-    public Date getMigrationEndTime() {
-        return alertMigrationRunner.getEndTime();
-    }
-
-    public String getMigrationStatus() {
-        return alertMigrationRunner.getStatus();
-    }
 }
 
