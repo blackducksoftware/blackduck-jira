@@ -18,6 +18,9 @@ public class MigrationDetails extends Stringable implements Serializable {
     private List<String> migratedProjects;
 
     @XmlElement
+    private List<String> projectsToMigrate;
+
+    @XmlElement
     private Date migrationStartTime;
 
     @XmlElement
@@ -35,6 +38,14 @@ public class MigrationDetails extends Stringable implements Serializable {
 
     public void setMigratedProjects(List<String> migratedProjects) {
         this.migratedProjects = migratedProjects;
+    }
+
+    public List<String> getProjectsToMigrate() {
+        return projectsToMigrate;
+    }
+
+    public void setProjectsToMigrate(List<String> projectsToMigrate) {
+        this.projectsToMigrate = projectsToMigrate;
     }
 
     public Date getMigrationStartTime() {

@@ -1,6 +1,7 @@
 package com.blackducksoftware.integration.jira.web.action;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,7 +19,10 @@ import com.atlassian.scheduler.config.RunMode;
 import com.atlassian.scheduler.config.Schedule;
 import com.blackducksoftware.integration.jira.data.accessor.JiraSettingsAccessor;
 import com.blackducksoftware.integration.jira.data.accessor.MigrationAccessor;
+import com.blackducksoftware.integration.jira.issue.model.ProjectMappingConfigModel;
 import com.blackducksoftware.integration.jira.task.maintenance.AlertMigrationRunner;
+import com.blackducksoftware.integration.jira.web.model.BlackDuckJiraConfigSerializable;
+import com.blackducksoftware.integration.jira.web.model.JiraProject;
 import com.blackducksoftware.integration.jira.web.model.MigrationDetails;
 
 public class MigrationActions {
@@ -27,20 +31,22 @@ public class MigrationActions {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final SchedulerService schedulerService;
+    private final JiraSettingsAccessor jiraSettingsAccessor;
     private final MigrationAccessor migrationAccessor;
     private final AlertMigrationRunner alertMigrationRunner;
 
     public MigrationActions(SchedulerService schedulerService, JiraSettingsAccessor jiraSettingsAccessor, IssuePropertyService issuePropertyService, MigrationAccessor migrationAccessor) {
         this.schedulerService = schedulerService;
+        this.jiraSettingsAccessor = jiraSettingsAccessor;
         this.alertMigrationRunner = new AlertMigrationRunner(jiraSettingsAccessor, issuePropertyService);
         this.migrationAccessor = migrationAccessor;
         schedulerService.registerJobRunner(MIGRATION_JOB_RUNNER_KEY, alertMigrationRunner);
     }
 
-    public void removeProjectsFromCompletedList(List<String> projectsToDelete) {
+    public void removeProjectsFromCompletedList(String projectToDelete) {
         List<String> migratedProjects = migrationAccessor.getMigratedProjects();
         List<String> updatedProjects = migratedProjects.stream()
-                                           .filter(project -> !projectsToDelete.contains(project))
+                                           .filter(project -> !projectToDelete.equals(project))
                                            .collect(Collectors.toList());
         migrationAccessor.updateMigratedProjects(updatedProjects);
     }
@@ -58,8 +64,20 @@ public class MigrationActions {
     }
 
     public MigrationDetails getMigrationDetails() {
+        ProjectMappingConfigModel projectMapping = jiraSettingsAccessor.createGlobalConfigurationAccessor().getIssueCreationConfig().getProjectMapping();
+        BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
+        config.setHubProjectMappingsJson(projectMapping.getMappingsJson());
+
+        List<JiraProject> jiraProjects = config.getJiraProjects();
+        List<String> projectsToBeMigrated = new ArrayList<>();
+        if (null != jiraProjects && jiraProjects.isEmpty()) {
+            jiraProjects.stream()
+                .forEach(project -> projectsToBeMigrated.add(project.getProjectName()));
+        }
+
         MigrationDetails migrationDetails = new MigrationDetails();
         migrationDetails.setMigratedProjects(migrationAccessor.getMigratedProjects());
+        migrationDetails.setProjectsToMigrate(projectsToBeMigrated);
         migrationDetails.setMigrationStartTime(alertMigrationRunner.getStartTime());
         migrationDetails.setMigrationEndTime(alertMigrationRunner.getEndTime());
         migrationDetails.setMigrationStatus(alertMigrationRunner.getStatus());
