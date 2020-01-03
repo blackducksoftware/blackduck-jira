@@ -1,7 +1,7 @@
 /*
  * Black Duck JIRA Plugin
  *
- * Copyright (C) 2019 Synopsys, Inc.
+ * Copyright (C) 2020 Synopsys, Inc.
  * https://www.synopsys.com/
  *
  * Licensed to the Apache Software Foundation (ASF) under one
