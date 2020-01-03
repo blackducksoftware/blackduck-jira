@@ -48,6 +48,10 @@
             #parse("/templates/field-mapping.vm")
         </div>
 
+        <div id="Migration" class="tabs-pane">
+            #parse("/templates/issue-migration.vm")
+        </div>
+
         <fieldset class="errorSection hidden" id="ticketCreationFieldSet">
             <legend class="legend"><i class="fa fa-angle-down" onclick="toggleDisplay(this,'ticketCreationErrors');"> </i> $i18n.getText('blackduck.integration.jira.ticketCreationError.label') </legend>
             <div id="ticketCreationErrors">
