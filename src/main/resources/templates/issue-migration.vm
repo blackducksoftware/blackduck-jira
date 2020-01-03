@@ -1,0 +1,59 @@
+<div style="display: inline-block; width: 100%;">
+    <div class="blackDuckDetailsLabel">$i18n.getText("blackduck.integration.jira.migration.banner.label")</div>
+    <div class="buttonContainer">
+        <div id="migrationProgressSpinner" style="display: inline-block;">
+            <i class="largeIcon fa fa-spinner fa-spin fa-fw"></i>
+        </div>
+        <input id="startMigrationButton" onclick="startMigration(); startProgressSpinner('migrationProgressSpinner');" type="button" value="$i18n.getText("blackduck.integration.jira.migration.start.label")"
+               class="aui-button aui-button-primary" />
+    </div>
+    <div id="startMigrationErrorRow" class="blackduck-details-field-group hidden">
+        <label> </label>
+        <div id="startMigrationError" class="error "></div>
+    </div>
+</div>
+
+<fieldset class="fieldSection">
+    <div id="migrationArea">
+        <div class="blackduck-details-field-group">
+            <label class="blackDuckDetailsLabel" for="migrationStatus">$i18n.getText("blackduck.integration.jira.migration.status.label")</label>
+            <div type="text" id="migrationStatus" name="migrationStatus" class="longInput textStyle" />
+            <span class="fa fa-info-circle infoIcon" title="$i18n.getText('blackduck.integration.jira.migration.status.description')"></span>
+        </div>
+        <div class="blackduck-details-field-group">
+            <label class="blackDuckDetailsLabel" for="migrationStartTime">$i18n.getText("blackduck.integration.jira.migration.time.start.label")</label>
+            <div type="text" id="migrationStartTime" name="migrationStartTime" class="longInput textStyle" />
+            <span class="fa fa-info-circle infoIcon" title="$i18n.getText('blackduck.integration.jira.migration.time.start.description')"></span>
+        </div>
+        <div class="blackduck-details-field-group">
+            <label class="blackDuckDetailsLabel" for="migrationEndTime">$i18n.getText("blackduck.integration.jira.migration.time.end.label")</label>
+            <div type="text" id="migrationEndTime" name="migrationEndTime" class="longInput textStyle" />
+            <span class="fa fa-info-circle infoIcon" title="$i18n.getText('blackduck.integration.jira.migration.end.description')"></span>
+        </div>
+    </div>
+</fieldset>
+
+<fieldset class="fieldSection">
+    <div id="projectMigrationArea">
+        <table class="projectMigrationTable">
+            <thead>
+            <tr>
+                <th class="label">$i18n.getText('blackduck.integration.jira.migration.project.todo.label')</th>
+                <th class="label">$i18n.getText('blackduck.integration.jira.migration.project.completed.label')</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>
+                    <div id="projectToBeMigrated" class="projectMigrationSection">
+                    </div>
+                </td>
+                <td>
+                    <div id="projectsAlreadyMigrated" class="projectMigrationSection">
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</fieldSet>

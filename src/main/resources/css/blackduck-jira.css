@@ -154,12 +154,12 @@
     font-size: 13px;
 }
 
-.ticketCriteriaTable {
+.ticketCriteriaTable, .projectMigrationTable {
     width: 100%;
     table-layout: fixed;
 }
 
-.policyCriteriaSection {
+.policyCriteriaSection, .projectMigrationSection {
     overflow: scroll;
     min-height: 250px;
     max-height: 350px;
