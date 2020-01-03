@@ -54,9 +54,10 @@ public class MigrationController extends ConfigController {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final MigrationActions migrationActions;
 
-    public MigrationController(PluginSettingsFactory pluginSettingsFactory, TransactionTemplate transactionTemplate, UserManager userManager, SchedulerService schedulerService, JiraSettingsAccessor jiraSettingsAccessor,
-        IssuePropertyService issuePropertyService, MigrationAccessor migrationAccessor) {
+    public MigrationController(PluginSettingsFactory pluginSettingsFactory, TransactionTemplate transactionTemplate, UserManager userManager, SchedulerService schedulerService, IssuePropertyService issuePropertyService,
+        MigrationAccessor migrationAccessor) {
         super(pluginSettingsFactory, transactionTemplate, userManager);
+        JiraSettingsAccessor jiraSettingsAccessor = new JiraSettingsAccessor(pluginSettingsFactory.createGlobalSettings());
         this.migrationActions = new MigrationActions(schedulerService, jiraSettingsAccessor, issuePropertyService, migrationAccessor);
     }
 
