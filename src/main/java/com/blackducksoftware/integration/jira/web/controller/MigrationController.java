@@ -46,6 +46,7 @@ import com.atlassian.scheduler.SchedulerServiceException;
 import com.blackducksoftware.integration.jira.data.accessor.JiraSettingsAccessor;
 import com.blackducksoftware.integration.jira.data.accessor.MigrationAccessor;
 import com.blackducksoftware.integration.jira.task.maintenance.AlertMigrationRunner;
+import com.blackducksoftware.integration.jira.web.JiraServices;
 import com.blackducksoftware.integration.jira.web.action.MigrationActions;
 import com.blackducksoftware.integration.jira.web.model.MigrationDetails;
 
@@ -54,10 +55,11 @@ public class MigrationController extends ConfigController {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final MigrationActions migrationActions;
 
-    public MigrationController(PluginSettingsFactory pluginSettingsFactory, TransactionTemplate transactionTemplate, UserManager userManager, SchedulerService schedulerService, IssuePropertyService issuePropertyService,
-        MigrationAccessor migrationAccessor) {
+    public MigrationController(PluginSettingsFactory pluginSettingsFactory, TransactionTemplate transactionTemplate, UserManager userManager, SchedulerService schedulerService, JiraServices jiraServices) {
         super(pluginSettingsFactory, transactionTemplate, userManager);
         JiraSettingsAccessor jiraSettingsAccessor = new JiraSettingsAccessor(pluginSettingsFactory.createGlobalSettings());
+        IssuePropertyService issuePropertyService = jiraServices.getPropertyService();
+        MigrationAccessor migrationAccessor = new MigrationAccessor(jiraSettingsAccessor);
         this.migrationActions = new MigrationActions(schedulerService, jiraSettingsAccessor, issuePropertyService, migrationAccessor);
     }
 
