@@ -27,9 +27,9 @@ function readMigrationDetails() {
         url: createRequestPath('blackduck/migration/details/'),
         dataType: "json",
         success: function (details) {
-            updateValue("migrationStartTime", details.migrationStartTime);
-            updateValue("migrationEndTime", details.migrationEndTime);
-            updateValue("migrationStatus", details.migrationStatus);
+            updateDiv("migrationStartTime", details.migrationStartTime);
+            updateDiv("migrationEndTime", details.migrationEndTime);
+            updateDiv("migrationStatus", details.migrationStatus);
 
             addProjectsToBeMigrated(details.projectsToMigrate)
             addAlreadyMigratedProjects(details.migratedProjects)
@@ -58,6 +58,7 @@ function removeMigratedProject(project) {
         },
         complete: function (jqXHR, textStatus) {
             console.debug("Completed the Migrated Project removal: " + textStatus);
+            readMigrationDetails();
         }
     });
 }
@@ -75,8 +76,15 @@ function startMigration() {
             handleError('startMigrationError', response, true, false);
         },
         complete: function (jqXHR, textStatus) {
-            stopProgressSpinner('migrationProgressSpinner');
             console.debug("Completed the start Migration: " + textStatus);
+            readMigrationDetails();
         }
     });
+}
+
+function updateDiv(fieldId, configField) {
+    if (configField) {
+        const fieldObject = AJS.$("#" + fieldId);
+        fieldObject.text(decodeURI(configField));
+    }
 }

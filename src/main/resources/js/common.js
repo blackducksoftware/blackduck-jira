@@ -96,11 +96,17 @@ function handleDataRetrievalError(response, errorId, errorText, dialogTitle) {
     errorField.text(errorText);
     removeClassFromField(errorField, hiddenClass);
     addClassToField(errorField, "clickable");
-    let error = JSON.parse(response.responseText);
-    error = AJS.$(error);
-    errorField.click(function () {
-        showErrorDialog(dialogTitle, error.attr("message"), error.attr("status-code"), error.attr("stack-trace"))
-    });
+    try {
+        let error = JSON.parse(response.responseText);
+        error = AJS.$(error);
+        errorField.click(function () {
+            showErrorDialog(dialogTitle, error.attr("message"), error.attr("status-code"), error.attr("stack-trace"))
+        });
+    } catch (syntaxError) {
+        errorField.click(function () {
+            showErrorDialog(dialogTitle, response.responseText, "", "")
+        });
+    }
 }
 
 function showErrorDialog(header, errorMessage, errorCode, stackTrace) {
@@ -114,17 +120,17 @@ function showErrorDialog(header, errorMessage, errorCode, stackTrace) {
     errorDialog.addHeader(header);
 
     const errorBody = AJS.$('<div>', {});
-    var errorMessage = AJS.$('<p>', {
+    var errorMessageElement = AJS.$('<p>', {
         text: "Error Message : " + errorMessage
     });
-    var errorCode = AJS.$('<p>', {
+    var errorCodeElement = AJS.$('<p>', {
         text: "Error Code : " + errorCode
     });
-    var errorStackTrace = AJS.$('<p>', {
+    var errorStackTraceElement = AJS.$('<p>', {
         text: stackTrace
     });
 
-    errorBody.append(errorMessage, errorCode, errorStackTrace);
+    errorBody.append(errorMessageElement, errorCodeElement, errorStackTraceElement);
 
     errorDialog.addPanel(header, errorBody, "panel-body");
 

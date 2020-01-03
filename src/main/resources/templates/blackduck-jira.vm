@@ -32,6 +32,9 @@
             <li class="menu-item">
                 <a href="#FieldMapping">Issue Fields</a>
             </li>
+            <li class="menu-item">
+                <a href="#Migration">Migration</a>
+            </li>
         </ul>
         <div id="PluginAccess" class="tabs-pane active-pane">
             #parse("/templates/jira-access.vm")

@@ -75,7 +75,7 @@ public class AlertMigrationRunner implements JobRunner {
     private static final String RUNNING_STATUS_MESSAGE = "Running";
     private static final String COMPLETE_STATUS_MESSAGE = "Complete";
     private static final String LOGGER_MESSAGE = "Please refer to the logs, make sure you have a logger configured for 'com.blackducksoftware.integration'.";
-    private static final String MIGRATION_NOT_NEEDED_MESSAGE = "If the plugin wasn't configured then there are no issues to migrate, please start using Alert instead";
+    private static final String MIGRATION_NOT_NEEDED_MESSAGE = "If the plugin wasn't configured then there are no issues to migrate, please start using Alert instead.";
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final JiraSettingsAccessor jiraSettingsAccessor;
@@ -87,10 +87,10 @@ public class AlertMigrationRunner implements JobRunner {
     private Date endTime = null;
     private String status = NOT_STARTED_STATUS_MESSAGE;
 
-    public AlertMigrationRunner(JiraSettingsAccessor jiraSettingsAccessor, IssuePropertyService issuePropertyService) {
+    public AlertMigrationRunner(JiraSettingsAccessor jiraSettingsAccessor) {
         this.jiraSettingsAccessor = jiraSettingsAccessor;
         this.jiraServices = new JiraServices();
-        this.issuePropertyService = issuePropertyService;
+        this.issuePropertyService = jiraServices.getPropertyService();
         this.migrationAccessor = new MigrationAccessor(jiraSettingsAccessor);
     }
 
@@ -101,7 +101,6 @@ public class AlertMigrationRunner implements JobRunner {
         this.status = RUNNING_STATUS_MESSAGE;
         JobRunnerResponse jobRunnerResponse = runMigration();
         this.status = jobRunnerResponse.getMessage();
-        this.startTime = null;
         this.endTime = Date.from(Instant.now());
         return jobRunnerResponse;
     }
@@ -152,7 +151,7 @@ public class AlertMigrationRunner implements JobRunner {
         BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
         config.setHubProjectMappingsJson(projectMapping.getMappingsJson());
 
-        List<JiraProject> jiraProjects = config.getJiraProjects();
+        List<JiraProject> jiraProjects = config.getHubProjectMappings().stream().map(mapping -> mapping.getJiraProject()).collect(Collectors.toList());
         List<String> migratedProjects = migrationAccessor.getMigratedProjects();
 
         List<JiraProject> projectsToMigrate = jiraProjects.stream()

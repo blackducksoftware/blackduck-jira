@@ -65,6 +65,12 @@
     padding: 0px 0px 0px 160px;
 }
 
+.longDisplayText {
+    display: inline-block;
+    width: 90%;
+    min-width: 200px;
+}
+
 .longInput {
     width: 90%;
     min-width: 200px;

@@ -24,7 +24,6 @@
 package com.blackducksoftware.integration.jira.web.model;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -44,10 +43,10 @@ public class MigrationDetails extends Stringable implements Serializable {
     private List<String> projectsToMigrate;
 
     @XmlElement
-    private Date migrationStartTime;
+    private String migrationStartTime;
 
     @XmlElement
-    private Date migrationEndTime;
+    private String migrationEndTime;
 
     @XmlElement
     private String migrationStatus;
@@ -71,19 +70,19 @@ public class MigrationDetails extends Stringable implements Serializable {
         this.projectsToMigrate = projectsToMigrate;
     }
 
-    public Date getMigrationStartTime() {
+    public String getMigrationStartTime() {
         return migrationStartTime;
     }
 
-    public void setMigrationStartTime(Date migrationStartTime) {
+    public void setMigrationStartTime(String migrationStartTime) {
         this.migrationStartTime = migrationStartTime;
     }
 
-    public Date getMigrationEndTime() {
+    public String getMigrationEndTime() {
         return migrationEndTime;
     }
 
-    public void setMigrationEndTime(Date migrationEndTime) {
+    public void setMigrationEndTime(String migrationEndTime) {
         this.migrationEndTime = migrationEndTime;
     }
 

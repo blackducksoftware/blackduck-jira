@@ -23,16 +23,17 @@
  */
 package com.blackducksoftware.integration.jira.web.action;
 
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.atlassian.jira.bc.issue.properties.IssuePropertyService;
 import com.atlassian.scheduler.SchedulerService;
 import com.atlassian.scheduler.SchedulerServiceException;
 import com.atlassian.scheduler.config.JobConfig;
@@ -51,6 +52,7 @@ import com.blackducksoftware.integration.jira.web.model.MigrationDetails;
 public class MigrationActions {
     private static final String MIGRATION_JOB_NAME = MigrationActions.class.getName() + ":migration";
     private static final JobRunnerKey MIGRATION_JOB_RUNNER_KEY = JobRunnerKey.of(MIGRATION_JOB_NAME);
+    private static final String TIME_FORMAT = "yyyy-MM-dd HH:mm:ss '(UTC)'";
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final SchedulerService schedulerService;
@@ -58,10 +60,10 @@ public class MigrationActions {
     private final MigrationAccessor migrationAccessor;
     private final AlertMigrationRunner alertMigrationRunner;
 
-    public MigrationActions(SchedulerService schedulerService, JiraSettingsAccessor jiraSettingsAccessor, IssuePropertyService issuePropertyService, MigrationAccessor migrationAccessor) {
+    public MigrationActions(SchedulerService schedulerService, JiraSettingsAccessor jiraSettingsAccessor, MigrationAccessor migrationAccessor) {
         this.schedulerService = schedulerService;
         this.jiraSettingsAccessor = jiraSettingsAccessor;
-        this.alertMigrationRunner = new AlertMigrationRunner(jiraSettingsAccessor, issuePropertyService);
+        this.alertMigrationRunner = new AlertMigrationRunner(jiraSettingsAccessor);
         this.migrationAccessor = migrationAccessor;
         schedulerService.registerJobRunner(MIGRATION_JOB_RUNNER_KEY, alertMigrationRunner);
     }
@@ -91,18 +93,31 @@ public class MigrationActions {
         BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
         config.setHubProjectMappingsJson(projectMapping.getMappingsJson());
 
-        List<JiraProject> jiraProjects = config.getJiraProjects();
+        List<JiraProject> jiraProjects = config.getHubProjectMappings().stream().map(mapping -> mapping.getJiraProject()).collect(Collectors.toList());
         List<String> projectsToBeMigrated = new ArrayList<>();
-        if (null != jiraProjects && jiraProjects.isEmpty()) {
+
+        List<String> migratedProjects = migrationAccessor.getMigratedProjects();
+        if (null != jiraProjects && !jiraProjects.isEmpty()) {
             jiraProjects.stream()
+                .filter(jiraProject -> !migratedProjects.contains(jiraProject.getProjectName()))
                 .forEach(project -> projectsToBeMigrated.add(project.getProjectName()));
         }
 
         MigrationDetails migrationDetails = new MigrationDetails();
-        migrationDetails.setMigratedProjects(migrationAccessor.getMigratedProjects());
+        migrationDetails.setMigratedProjects(migratedProjects);
         migrationDetails.setProjectsToMigrate(projectsToBeMigrated);
-        migrationDetails.setMigrationStartTime(alertMigrationRunner.getStartTime());
-        migrationDetails.setMigrationEndTime(alertMigrationRunner.getEndTime());
+
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(TIME_FORMAT);
+        simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        Date startTime = alertMigrationRunner.getStartTime();
+        Date endTime = alertMigrationRunner.getEndTime();
+        if (null != startTime) {
+            migrationDetails.setMigrationStartTime(simpleDateFormat.format(startTime));
+        }
+        if (null != endTime) {
+            migrationDetails.setMigrationEndTime(simpleDateFormat.format(endTime));
+        }
         migrationDetails.setMigrationStatus(alertMigrationRunner.getStatus());
         return migrationDetails;
     }
