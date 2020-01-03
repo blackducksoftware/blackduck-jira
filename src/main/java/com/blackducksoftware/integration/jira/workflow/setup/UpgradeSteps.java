@@ -49,31 +49,31 @@ public class UpgradeSteps {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final JiraSettingsAccessor jiraSettingsAccessor;
 
-    public static String getInstallDateString(final PluginSettings pluginSettings) {
-        final JiraSettingsAccessor jiraSettingsAccessor = new JiraSettingsAccessor(pluginSettings);
-        final PluginConfigurationAccessor pluginConfigurationAccessor = jiraSettingsAccessor.createPluginConfigurationAccessor();
-        final String firstTimeSave = pluginConfigurationAccessor.getFirstTimeSave();
+    public static String getInstallDateString(PluginSettings pluginSettings) {
+        JiraSettingsAccessor jiraSettingsAccessor = new JiraSettingsAccessor(pluginSettings);
+        PluginConfigurationAccessor pluginConfigurationAccessor = jiraSettingsAccessor.createPluginConfigurationAccessor();
+        String firstTimeSave = pluginConfigurationAccessor.getFirstTimeSave();
         if (StringUtils.isNotBlank(firstTimeSave)) {
             return firstTimeSave;
         }
 
-        final BlackDuckPluginDateFormatter pluginDateFormatter = new BlackDuckPluginDateFormatter();
+        BlackDuckPluginDateFormatter pluginDateFormatter = new BlackDuckPluginDateFormatter();
         return pluginDateFormatter.format(new Date());
     }
 
-    public UpgradeSteps(final PluginSettings pluginSettings) {
+    public UpgradeSteps(PluginSettings pluginSettings) {
         this.jiraSettingsAccessor = new JiraSettingsAccessor(pluginSettings);
     }
 
     // For every upgrade
-    public void updateInstallDate(final Date installDate) {
-        final BlackDuckPluginDateFormatter pluginDateFormatter = new BlackDuckPluginDateFormatter();
-        final String installDateString = pluginDateFormatter.format(installDate);
+    public void updateInstallDate(Date installDate) {
+        BlackDuckPluginDateFormatter pluginDateFormatter = new BlackDuckPluginDateFormatter();
+        String installDateString = pluginDateFormatter.format(installDate);
 
-        final PluginConfigurationAccessor pluginConfigurationAccessor = jiraSettingsAccessor.createPluginConfigurationAccessor();
+        PluginConfigurationAccessor pluginConfigurationAccessor = jiraSettingsAccessor.createPluginConfigurationAccessor();
 
         logger.debug("Updating install date...");
-        final String previousFirstTimeSave = pluginConfigurationAccessor.getFirstTimeSave();
+        String previousFirstTimeSave = pluginConfigurationAccessor.getFirstTimeSave();
         pluginConfigurationAccessor.setFirstTimeSave(installDateString);
         logger.debug("The previous install date was: " + previousFirstTimeSave);
 
@@ -82,34 +82,37 @@ public class UpgradeSteps {
 
     // Delete in V8
     public void upgradeToV6FromAny() {
-        final GlobalConfigurationAccessor globalConfigurationAccessor = new GlobalConfigurationAccessor(jiraSettingsAccessor);
-        final boolean vulnerabilityTicketsEnabled = jiraSettingsAccessor.getBooleanValue(PluginConfigKeys.BLACKDUCK_CONFIG_CREATE_VULN_ISSUES_CHOICE, true);
+        GlobalConfigurationAccessor globalConfigurationAccessor = new GlobalConfigurationAccessor(jiraSettingsAccessor);
+        boolean vulnerabilityTicketsEnabled = jiraSettingsAccessor.getBooleanValue(PluginConfigKeys.BLACKDUCK_CONFIG_CREATE_VULN_ISSUES_CHOICE, true);
 
-        final PluginIssueCreationConfigModel issueCreationConfig = globalConfigurationAccessor.getIssueCreationConfig();
-        final ProjectMappingConfigModel projectMappingModel = issueCreationConfig.getProjectMapping();
+        PluginIssueCreationConfigModel issueCreationConfig = globalConfigurationAccessor.getIssueCreationConfig();
+        ProjectMappingConfigModel projectMappingModel = issueCreationConfig.getProjectMapping();
 
-        final BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
+        BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
         config.setHubProjectMappingsJson(projectMappingModel.getMappingsJson());
 
-        for (final BlackDuckProjectMapping mapping : config.getHubProjectMappings()) {
-            final JiraProject jiraProject = mapping.getJiraProject();
-            if (null == jiraProject.isConfiguredForVulnerabilities()) {
-                jiraProject.setConfiguredForVulnerabilities(vulnerabilityTicketsEnabled);
+        Set<BlackDuckProjectMapping> blackDuckProjectMappings = config.getHubProjectMappings();
+        if (null != blackDuckProjectMappings && !blackDuckProjectMappings.isEmpty()) {
+            for (BlackDuckProjectMapping mapping : config.getHubProjectMappings()) {
+                JiraProject jiraProject = mapping.getJiraProject();
+                if (null == jiraProject.isConfiguredForVulnerabilities()) {
+                    jiraProject.setConfiguredForVulnerabilities(vulnerabilityTicketsEnabled);
+                }
             }
         }
 
-        final ProjectMappingConfigModel mappingConfig = new ProjectMappingConfigModel(config.getHubProjectMappingsJson());
-        final PluginIssueCreationConfigModel newIssueCreationConfig = new PluginIssueCreationConfigModel(issueCreationConfig.getGeneral(), mappingConfig, issueCreationConfig.getTicketCriteria());
+        ProjectMappingConfigModel mappingConfig = new ProjectMappingConfigModel(config.getHubProjectMappingsJson());
+        PluginIssueCreationConfigModel newIssueCreationConfig = new PluginIssueCreationConfigModel(issueCreationConfig.getGeneral(), mappingConfig, issueCreationConfig.getTicketCriteria());
         globalConfigurationAccessor.setIssueCreationConfig(newIssueCreationConfig);
     }
 
     // Delete when customers all upgrade to 4.2.0+
     public void updateOldMappingsIfNeeded() {
-        final GlobalConfigurationAccessor globalConfigurationAccessor = jiraSettingsAccessor.createGlobalConfigurationAccessor();
-        final PluginIssueCreationConfigModel issueCreationConfig = globalConfigurationAccessor.getIssueCreationConfig();
-        final String projectMappingJson = issueCreationConfig.getProjectMapping().getMappingsJson();
+        GlobalConfigurationAccessor globalConfigurationAccessor = jiraSettingsAccessor.createGlobalConfigurationAccessor();
+        PluginIssueCreationConfigModel issueCreationConfig = globalConfigurationAccessor.getIssueCreationConfig();
+        String projectMappingJson = issueCreationConfig.getProjectMapping().getMappingsJson();
 
-        final BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
+        BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
         if (StringUtils.isBlank(projectMappingJson)) {
             return;
         }
@@ -119,29 +122,29 @@ public class UpgradeSteps {
             return;
         }
 
-        final Optional<BlackDuckProjectMapping> blackDuckProjectMappingOptional = config.getHubProjectMappings().stream().findFirst();
+        Optional<BlackDuckProjectMapping> blackDuckProjectMappingOptional = config.getHubProjectMappings().stream().findFirst();
         if (blackDuckProjectMappingOptional.isPresent()) {
-            final BlackDuckProjectMapping blackDuckProjectMapping = blackDuckProjectMappingOptional.get();
+            BlackDuckProjectMapping blackDuckProjectMapping = blackDuckProjectMappingOptional.get();
             if (null != blackDuckProjectMapping.getJiraProject() && null != blackDuckProjectMapping.getHubProject()) {
                 logger.debug("Updating the old project mappings.");
-                final Set<BlackDuckProjectMapping> newProjectMappings = new HashSet<>();
-                for (final BlackDuckProjectMapping mapping : config.getHubProjectMappings()) {
-                    final BlackDuckProjectMapping newMapping = new BlackDuckProjectMapping();
+                Set<BlackDuckProjectMapping> newProjectMappings = new HashSet<>();
+                for (BlackDuckProjectMapping mapping : config.getHubProjectMappings()) {
+                    BlackDuckProjectMapping newMapping = new BlackDuckProjectMapping();
                     newMapping.setJiraProject(mapping.getJiraProject());
                     newMapping.setBlackDuckProjectName(mapping.getHubProject().getProjectName());
                     newProjectMappings.add(newMapping);
                 }
                 config.setHubProjectMappings(newProjectMappings);
 
-                final ProjectMappingConfigModel newProjectMapping = new ProjectMappingConfigModel(config.getHubProjectMappingsJson());
-                final PluginIssueCreationConfigModel newIssueCreationConfig = new PluginIssueCreationConfigModel(issueCreationConfig.getGeneral(), newProjectMapping, issueCreationConfig.getTicketCriteria());
+                ProjectMappingConfigModel newProjectMapping = new ProjectMappingConfigModel(config.getHubProjectMappingsJson());
+                PluginIssueCreationConfigModel newIssueCreationConfig = new PluginIssueCreationConfigModel(issueCreationConfig.getGeneral(), newProjectMapping, issueCreationConfig.getTicketCriteria());
                 globalConfigurationAccessor.setIssueCreationConfig(newIssueCreationConfig);
             }
         }
     }
 
     public void assignUserToBlackDuckProject() {
-        final BlackDuckAssignUtil blackDuckAssignUtil = new BlackDuckAssignUtil();
+        BlackDuckAssignUtil blackDuckAssignUtil = new BlackDuckAssignUtil();
         blackDuckAssignUtil.assignUserToBlackDuckProject(jiraSettingsAccessor.createPluginErrorAccessor(), jiraSettingsAccessor.createGlobalConfigurationAccessor());
     }
 
