@@ -68,10 +68,10 @@ public class MigrationActions {
         schedulerService.registerJobRunner(MIGRATION_JOB_RUNNER_KEY, alertMigrationRunner);
     }
 
-    public void removeProjectsFromCompletedList(String projectToDelete) {
+    public void removeProjectsFromCompletedList(List<String> projectsToDelete) {
         List<String> migratedProjects = migrationAccessor.getMigratedProjects();
         List<String> updatedProjects = migratedProjects.stream()
-                                           .filter(project -> !projectToDelete.equals(project))
+                                           .filter(project -> !projectsToDelete.contains(project))
                                            .collect(Collectors.toList());
         migrationAccessor.updateMigratedProjects(updatedProjects);
     }

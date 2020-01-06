@@ -23,41 +23,72 @@
  */
 
 function addProjectsToBeMigrated(projectsToMigrate) {
-    const projectToBeMigratedContainer = AJS.$('#projectToBeMigrated');
-    removeAllChildren(projectToBeMigratedContainer[0]);
+    const projectToBeMigratedTable = AJS.$('#projectToBeMigrated');
+    removeAllChildren(projectToBeMigratedTable[0]);
     if (projectsToMigrate != null && projectsToMigrate.length > 0) {
         for (let pTM = 0; pTM < projectsToMigrate.length; pTM++) {
-            let newProjectToMigrate = AJS.$('<div>', {});
+            const projectName = projectsToMigrate[pTM];
+            if (projectName && !(/^\s*$/.test(projectName))) {
+                let row = AJS.$('<tr>', {});
+                let cell = AJS.$('<td>', {
+                    text: projectName
+                });
+                cell.addClass('textStyle');
+                cell.addClass('migrationTableCell');
 
-            let newPolicyLabel = AJS.$('<label>', {
-                text: projectsToMigrate[pTM]
-            });
-            newPolicyLabel.addClass('textStyle');
-            newPolicyLabel.css('padding', '0px 5px 0px 5px')
+                row.append(cell)
 
-            newProjectToMigrate.append(newPolicyLabel)
-
-            newProjectToMigrate.appendTo(projectToBeMigratedContainer);
+                row.appendTo(projectToBeMigratedTable);
+            }
         }
     }
 }
 
 function addAlreadyMigratedProjects(migratedProjects) {
-    const projectsAlreadyMigratedContainer = AJS.$('#projectsAlreadyMigrated');
-    removeAllChildren(projectsAlreadyMigratedContainer[0]);
+    const projectsAlreadyMigratedTable = AJS.$('#projectsAlreadyMigrated');
+    removeAllChildren(projectsAlreadyMigratedTable[0]);
     if (migratedProjects != null && migratedProjects.length > 0) {
         for (let mP = 0; mP < migratedProjects.length; mP++) {
-            let newProjectToMigrate = AJS.$('<div>', {});
+            const projectName = migratedProjects[mP];
+            if (projectName && !(/^\s*$/.test(projectName))) {
+                let row = AJS.$('<tr>', {});
+                let checkBoxCell = AJS.$('<td>', {});
+                let checkBox = AJS.$('<input type="checkbox">', {});
+                checkBoxCell.append(checkBox)
+                checkBoxCell.addClass('migrationTableCell');
+                row.append(checkBoxCell)
 
-            let newPolicyLabel = AJS.$('<label>', {
-                text: migratedProjects[mP]
-            });
-            newPolicyLabel.addClass('textStyle');
-            newPolicyLabel.css('padding', '0px 5px 0px 5px')
+                let cell = AJS.$('<td>', {
+                    text: projectName
+                });
+                cell.addClass('textStyle');
+                cell.addClass('migrationTableCell');
 
-            newProjectToMigrate.append(newPolicyLabel)
+                row.append(cell)
 
-            newProjectToMigrate.appendTo(projectsAlreadyMigratedContainer);
+                row.appendTo(projectsAlreadyMigratedTable);
+            }
         }
+    }
+}
+
+function selectAllMigratedProjects(selectAllCheckbox) {
+    const projectsAlreadyMigratedTable = AJS.$('#projectsAlreadyMigrated');
+    AJS.$('td input:checkbox', projectsAlreadyMigratedTable).prop('checked', selectAllCheckbox.checked);
+}
+
+function removeSelectedMigratedProjects(deleteIcon) {
+    const confirmation = confirm("Are you sure you want to remove these projects?");
+    if (confirmation) {
+        const projectsAlreadyMigratedTable = AJS.$('#projectsAlreadyMigrated');
+        const selectedProjects = AJS.$('td input:checkbox:checked', projectsAlreadyMigratedTable).closest("td").siblings("td");
+
+        let projects = [];
+        selectedProjects.each(function (index, element) {
+            var project = AJS.$(element);
+            const text = project.text();
+            projects[index] = text;
+        });
+        removeMigratedProjects(projects);
     }
 }

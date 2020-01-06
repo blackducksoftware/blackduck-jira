@@ -23,6 +23,8 @@
  */
 package com.blackducksoftware.integration.jira.web.controller;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -73,15 +75,15 @@ public class MigrationController extends ConfigController {
         return Response.ok(migrationDetails).build();
     }
 
-    @Path("/project")
+    @Path("/projects")
     @DELETE
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response removeMigratedProject(String projectToDelete, @Context HttpServletRequest request) {
+    public Response removeMigratedProject(List<String> projectsToDelete, @Context HttpServletRequest request) {
         boolean validAuthentication = isAuthorized(request);
         if (!validAuthentication) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
-        migrationActions.removeProjectsFromCompletedList(projectToDelete);
+        migrationActions.removeProjectsFromCompletedList(projectsToDelete);
 
         return Response.ok().build();
     }

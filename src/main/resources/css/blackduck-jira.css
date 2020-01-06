@@ -160,12 +160,12 @@
     font-size: 13px;
 }
 
-.ticketCriteriaTable, .projectMigrationTable {
+.ticketCriteriaTable {
     width: 100%;
     table-layout: fixed;
 }
 
-.policyCriteriaSection, .projectMigrationSection {
+.policyCriteriaSection {
     overflow: scroll;
     min-height: 250px;
     max-height: 350px;
@@ -210,4 +210,17 @@
     border-radius: 4px;
     background-color: #707070;
     -webkit-box-shadow: 0 0 1px #707070;
+}
+
+.migrationTable {
+    border-collapse: collapse;
+}
+
+.migrationTableCell, .migrationTable {
+    border: 1px solid black;
+}
+
+.migrationBanner {
+    display: inline-block;
+    padding-bottom: 5px;
 }

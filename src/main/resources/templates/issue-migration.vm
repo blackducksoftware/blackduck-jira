@@ -1,6 +1,7 @@
 <fieldset class="fieldSection">
     <div id="migrationArea">
-        <div>$i18n.getText("blackduck.integration.jira.migration.banner.label")</div>
+        <div class="migrationBanner">$i18n.getText("blackduck.integration.jira.migration.banner.label")</div>
+        <a target="_blank" style="display: inline-block;" href="https://synopsys.atlassian.net/wiki/spaces/INTDOCS/pages/187564033/Synopsys+Alert">$i18n.getText("blackduck.integration.jira.migration.alert.link.label")</a>
 
         <div style="display: inline-block; width: 100%;">
             <div style="display: inline-block;">
@@ -43,26 +44,40 @@
 </fieldset>
 
 <fieldset class="fieldSection">
-    <div id="projectMigrationArea">
-        <table class="projectMigrationTable">
-            <thead>
-            <tr>
-                <th class="label">$i18n.getText('blackduck.integration.jira.migration.project.todo.label')</th>
-                <th class="label">$i18n.getText('blackduck.integration.jira.migration.project.completed.label')</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td>
-                    <div id="projectToBeMigrated" class="projectMigrationSection">
-                    </div>
-                </td>
-                <td>
-                    <div id="projectsAlreadyMigrated" class="projectMigrationSection">
-                    </div>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+    <div class="migrationBanner">$i18n.getText("blackduck.integration.jira.migration.project.todo.banner.label")</div>
+    <div id="projectToBeMigratedArea">
+        <div style="display: inline-flex; padding-right: 10px">
+            <table class="migrationTable">
+                <thead>
+                <tr>
+                    <th class="label migrationTableCell">$i18n.getText('blackduck.integration.jira.migration.project.todo.label')</th>
+                </tr>
+                </thead>
+                <tbody id="projectToBeMigrated">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</fieldSet>
+
+<fieldset class="fieldSection">
+    <div class="migrationBanner">$i18n.getText("blackduck.integration.jira.migration.project.completed.banner.label")</div>
+    <div id="migratedProjectArea">
+        <div style="padding-bottom: 5px;">
+            <input id="startMigrationButton" onclick="removeSelectedMigratedProjects();" type="button" value="$i18n.getText("blackduck.integration.jira.migration.remove.project.label")"
+                   class="aui-button aui-button-primary" />
+        </div>
+        <div>
+            <table class="migrationTable">
+                <thead>
+                <tr>
+                    <th class="migrationTableCell"><input type="checkbox" oninput="selectAllMigratedProjects(this)"></th>
+                    <th class="label migrationTableCell">$i18n.getText('blackduck.integration.jira.migration.project.completed.label')</th>
+                </tr>
+                </thead>
+                <tbody id="projectsAlreadyMigrated">
+                </tbody>
+            </table>
+        </div>
     </div>
 </fieldSet>

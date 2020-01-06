@@ -43,21 +43,22 @@ function readMigrationDetails() {
     });
 }
 
-function removeMigratedProject(project) {
+function removeMigratedProjects(projects) {
+    let projectsJson = JSON.stringify(projects);
+
     AJS.$.ajax({
-        url: createRequestPath('blackduck/migration/project/'),
+        url: createRequestPath('blackduck/migration/projects/'),
         type: "DELETE",
         dataType: "json",
         contentType: "application/json",
-        data: '{ "projectToDelete": ' + project
-            + '}',
+        data: projectsJson,
         success: function () {
         },
         error: function (response) {
-            handleDataRetrievalError(response, "removeMigratedProjectError", "There was a problem removing the migrated project.", "Migrated Project Remove Error");
+            handleDataRetrievalError(response, "removeMigratedProjectError", "There was a problem removing the migrated projects.", "Migrated Projects Remove Error");
         },
         complete: function (jqXHR, textStatus) {
-            console.debug("Completed the Migrated Project removal: " + textStatus);
+            console.debug("Completed the Migrated Projects removal: " + textStatus);
             readMigrationDetails();
         }
     });

@@ -158,7 +158,7 @@ public class AlertMigrationRunner implements JobRunner {
                                                   .filter(jiraProject -> !migratedProjects.contains(jiraProject.getProjectName()))
                                                   .collect(Collectors.toList());
         for (JiraProject jiraProject : projectsToMigrate) {
-            logger.info(String.format("Checking Jira Project %s for Black Duck issues to migrate.", jiraProject.getProjectName()));
+            logger.info(String.format("Checking Jira Project '%s' for Black Duck issues to migrate.", jiraProject.getProjectName()));
             Optional<Query> optionalBlackDuckIssueQuery = createBlackDuckIssueQuery(jiraProject.getProjectName());
             Query searchQuery;
             if (optionalBlackDuckIssueQuery.isPresent()) {
@@ -223,9 +223,9 @@ public class AlertMigrationRunner implements JobRunner {
                 projectVersionName, alertCategory, "Component", componentName, "Component Version", componentVersionName, "");
             try {
                 issueServiceWrapper.getIssuePropertyWrapper().addAlertIssueProperties(issue.getId(), admin, alertIssueSearchProperties);
-                logger.trace(String.format("Added the Alert issue properties to issue %s.", issue.getKey()));
+                logger.trace(String.format("Added the Alert issue properties to issue '%s'.", issue.getKey()));
             } catch (JiraIssueException e) {
-                logger.error(String.format("Error adding issue properties to issue %s : %s", issue.getKey(), e.getMessage()), e);
+                logger.error(String.format("Error adding issue properties to issue '%s' : %s", issue.getKey(), e.getMessage()), e);
             }
         }
     }
