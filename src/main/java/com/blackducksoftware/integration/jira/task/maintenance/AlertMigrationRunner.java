@@ -101,7 +101,6 @@ public class AlertMigrationRunner implements JobRunner {
         this.status = RUNNING_STATUS_MESSAGE;
         JobRunnerResponse jobRunnerResponse = runMigration();
         this.status = jobRunnerResponse.getMessage();
-        this.startTime = null;
         this.endTime = Date.from(Instant.now());
         return jobRunnerResponse;
     }
