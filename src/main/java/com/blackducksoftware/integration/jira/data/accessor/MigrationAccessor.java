@@ -48,6 +48,9 @@ public class MigrationAccessor {
     }
 
     public void updateMigratedProjects(List<String> migratedProjects) {
+        if (null == migratedProjects || migratedProjects.isEmpty()) {
+            jiraSettingsAccessor.setValue(PluginConfigKeys.PROJECTS_MIGRATED_TO_ALERT, "");
+        }
         String migratedProjectsToStore = StringUtils.join(migratedProjects, ",");
         jiraSettingsAccessor.setValue(PluginConfigKeys.PROJECTS_MIGRATED_TO_ALERT, migratedProjectsToStore);
     }
