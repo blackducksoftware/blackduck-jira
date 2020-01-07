@@ -101,6 +101,8 @@
         <resource type="download" name="blackduck-utilities.js" location="/js/blackduck/blackduck-utilities.js"/>
         <resource type="download" name="blackduck-request.js" location="/js/blackduck/blackduck-request.js"/>
         <resource type="download" name="blackduck-jira.js" location="/js/blackduck-jira.js"/>
+        <resource type="download" name="migration-utilities.js" location="/js/migration/migration-utilities.js"/>
+        <resource type="download" name="migration-request.js" location="/js/migration/migration-request.js"/>
         <resource type="download" name="images/" location="/images"/>
         <resource type="download" name="fonts/" location="/font-awesome-4.5.0/fonts"/>
         <resource type="download" name="font-awesome.min.css" location="/font-awesome-4.5.0/css/font-awesome.min.css"/>

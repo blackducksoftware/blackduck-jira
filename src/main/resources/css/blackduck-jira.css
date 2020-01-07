@@ -65,6 +65,12 @@
     padding: 0px 0px 0px 160px;
 }
 
+.longDisplayText {
+    display: inline-block;
+    width: 90%;
+    min-width: 200px;
+}
+
 .longInput {
     width: 90%;
     min-width: 200px;
@@ -204,4 +210,17 @@
     border-radius: 4px;
     background-color: #707070;
     -webkit-box-shadow: 0 0 1px #707070;
+}
+
+.migrationTable {
+    border-collapse: collapse;
+}
+
+.migrationTableCell, .migrationTable {
+    border: 1px solid black;
+}
+
+.migrationBanner {
+    display: inline-block;
+    padding-bottom: 5px;
 }

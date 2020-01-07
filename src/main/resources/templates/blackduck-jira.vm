@@ -32,6 +32,9 @@
             <li class="menu-item">
                 <a href="#FieldMapping">Issue Fields</a>
             </li>
+            <li class="menu-item">
+                <a href="#Migration">Migration</a>
+            </li>
         </ul>
         <div id="PluginAccess" class="tabs-pane active-pane">
             #parse("/templates/jira-access.vm")
@@ -46,6 +49,10 @@
 
         <div id="FieldMapping" class="tabs-pane">
             #parse("/templates/field-mapping.vm")
+        </div>
+
+        <div id="Migration" class="tabs-pane">
+            #parse("/templates/issue-migration.vm")
         </div>
 
         <fieldset class="errorSection hidden" id="ticketCreationFieldSet">

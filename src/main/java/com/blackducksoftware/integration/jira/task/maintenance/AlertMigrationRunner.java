@@ -23,9 +23,10 @@
  */
 package com.blackducksoftware.integration.jira.task.maintenance;
 
+import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -41,6 +42,9 @@ import com.atlassian.jira.jql.parser.JqlParseException;
 import com.atlassian.jira.jql.parser.JqlQueryParser;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.query.Query;
+import com.atlassian.scheduler.JobRunner;
+import com.atlassian.scheduler.JobRunnerRequest;
+import com.atlassian.scheduler.JobRunnerResponse;
 import com.blackducksoftware.integration.jira.common.BlackDuckJiraConstants;
 import com.blackducksoftware.integration.jira.common.JiraUserContext;
 import com.blackducksoftware.integration.jira.common.exception.JiraIssueException;
@@ -56,19 +60,23 @@ import com.blackducksoftware.integration.jira.issue.model.GeneralIssueCreationCo
 import com.blackducksoftware.integration.jira.issue.model.ProjectMappingConfigModel;
 import com.blackducksoftware.integration.jira.web.JiraServices;
 import com.blackducksoftware.integration.jira.web.model.BlackDuckJiraConfigSerializable;
+import com.blackducksoftware.integration.jira.web.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.web.model.JiraProject;
 import com.google.common.collect.ImmutableMap;
 
-public class AlertMigrationTask implements Callable<String> {
+public class AlertMigrationRunner implements JobRunner {
+    public static final String HUMAN_READABLE_TASK_NAME = "Black Duck Alert migration task";
     private static final String JIRA_QUERY_PARAM_NAME_ISSUE_TYPE = "issuetype";
     private static final String JIRA_QUERY_PARAM_NAME_PROEJCT = "project";
     private static final String JIRA_QUERY_CONJUNCTION = " AND ";
     private static final String JIRA_QUERY_DISJUNCTION = " OR ";
 
     private static final Integer MAX_BATCH_SIZE = 100;
+    private static final String NOT_STARTED_STATUS_MESSAGE = "Not started";
+    private static final String RUNNING_STATUS_MESSAGE = "Running";
     private static final String COMPLETE_STATUS_MESSAGE = "Complete";
-    private static final String NOT_CONFIGURED_STATUS_MESSAGE = "NOT CONFIGURED";
-    private static final String ERROR_STATUS_MESSAGE = "ERROR";
+    private static final String LOGGER_MESSAGE = "Please refer to the logs, make sure you have a logger configured for 'com.blackducksoftware.integration'.";
+    private static final String MIGRATION_NOT_NEEDED_MESSAGE = "If the plugin wasn't configured then there are no issues to migrate, please use Alert instead.";
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final JiraSettingsAccessor jiraSettingsAccessor;
@@ -76,15 +84,29 @@ public class AlertMigrationTask implements Callable<String> {
     private final IssuePropertyService issuePropertyService;
     private final MigrationAccessor migrationAccessor;
 
-    public AlertMigrationTask(JiraSettingsAccessor jiraSettingsAccessor, IssuePropertyService issuePropertyService) {
+    private Date startTime = null;
+    private Date endTime = null;
+    private String status = NOT_STARTED_STATUS_MESSAGE;
+
+    public AlertMigrationRunner(JiraSettingsAccessor jiraSettingsAccessor) {
         this.jiraSettingsAccessor = jiraSettingsAccessor;
         this.jiraServices = new JiraServices();
-        this.issuePropertyService = issuePropertyService;
+        this.issuePropertyService = jiraServices.getPropertyService();
         this.migrationAccessor = new MigrationAccessor(jiraSettingsAccessor);
     }
 
     @Override
-    public String call() {
+    public JobRunnerResponse runJob(JobRunnerRequest jobRunnerRequest) {
+        this.startTime = jobRunnerRequest.getStartTime();
+        this.endTime = null;
+        this.status = RUNNING_STATUS_MESSAGE;
+        JobRunnerResponse jobRunnerResponse = runMigration();
+        this.status = jobRunnerResponse.getMessage();
+        this.endTime = Date.from(Instant.now());
+        return jobRunnerResponse;
+    }
+
+    private JobRunnerResponse runMigration() {
         CustomFieldManager customFieldManager = jiraServices.getCustomFieldManager();
         Optional<CustomField> optionalProjectField = customFieldManager.getCustomFieldObjectsByName(BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT).stream().findFirst();
         Optional<CustomField> optionalProjectVersionField = customFieldManager.getCustomFieldObjectsByName(BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION).stream().findFirst();
@@ -101,10 +123,11 @@ public class AlertMigrationTask implements Callable<String> {
             componentField = optionalComponentField.get();
             componentVersionField = optionalComponentVersionField.get();
         } else {
-            logger.warn(String.format("Cannot find the custom field(s) necessary for this task: %s, %s, %s, %s",
+            String message = String.format("The custom field(s): %s, %s, %s, %s are missing. %s",
                 BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT, BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_PROJECT_VERSION, BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_COMPONENT,
-                BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_COMPONENT_VERSION));
-            return NOT_CONFIGURED_STATUS_MESSAGE;
+                BlackDuckJiraConstants.BLACKDUCK_CUSTOM_FIELD_COMPONENT_VERSION, MIGRATION_NOT_NEEDED_MESSAGE);
+            logger.warn(message);
+            return JobRunnerResponse.aborted(message);
         }
 
         PluginConfigurationAccessor pluginConfigurationAccessor = jiraSettingsAccessor.createPluginConfigurationAccessor();
@@ -117,8 +140,9 @@ public class AlertMigrationTask implements Callable<String> {
         if (optionalJiraUserContext.isPresent()) {
             jiraUserContext = optionalJiraUserContext.get();
         } else {
-            logger.warn("No (valid) user in configuration data; The plugin has likely not yet been configured; The task cannot run (yet)");
-            return NOT_CONFIGURED_STATUS_MESSAGE;
+            String message = "No (valid) user in configuration data. The plugin has likely not yet been configured. " + MIGRATION_NOT_NEEDED_MESSAGE;
+            logger.warn(message);
+            return JobRunnerResponse.aborted(message);
         }
 
         PluginBlackDuckServerConfigModel blackDuckServerConfig = globalConfigurationAccessor.getBlackDuckServerConfig();
@@ -128,20 +152,20 @@ public class AlertMigrationTask implements Callable<String> {
         BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
         config.setHubProjectMappingsJson(projectMapping.getMappingsJson());
 
-        List<JiraProject> jiraProjects = config.getJiraProjects();
+        List<JiraProject> jiraProjects = config.getHubProjectMappings().stream().map(BlackDuckProjectMapping::getJiraProject).collect(Collectors.toList());
         List<String> migratedProjects = migrationAccessor.getMigratedProjects();
 
         List<JiraProject> projectsToMigrate = jiraProjects.stream()
                                                   .filter(jiraProject -> !migratedProjects.contains(jiraProject.getProjectName()))
                                                   .collect(Collectors.toList());
         for (JiraProject jiraProject : projectsToMigrate) {
-            logger.info(String.format("Checking Jira Project %s for Black Duck issues to migrate.", jiraProject.getProjectName()));
+            logger.info(String.format("Checking Jira Project '%s' for Black Duck issues to migrate.", jiraProject.getProjectName()));
             Optional<Query> optionalBlackDuckIssueQuery = createBlackDuckIssueQuery(jiraProject.getProjectName());
             Query searchQuery;
             if (optionalBlackDuckIssueQuery.isPresent()) {
                 searchQuery = optionalBlackDuckIssueQuery.get();
             } else {
-                return ERROR_STATUS_MESSAGE;
+                return JobRunnerResponse.failed("Could not create a valid search query for the Black Duck issues. " + LOGGER_MESSAGE);
             }
 
             try {
@@ -150,11 +174,12 @@ public class AlertMigrationTask implements Callable<String> {
                 migratedProjects.add(jiraProject.getProjectName());
                 migrationAccessor.updateMigratedProjects(migratedProjects);
             } catch (Exception e) {
-                logger.warn("There was a problem while attempting to migrate the existing Black Duck issues: " + e.getMessage());
-                return ERROR_STATUS_MESSAGE;
+                String message = "There was a problem while attempting to migrate the existing Black Duck issues: " + e.getMessage() + ". " + LOGGER_MESSAGE;
+                logger.warn(message);
+                return JobRunnerResponse.failed(message);
             }
         }
-        return COMPLETE_STATUS_MESSAGE;
+        return JobRunnerResponse.success(COMPLETE_STATUS_MESSAGE);
     }
 
     private void findAndUpdateIssuesInBatches(JiraIssueServiceWrapper issueServiceWrapper, ApplicationUser user, String jiraProject, Query query, String blackDuckUrl, CustomField projectField, CustomField projectVersionField,
@@ -199,9 +224,9 @@ public class AlertMigrationTask implements Callable<String> {
                 projectVersionName, alertCategory, "Component", componentName, "Component Version", componentVersionName, "");
             try {
                 issueServiceWrapper.getIssuePropertyWrapper().addAlertIssueProperties(issue.getId(), admin, alertIssueSearchProperties);
-                logger.trace(String.format("Added the Alert issue properties to issue %s.", issue.getKey()));
+                logger.trace(String.format("Added the Alert issue properties to issue '%s'.", issue.getKey()));
             } catch (JiraIssueException e) {
-                logger.error(String.format("Error adding issue properties to issue %s : %s", issue.getKey(), e.getMessage()), e);
+                logger.error(String.format("Error adding issue properties to issue '%s' : %s", issue.getKey(), e.getMessage()), e);
             }
         }
     }
@@ -241,4 +266,15 @@ public class AlertMigrationTask implements Callable<String> {
         return "\"" + text + "\"";
     }
 
+    public Date getStartTime() {
+        return startTime;
+    }
+
+    public Date getEndTime() {
+        return endTime;
+    }
+
+    public String getStatus() {
+        return status;
+    }
 }

@@ -65,6 +65,7 @@ function populateForm() {
     readBlackduckTicketCreationErrors();
     readPluginInfo();
     populateFormBlackduckData();
+    readMigrationDetails();
     console.log("populateForm() Finished");
 }
 

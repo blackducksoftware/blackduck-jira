@@ -46,44 +46,44 @@ public class BlackDuckJobRunnerUtil {
     private final PluginExecutorService executorService;
     private final String taskName;
 
-    public BlackDuckJobRunnerUtil(final PluginExecutorService executorService, final String taskName) {
+    public BlackDuckJobRunnerUtil(PluginExecutorService executorService, String taskName) {
         this.executorService = executorService;
         this.taskName = taskName;
     }
 
-    public JobRunnerResponse runJob(final JobRunnerRequest request, final Callable<String> actualTask) {
-        final Instant jobStartTime = Instant.now();
+    public JobRunnerResponse runJob(JobRunnerRequest request, Callable<String> actualTask) {
+        Instant jobStartTime = Instant.now();
         try {
             logger.info("Running the blackduck-jira " + taskName + " task.");
-            final JobConfig jobConfig = request.getJobConfig();
-            final JobRunnerResponse result = executeTimedTask(jobConfig, actualTask);
+            JobConfig jobConfig = request.getJobConfig();
+            JobRunnerResponse result = executeTimedTask(jobConfig, actualTask);
             logger.info("The blackduck-jira " + taskName + " task has completed.");
             return result;
-        } catch (final Exception e) {
-            logger.error("An error occurred in the Black Duck Job Runner", e);
+        } catch (Exception e) {
+            logger.error("An error occurred in the Black Duck Job Runner. Task: " + taskName, e);
             return JobRunnerResponse.failed(e);
         } finally {
-            final Instant jobEndTime = Instant.now();
-            final Duration jobRunTime = Duration.between(jobStartTime, jobEndTime);
+            Instant jobEndTime = Instant.now();
+            Duration jobRunTime = Duration.between(jobStartTime, jobEndTime);
 
-            final String formattedDuration = DurationFormatUtils.formatDurationHMS(jobRunTime.toMillis());
+            String formattedDuration = DurationFormatUtils.formatDurationHMS(jobRunTime.toMillis());
             logger.debug("blackduck-jira " + taskName + " task took " + formattedDuration);
         }
     }
 
-    private JobRunnerResponse executeTimedTask(final JobConfig jobConfig, final Callable<String> actualTask) {
-        final Map<String, Serializable> parameterMap = jobConfig.getParameters();
+    private JobRunnerResponse executeTimedTask(JobConfig jobConfig, Callable<String> actualTask) {
+        Map<String, Serializable> parameterMap = jobConfig.getParameters();
 
-        final Number configuredIntervalMinutes = (Number) parameterMap.get(BlackDuckMonitor.KEY_CONFIGURED_INTERVAL_MINUTES);
+        Number configuredIntervalMinutes = (Number) parameterMap.get(BlackDuckMonitor.KEY_CONFIGURED_INTERVAL_MINUTES);
         if (configuredIntervalMinutes != null) {
-            final int taskIntervalMinutes = configuredIntervalMinutes.intValue();
+            int taskIntervalMinutes = configuredIntervalMinutes.intValue();
             logger.debug("Task interval (minutes): " + taskIntervalMinutes);
             if (taskIntervalMinutes < 1) {
                 logger.info("The blackduck-jira " + taskName + " task has not been configured, or has a run interval < 1 minute");
                 return JobRunnerResponse.aborted("The plugin has not been configured correctly.");
             }
 
-            final int taskTimeoutMinutes = BlackDuckJiraConstants.PERIODIC_TASK_TIMEOUT_AS_MULTIPLE_OF_INTERVAL * taskIntervalMinutes;
+            int taskTimeoutMinutes = BlackDuckJiraConstants.PERIODIC_TASK_TIMEOUT_AS_MULTIPLE_OF_INTERVAL * taskIntervalMinutes;
             logger.debug("Task timeout (minutes): " + taskTimeoutMinutes);
 
             if (executorService.canAcceptNewTasks()) {
@@ -95,20 +95,20 @@ public class BlackDuckJobRunnerUtil {
         return JobRunnerResponse.aborted("Too many tasks are currently scheduled.");
     }
 
-    private JobRunnerResponse scheduleTask(final Callable<String> actualTask, final int taskTimeoutMinutes) {
+    private JobRunnerResponse scheduleTask(Callable<String> actualTask, int taskTimeoutMinutes) {
         String reasonForFailure = null;
         Exception failureException = null;
         PluginExecutorService.PluginFuture future = null;
         try {
             future = executorService.submit(actualTask);
-            final String result = future.get(taskTimeoutMinutes);
+            String result = future.get(taskTimeoutMinutes);
             logger.info("The blackduck-jira " + taskName + " task completed with result: " + result);
-        } catch (final ExecutionException e) {
+        } catch (ExecutionException e) {
             reasonForFailure = "The blackduck-jira " + taskName + " task threw an error: " + e.getMessage();
             failureException = e;
-        } catch (final TimeoutException e) {
+        } catch (TimeoutException e) {
             reasonForFailure = "The blackduck-jira " + taskName + " task timed out";
-        } catch (final InterruptedException e) {
+        } catch (InterruptedException e) {
             // It is bad practice to catch an InterruptedException without interrupting the Thread.
             logger.error("The blackduck-jira " + taskName + " task was interrupted", e);
             Thread.currentThread().interrupt();

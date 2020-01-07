@@ -1,0 +1,83 @@
+<fieldset class="fieldSection">
+    <div id="migrationArea">
+        <div class="migrationBanner">$i18n.getText("blackduck.integration.jira.migration.banner.label")</div>
+        <a target="_blank" style="display: inline-block;" href="https://synopsys.atlassian.net/wiki/spaces/INTDOCS/pages/187564033/Synopsys+Alert">$i18n.getText("blackduck.integration.jira.migration.alert.link.label")</a>
+
+        <div style="display: inline-block; width: 100%;">
+            <div style="display: inline-block;">
+                <input id="startMigrationButton" onclick="startMigration();" type="button" value="$i18n.getText("blackduck.integration.jira.migration.start.label")"
+                       class="aui-button aui-button-primary" />
+            </div>
+            <div style="display: inline-block;">
+                <input id="refreshMigrationButton" onclick="readMigrationDetails();" type="button" value="$i18n.getText("blackduck.integration.jira.migration.refresh.label")"
+                       class="aui-button aui-button-primary" />
+            </div>
+            <div id="startMigrationErrorRow" class="blackduck-details-field-group hidden">
+                <label> </label>
+                <div id="startMigrationError" class="error "></div>
+            </div>
+
+        </div>
+
+        <div>
+            <div class="blackduck-details-field-group">
+                <div class="blackDuckDetailsLabel">$i18n.getText("blackduck.integration.jira.migration.status.label")</div>
+                <span class="fa fa-info-circle infoIcon" title="$i18n.getText('blackduck.integration.jira.migration.status.description')"></span>
+                <div id="migrationStatus" name="migrationStatus" class="longDisplayText textStyle"></div>
+            </div>
+        </div>
+        <div>
+            <div class="blackduck-details-field-group">
+                <div class="blackDuckDetailsLabel">$i18n.getText("blackduck.integration.jira.migration.time.start.label")</div>
+                <span class="fa fa-info-circle infoIcon" title="$i18n.getText('blackduck.integration.jira.migration.time.start.description')"></span>
+                <div id="migrationStartTime" name="migrationStartTime" class="longDisplayText textStyle"></div>
+            </div>
+        </div>
+        <div>
+            <div class="blackduck-details-field-group">
+                <div class="blackDuckDetailsLabel">$i18n.getText("blackduck.integration.jira.migration.time.end.label")</div>
+                <span class="fa fa-info-circle infoIcon" title="$i18n.getText('blackduck.integration.jira.migration.end.description')"></span>
+                <div id="migrationEndTime" name="migrationEndTime" class="longDisplayText textStyle"></div>
+            </div>
+        </div>
+    </div>
+</fieldset>
+
+<fieldset class="fieldSection">
+    <div class="migrationBanner">$i18n.getText("blackduck.integration.jira.migration.project.todo.banner.label")</div>
+    <div id="projectToBeMigratedArea">
+        <div style="display: inline-flex; padding-right: 10px">
+            <table class="migrationTable">
+                <thead>
+                <tr>
+                    <th class="label migrationTableCell">$i18n.getText('blackduck.integration.jira.migration.project.todo.label')</th>
+                </tr>
+                </thead>
+                <tbody id="projectToBeMigrated">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</fieldSet>
+
+<fieldset class="fieldSection">
+    <div class="migrationBanner">$i18n.getText("blackduck.integration.jira.migration.project.completed.banner.label")</div>
+    <div id="migratedProjectArea">
+        <div style="padding-bottom: 5px;">
+            <input id="startMigrationButton" onclick="removeSelectedMigratedProjects();" type="button" value="$i18n.getText("blackduck.integration.jira.migration.remove.project.label")"
+                   class="aui-button aui-button-primary" />
+        </div>
+        <div>
+            <table class="migrationTable">
+                <thead>
+                <tr>
+                    <th class="migrationTableCell"><input type="checkbox" oninput="selectAllMigratedProjects(this)"></th>
+                    <th class="label migrationTableCell">$i18n.getText('blackduck.integration.jira.migration.project.completed.label')</th>
+                </tr>
+                </thead>
+                <tbody id="projectsAlreadyMigrated">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</fieldSet>
