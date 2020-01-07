@@ -46,6 +46,7 @@ import com.blackducksoftware.integration.jira.data.accessor.MigrationAccessor;
 import com.blackducksoftware.integration.jira.issue.model.ProjectMappingConfigModel;
 import com.blackducksoftware.integration.jira.task.maintenance.AlertMigrationRunner;
 import com.blackducksoftware.integration.jira.web.model.BlackDuckJiraConfigSerializable;
+import com.blackducksoftware.integration.jira.web.model.BlackDuckProjectMapping;
 import com.blackducksoftware.integration.jira.web.model.JiraProject;
 import com.blackducksoftware.integration.jira.web.model.MigrationDetails;
 
@@ -69,8 +70,7 @@ public class MigrationActions {
     }
 
     public void removeProjectsFromCompletedList(List<String> projectsToDelete) {
-        List<String> migratedProjects = migrationAccessor.getMigratedProjects();
-        List<String> updatedProjects = migratedProjects.stream()
+        List<String> updatedProjects = migrationAccessor.getMigratedProjects().stream()
                                            .filter(project -> !projectsToDelete.contains(project))
                                            .collect(Collectors.toList());
         migrationAccessor.updateMigratedProjects(updatedProjects);
@@ -93,14 +93,15 @@ public class MigrationActions {
         BlackDuckJiraConfigSerializable config = new BlackDuckJiraConfigSerializable();
         config.setHubProjectMappingsJson(projectMapping.getMappingsJson());
 
-        List<JiraProject> jiraProjects = config.getHubProjectMappings().stream().map(mapping -> mapping.getJiraProject()).collect(Collectors.toList());
+        List<JiraProject> jiraProjects = config.getHubProjectMappings().stream().map(BlackDuckProjectMapping::getJiraProject).collect(Collectors.toList());
         List<String> projectsToBeMigrated = new ArrayList<>();
 
         List<String> migratedProjects = migrationAccessor.getMigratedProjects();
         if (null != jiraProjects && !jiraProjects.isEmpty()) {
-            jiraProjects.stream()
-                .filter(jiraProject -> !migratedProjects.contains(jiraProject.getProjectName()))
-                .forEach(project -> projectsToBeMigrated.add(project.getProjectName()));
+            projectsToBeMigrated = jiraProjects.stream()
+                                       .map(JiraProject::getProjectName)
+                                       .filter(projectName -> !migratedProjects.contains(projectName))
+                                       .collect(Collectors.toList());
         }
 
         MigrationDetails migrationDetails = new MigrationDetails();
