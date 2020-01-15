@@ -348,10 +348,10 @@ public class BlackDuckFieldScreenSchemeSetup {
         return needToUpdateTabAndScreen;
     }
 
-    private Optional<FieldScreenLayoutItem> getExistingField(FieldScreenTab tab, String id) {
+    private Optional<FieldScreenLayoutItem> getExistingField(FieldScreenTab tab, String fieldId) {
         // Stream over the layout items to prevent the Jira internal Duplicate Key exception.
         return tab.getFieldScreenLayoutItems().stream()
-                   .filter(fieldScreenLayoutItem -> fieldScreenLayoutItem.getFieldId().equals(id))
+                   .filter(fieldScreenLayoutItem -> fieldScreenLayoutItem.getFieldId().equals(fieldId))
                    .findFirst();
     }
 
