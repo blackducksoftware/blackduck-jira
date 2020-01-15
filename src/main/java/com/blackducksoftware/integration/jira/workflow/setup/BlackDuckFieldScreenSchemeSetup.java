@@ -317,10 +317,7 @@ public class BlackDuckFieldScreenSchemeSetup {
                     logger.error("addBlackDuckTabToScreen(): this Black Duck custom field is null; skipping it");
                     continue;
                 }
-                // Stream over the layout items to prevent the Jira internal Duplicate Key exception.
-                Optional<FieldScreenLayoutItem> existingField = myTab.getFieldScreenLayoutItems().stream()
-                                                                    .filter(fieldScreenLayoutItem -> fieldScreenLayoutItem.getFieldId().equals(field.getId()))
-                                                                    .findFirst();
+                Optional<FieldScreenLayoutItem> existingField = getExistingField(myTab, field.getId());
                 if (!existingField.isPresent()) {
                     logger.debug("addBlackDuckTabToScreen(): custom field " + field.getName() + " is not on Black Duck screen tab; adding it");
                     myTab.addFieldScreenLayoutItem(field.getId());
@@ -333,10 +330,7 @@ public class BlackDuckFieldScreenSchemeSetup {
                 List<FieldScreenLayoutItem> layoutItems = tab.getFieldScreenLayoutItems();
                 for (FieldScreenLayoutItem layoutItem : layoutItems) {
                     if (configIsOk(myTab, layoutItem)) {
-                        // Stream over the layout items to prevent the Jira internal Duplicate Key exception.
-                        Optional<FieldScreenLayoutItem> existingField = myTab.getFieldScreenLayoutItems().stream()
-                                                                            .filter(fieldScreenLayoutItem -> fieldScreenLayoutItem.getFieldId().equals(layoutItem.getOrderableField().getId()))
-                                                                            .findFirst();
+                        Optional<FieldScreenLayoutItem> existingField = getExistingField(myTab, layoutItem.getOrderableField().getId());
                         if (!existingField.isPresent()) {
                             logger.debug("addBlackDuckTabToScreen(): field " + layoutItem.getOrderableField().getName() + " is not yet on Black Duck screen tab; adding it");
                             myTab.addFieldScreenLayoutItem(layoutItem.getOrderableField().getId());
@@ -352,6 +346,13 @@ public class BlackDuckFieldScreenSchemeSetup {
         }
 
         return needToUpdateTabAndScreen;
+    }
+
+    private Optional<FieldScreenLayoutItem> getExistingField(FieldScreenTab tab, String id) {
+        // Stream over the layout items to prevent the Jira internal Duplicate Key exception.
+        return tab.getFieldScreenLayoutItems().stream()
+                   .filter(fieldScreenLayoutItem -> fieldScreenLayoutItem.getFieldId().equals(id))
+                   .findFirst();
     }
 
     private boolean configIsOk(FieldScreenTab myTab, FieldScreenLayoutItem layoutItem) {
