@@ -352,7 +352,6 @@ public class BlackDuckFieldScreenSchemeSetup {
         // Stream over the layout items to prevent the Jira internal Duplicate Key exception.
         return tab.getFieldScreenLayoutItems().stream()
                    .filter(fieldScreenLayoutItem -> fieldScreenLayoutItem.getOrderableField().getId().equals(field.getId()))
-                   .filter(fieldScreenLayoutItem -> fieldScreenLayoutItem.getOrderableField().getName().equals(field.getName()))
                    .findFirst();
     }
 
