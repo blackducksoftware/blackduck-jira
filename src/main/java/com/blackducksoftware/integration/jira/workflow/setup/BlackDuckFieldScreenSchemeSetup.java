@@ -317,7 +317,7 @@ public class BlackDuckFieldScreenSchemeSetup {
                     logger.error("addBlackDuckTabToScreen(): this Black Duck custom field is null; skipping it");
                     continue;
                 }
-                Optional<FieldScreenLayoutItem> existingField = getExistingField(myTab, field.getId());
+                Optional<FieldScreenLayoutItem> existingField = getExistingField(myTab, field);
                 if (!existingField.isPresent()) {
                     logger.debug("addBlackDuckTabToScreen(): custom field " + field.getName() + " is not on Black Duck screen tab; adding it");
                     myTab.addFieldScreenLayoutItem(field.getId());
@@ -330,7 +330,7 @@ public class BlackDuckFieldScreenSchemeSetup {
                 List<FieldScreenLayoutItem> layoutItems = tab.getFieldScreenLayoutItems();
                 for (FieldScreenLayoutItem layoutItem : layoutItems) {
                     if (configIsOk(myTab, layoutItem)) {
-                        Optional<FieldScreenLayoutItem> existingField = getExistingField(myTab, layoutItem.getOrderableField().getId());
+                        Optional<FieldScreenLayoutItem> existingField = getExistingField(myTab, layoutItem.getOrderableField());
                         if (!existingField.isPresent()) {
                             logger.debug("addBlackDuckTabToScreen(): field " + layoutItem.getOrderableField().getName() + " is not yet on Black Duck screen tab; adding it");
                             myTab.addFieldScreenLayoutItem(layoutItem.getOrderableField().getId());
@@ -348,10 +348,11 @@ public class BlackDuckFieldScreenSchemeSetup {
         return needToUpdateTabAndScreen;
     }
 
-    private Optional<FieldScreenLayoutItem> getExistingField(FieldScreenTab tab, String fieldId) {
+    private Optional<FieldScreenLayoutItem> getExistingField(FieldScreenTab tab, OrderableField field) {
         // Stream over the layout items to prevent the Jira internal Duplicate Key exception.
         return tab.getFieldScreenLayoutItems().stream()
-                   .filter(fieldScreenLayoutItem -> fieldScreenLayoutItem.getFieldId().equals(fieldId))
+                   .filter(fieldScreenLayoutItem -> fieldScreenLayoutItem.getOrderableField().getId().equals(field.getId()))
+                   .filter(fieldScreenLayoutItem -> fieldScreenLayoutItem.getOrderableField().getName().equals(field.getName()))
                    .findFirst();
     }
 
