@@ -26,6 +26,7 @@ package com.blackducksoftware.integration.jira.issue.model;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -367,7 +368,7 @@ public class BlackDuckIssueModelBuilder extends Stringable implements Cloneable 
 
     private <T> String createCommaSeparatedString(List<T> list, Function<T, String> reductionFunction) {
         if (list != null && !list.isEmpty()) {
-            return list.stream().filter(element -> null != element).map(reductionFunction).collect(Collectors.joining(", "));
+            return list.stream().filter(Objects::nonNull).map(reductionFunction).collect(Collectors.joining(", "));
         }
         return null;
     }
