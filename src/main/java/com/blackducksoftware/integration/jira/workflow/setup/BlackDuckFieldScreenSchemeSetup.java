@@ -351,8 +351,15 @@ public class BlackDuckFieldScreenSchemeSetup {
     private Optional<FieldScreenLayoutItem> getExistingField(FieldScreenTab tab, OrderableField field) {
         // Stream over the layout items to prevent the Jira internal Duplicate Key exception.
         return tab.getFieldScreenLayoutItems().stream()
-                   .filter(fieldScreenLayoutItem -> fieldScreenLayoutItem.getOrderableField().getId().equals(field.getId()))
+                   .filter(fieldScreenLayoutItem -> filterFieldScreenLayoutItem(fieldScreenLayoutItem, field))
                    .findFirst();
+    }
+
+    private boolean filterFieldScreenLayoutItem(FieldScreenLayoutItem fieldScreenLayoutItem, OrderableField field) {
+        if (null == fieldScreenLayoutItem || null == fieldScreenLayoutItem.getOrderableField() || null == fieldScreenLayoutItem.getOrderableField().getId()) {
+            return false;
+        }
+        return fieldScreenLayoutItem.getOrderableField().getId().equals(field.getId());
     }
 
     private boolean configIsOk(FieldScreenTab myTab, FieldScreenLayoutItem layoutItem) {
